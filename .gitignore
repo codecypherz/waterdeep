@@ -1,8 +1,11 @@
+
+# General
 *.class
 
-# war stuff
+# AppEngine
+/war/WEB-INF/appengine-generated
 /war/WEB-INF/classes
 
-# Eclipse stuff
+# Eclipse workspace configuration
 .project
 .settings
