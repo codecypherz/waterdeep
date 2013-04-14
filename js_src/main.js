@@ -2,7 +2,6 @@
  * Main bootstrapping file which gets the entire application going.
  */
 
-/** @suppress {extraProvide} Needed to specify root for compiler. */
 goog.provide('low');
 goog.provide('low.Main');
 
@@ -41,7 +40,7 @@ low.Main = function() {
   var console = goog.debug.Console.instance;
   console.setCapturing(true);
 
-  if (this.config_.isRawMode()) {
+  if (this.config_.getMode() == low.Config.Mode.RAW) {
     goog.debug.LogManager.getRoot().setLevel(goog.debug.Logger.Level.INFO);
   } else {
     goog.debug.LogManager.getRoot().setLevel(goog.debug.Logger.Level.WARNING);
@@ -61,3 +60,15 @@ goog.inherits(low.Main, goog.Disposable);
 low.Main.prototype.onUnload_ = function() {
   this.disposeInternal();
 };
+
+
+/**
+ * Main entry point to the program.  All bootstrapping happens here.
+ */
+low.bootstrap = function() {
+  new low.Main();
+};
+
+
+// Ensures the symbol will be visible after compiler renaming.
+goog.exportSymbol('low.bootstrap', low.bootstrap);

@@ -28,4 +28,16 @@
     http://code.google.com/appengine/docs/java/config/appconfig.html#Enabling_Sessions
   -->
 
+  <!--
+    Turns on the /_ah/channel/connected/ and /_ah/channel/disconnected/ servlets
+  -->
+  <inbound-services>
+    <service>channel_presence</service>
+  </inbound-services>
+
+  <static-error-handlers>
+    <handler file="default-error.html"/>
+    <handler file="over-quota.html" error-code="over_quota"/>
+  </static-error-handlers>
+
 </appengine-web-app>

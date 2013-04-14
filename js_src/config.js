@@ -36,6 +36,7 @@ low.Config = function() {
   }
 };
 goog.inherits(low.Config, goog.Disposable);
+goog.addSingletonGetter(low.Config);
 
 
 /**
