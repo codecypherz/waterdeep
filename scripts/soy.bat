@@ -12,4 +12,4 @@ java -jar ..\closure\soy\SoyToJsSrcCompiler.jar ^
   --outputPathFormat ..\js_generated\{INPUT_DIRECTORY}{INPUT_FILE_NAME_NO_EXT}_soy.js ^
   ui\ui.soy
 
-echo Finished build the soy templates.
+echo Finished building the soy templates.
