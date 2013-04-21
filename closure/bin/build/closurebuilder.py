@@ -96,6 +96,14 @@ def _GetOptionsParser():
                     help='Additional flags to pass to the Closure compiler. '
                     'To pass multiple flags, --compiler_flags has to be '
                     'specified multiple times.')
+  parser.add_option('-j',
+                    '--jvm_flags',
+                    dest='jvm_flags',
+                    default=[],
+                    action='append',
+                    help='Additional flags to pass to the JVM compiler. '
+                    'To pass multiple flags, --jvm_flags has to be '
+                    'specified multiple times.')
   parser.add_option('--output_file',
                     dest='output_file',
                     action='store',
@@ -235,17 +243,15 @@ def main():
                     '"compiled"')
       sys.exit(2)
 
+    # Will throw an error if the compilation fails.
     compiled_source = jscompiler.Compile(
         options.compiler_jar,
         [js_source.GetPath() for js_source in deps],
-        options.compiler_flags)
+        jvm_flags=options.jvm_flags,
+        compiler_flags=options.compiler_flags)
 
-    if compiled_source is None:
-      logging.error('JavaScript compilation failed.')
-      sys.exit(1)
-    else:
-      logging.info('JavaScript compilation succeeded.')
-      out.write(compiled_source)
+    logging.info('JavaScript compilation succeeded.')
+    out.write(compiled_source)
 
   else:
     logging.error('Invalid value for --output flag.')

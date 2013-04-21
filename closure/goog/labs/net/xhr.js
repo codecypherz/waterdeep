@@ -31,6 +31,7 @@ goog.require('goog.json');
 goog.require('goog.net.HttpStatus');
 goog.require('goog.net.XmlHttp');
 goog.require('goog.result');
+goog.require('goog.result.SimpleResult');
 goog.require('goog.string');
 goog.require('goog.uri.utils');
 
@@ -178,7 +179,7 @@ _.send = function(method, url, data, opt_options) {
   // again.  Thus the slight ugliness here.  If results were pushed into
   // makeRequest, this could become a lot cleaner but we want an option for
   // people not to include goog.result.Result.
-  goog.result.waitOnError(result, function(result) {
+  goog.result.waitOnError(result, function(error, result) {
     if (result.isCanceled()) {
       xhr.abort();
       xhr.onreadystatechange = goog.nullFunction;

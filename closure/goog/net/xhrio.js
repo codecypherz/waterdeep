@@ -42,9 +42,10 @@ goog.provide('goog.net.XhrIo');
 goog.provide('goog.net.XhrIo.ResponseType');
 
 goog.require('goog.Timer');
+goog.require('goog.array');
 goog.require('goog.debug.Logger');
 goog.require('goog.debug.entryPointRegistry');
-goog.require('goog.debug.errorHandlerWeakDep');
+goog.require('goog.events');
 goog.require('goog.events.EventTarget');
 goog.require('goog.json');
 goog.require('goog.net.ErrorCode');
@@ -52,6 +53,7 @@ goog.require('goog.net.EventType');
 goog.require('goog.net.HttpStatus');
 goog.require('goog.net.XmlHttp');
 goog.require('goog.object');
+goog.require('goog.string');
 goog.require('goog.structs');
 goog.require('goog.structs.Map');
 goog.require('goog.uri.utils');
@@ -66,21 +68,127 @@ goog.require('goog.uri.utils');
  * @extends {goog.events.EventTarget}
  */
 goog.net.XhrIo = function(opt_xmlHttpFactory) {
-  goog.events.EventTarget.call(this);
+  goog.base(this);
 
   /**
    * Map of default headers to add to every request, use:
    * XhrIo.headers.set(name, value)
-   * @type {goog.structs.Map}
+   * @type {!goog.structs.Map}
    */
   this.headers = new goog.structs.Map();
 
   /**
    * Optional XmlHttpFactory
-   * @type {goog.net.XmlHttpFactory}
-   * @private
+   * @private {goog.net.XmlHttpFactory}
    */
   this.xmlHttpFactory_ = opt_xmlHttpFactory || null;
+
+  /**
+   * Whether XMLHttpRequest is active.  A request is active from the time send()
+   * is called until onReadyStateChange() is complete, or error() or abort()
+   * is called.
+   * @private {boolean}
+   */
+  this.active_ = false;
+
+  /**
+   * The XMLHttpRequest object that is being used for the transfer.
+   * @private {XMLHttpRequest|GearsHttpRequest}
+   */
+  this.xhr_ = null;
+
+  /**
+   * The options to use with the current XMLHttpRequest object.
+   * @private {Object}
+   */
+  this.xhrOptions_ = null;
+
+  /**
+   * Last URL that was requested.
+   * @private {string|goog.Uri}
+   */
+  this.lastUri_ = '';
+
+  /**
+   * Method for the last request.
+   * @private {string}
+   */
+  this.lastMethod_ = '';
+
+  /**
+   * Last error code.
+   * @private {!goog.net.ErrorCode}
+   */
+  this.lastErrorCode_ = goog.net.ErrorCode.NO_ERROR;
+
+  /**
+   * Last error message.
+   * @private {Error|string}
+   */
+  this.lastError_ = '';
+
+  /**
+   * Used to ensure that we don't dispatch an multiple ERROR events. This can
+   * happen in IE when it does a synchronous load and one error is handled in
+   * the ready statte change and one is handled due to send() throwing an
+   * exception.
+   * @private {boolean}
+   */
+  this.errorDispatched_ = false;
+
+  /**
+   * Used to make sure we don't fire the complete event from inside a send call.
+   * @private {boolean}
+   */
+  this.inSend_ = false;
+
+  /**
+   * Used in determining if a call to {@link #onReadyStateChange_} is from
+   * within a call to this.xhr_.open.
+   * @private {boolean}
+   */
+  this.inOpen_ = false;
+
+  /**
+   * Used in determining if a call to {@link #onReadyStateChange_} is from
+   * within a call to this.xhr_.abort.
+   * @private {boolean}
+   */
+  this.inAbort_ = false;
+
+  /**
+   * Number of milliseconds after which an incomplete request will be aborted
+   * and a {@link goog.net.EventType.TIMEOUT} event raised; 0 means no timeout
+   * is set.
+   * @private {number}
+   */
+  this.timeoutInterval_ = 0;
+
+  /**
+   * Window timeout ID used to cancel the timeout event handler if the request
+   * completes successfully.
+   * @private {Object}
+   */
+  this.timeoutId_ = null;
+
+  /**
+   * The requested type for the response. The empty string means use the default
+   * XHR behavior.
+   * @private {goog.net.XhrIo.ResponseType}
+   */
+  this.responseType_ = goog.net.XhrIo.ResponseType.DEFAULT;
+
+  /**
+   * Whether a "credentialed" request is to be sent (one that is aware of
+   * cookies and authentication). This is applicable only for cross-domain
+   * requests and more recent browsers that support this part of the HTTP Access
+   * Control standard.
+   *
+   * @see http://www.w3.org/TR/XMLHttpRequest/#the-withcredentials-attribute
+   *
+   * @private {boolean}
+   */
+  this.withCredentials_ = false;
 };
 goog.inherits(goog.net.XhrIo, goog.events.EventTarget);
 
@@ -102,8 +210,8 @@ goog.net.XhrIo.ResponseType = {
 
 /**
  * A reference to the XhrIo logger
- * @type {goog.debug.Logger}
- * @private
+ * @private {goog.debug.Logger}
+ * @const
  */
 goog.net.XhrIo.prototype.logger_ =
     goog.debug.Logger.getLogger('goog.net.XhrIo');
@@ -124,6 +232,13 @@ goog.net.XhrIo.HTTP_SCHEME_PATTERN = /^https?$/i;
 
 
 /**
+ * The methods that typically come along with form data.  We set different
+ * headers depending on whether the HTTP action is one of these.
+ */
+goog.net.XhrIo.METHODS_WITH_FORM_DATA = ['POST', 'PUT', 'DELETE'];
+
+
+/**
  * The Content-Type HTTP header value for a url-encoded form
  * @type {string}
  */
@@ -135,8 +250,7 @@ goog.net.XhrIo.FORM_CONTENT_TYPE =
  * All non-disposed instances of goog.net.XhrIo created
  * by {@link goog.net.XhrIo.send} are in this Array.
  * @see goog.net.XhrIo.cleanup
- * @type {Array.<goog.net.XhrIo>}
- * @private
+ * @private {!Array.<!goog.net.XhrIo>}
  */
 goog.net.XhrIo.sendInstances_ = [];
 
@@ -150,8 +264,7 @@ goog.net.XhrIo.sendInstances_ = [];
  *     complete.
  * @param {string=} opt_method Send method, default: GET.
  * @param {ArrayBuffer|Blob|Document|FormData|GearsBlob|string=} opt_content
- *     Post data. This can be a Gears blob if the underlying HTTP request object
- *     is a Gears HTTP request.
+ *     Body data.
  * @param {Object|goog.structs.Map=} opt_headers Map of headers to add to the
  *     request.
  * @param {number=} opt_timeoutInterval Number of milliseconds after which an
@@ -236,142 +349,6 @@ goog.net.XhrIo.cleanupSend_ = function(XhrIo) {
 
 
 /**
- * Whether XMLHttpRequest is active.  A request is active from the time send()
- * is called until onReadyStateChange() is complete, or error() or abort()
- * is called.
- * @type {boolean}
- * @private
- */
-goog.net.XhrIo.prototype.active_ = false;
-
-
-/**
- * Reference to an XMLHttpRequest object that is being used for the transfer.
- * @type {XMLHttpRequest|GearsHttpRequest}
- * @private
- */
-goog.net.XhrIo.prototype.xhr_ = null;
-
-
-/**
- * The options to use with the current XMLHttpRequest object.
- * @type {Object}
- * @private
- */
-goog.net.XhrIo.prototype.xhrOptions_ = null;
-
-
-/**
- * Last URL that was requested.
- * @type {string|goog.Uri}
- * @private
- */
-goog.net.XhrIo.prototype.lastUri_ = '';
-
-
-/**
- * Method for the last request.
- * @type {string}
- * @private
- */
-goog.net.XhrIo.prototype.lastMethod_ = '';
-
-
-/**
- * Last error code.
- * @type {goog.net.ErrorCode}
- * @private
- */
-goog.net.XhrIo.prototype.lastErrorCode_ = goog.net.ErrorCode.NO_ERROR;
-
-
-/**
- * Last error message.
- * @type {Error|string}
- * @private
- */
-goog.net.XhrIo.prototype.lastError_ = '';
-
-
-/**
- * This is used to ensure that we don't dispatch an multiple ERROR events. This
- * can happen in IE when it does a synchronous load and one error is handled in
- * the ready statte change and one is handled due to send() throwing an
- * exception.
- * @type {boolean}
- * @private
- */
-goog.net.XhrIo.prototype.errorDispatched_ = false;
-
-
-/**
- * Used to make sure we don't fire the complete event from inside a send call.
- * @type {boolean}
- * @private
- */
-goog.net.XhrIo.prototype.inSend_ = false;
-
-
-/**
- * Used in determining if a call to {@link #onReadyStateChange_} is from within
- * a call to this.xhr_.open.
- * @type {boolean}
- * @private
- */
-goog.net.XhrIo.prototype.inOpen_ = false;
-
-
-/**
- * Used in determining if a call to {@link #onReadyStateChange_} is from within
- * a call to this.xhr_.abort.
- * @type {boolean}
- * @private
- */
-goog.net.XhrIo.prototype.inAbort_ = false;
-
-
-/**
- * Number of milliseconds after which an incomplete request will be aborted and
- * a {@link goog.net.EventType.TIMEOUT} event raised; 0 means no timeout is set.
- * @type {number}
- * @private
- */
-goog.net.XhrIo.prototype.timeoutInterval_ = 0;
-
-
-/**
- * Window timeout ID used to cancel the timeout event handler if the request
- * completes successfully.
- * @type {Object}
- * @private
- */
-goog.net.XhrIo.prototype.timeoutId_ = null;
-
-
-/**
- * The requested type for the response. The empty string means use the default
- * XHR behavior.
- * @type {goog.net.XhrIo.ResponseType}
- * @private
- */
-goog.net.XhrIo.prototype.responseType_ = goog.net.XhrIo.ResponseType.DEFAULT;
-
-
-/**
- * Whether a "credentialed" request is to be sent (one that is aware of cookies
- * and authentication) . This is applicable only for cross-domain requests and
- * more recent browsers that support this part of the HTTP Access Control
- * standard.
- *
- * @see http://www.w3.org/TR/XMLHttpRequest/#the-withcredentials-attribute
- *
- * @type {boolean}
- * @private
- */
-goog.net.XhrIo.prototype.withCredentials_ = false;
-
-
-/**
  * Returns the number of milliseconds after which an incomplete request will be
  * aborted, or 0 if no timeout is set.
  * @return {number} Timeout interval in milliseconds.
@@ -442,8 +419,7 @@ goog.net.XhrIo.prototype.getWithCredentials = function() {
  * @param {string|goog.Uri} url Uri to make request to.
  * @param {string=} opt_method Send method, default: GET.
  * @param {ArrayBuffer|Blob|Document|FormData|GearsBlob|string=} opt_content
- *     Post data. This can be a Gears blob if the underlying HTTP request object
- *     is a Gears HTTP request.
+ *     Body data.
  * @param {Object|goog.structs.Map=} opt_headers Map of headers to add to the
  *     request.
  */
@@ -487,8 +463,9 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content,
     return;
   }
 
-  // We can't use null since this won't allow POSTs to have a content length
-  // specified which will cause some proxies to return a 411 error.
+  // We can't use null since this won't allow requests with form data to have a
+  // content length specified which will cause some proxies to return a 411
+  // error.
   var content = opt_content || '';
 
   var headers = this.headers.clone();
@@ -500,15 +477,20 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content,
     });
   }
 
+  // Find whether a content type header is set, ignoring case.
+  // HTTP header names are case-insensitive.  See:
+  // http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+  var contentTypeKey = goog.array.find(headers.getKeys(),
+      goog.net.XhrIo.isContentTypeHeader_);
+
   var contentIsFormData = (goog.global['FormData'] &&
       (content instanceof goog.global['FormData']));
-  if (method == 'POST' &&
-      !headers.containsKey(goog.net.XhrIo.CONTENT_TYPE_HEADER) &&
-      !contentIsFormData) {
-    // For POST requests, default to the url-encoded form content type
-    // unless this is a FormData request.  For FormData, the browser will
-    // automatically add a multipart/form-data content type with an appropriate
-    // multipart boundary.
+  if (goog.array.contains(goog.net.XhrIo.METHODS_WITH_FORM_DATA, method) &&
+      !contentTypeKey && !contentIsFormData) {
+    // For requests typically with form data, default to the url-encoded form
+    // content type unless this is a FormData request.  For FormData,
+    // the browser will automatically add a multipart/form-data content type
+    // with an appropriate multipart boundary.
     headers.set(goog.net.XhrIo.CONTENT_TYPE_HEADER,
                 goog.net.XhrIo.FORM_CONTENT_TYPE);
   }
@@ -552,6 +534,18 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content,
     this.logger_.fine(this.formatMsg_('Send error: ' + err.message));
     this.error_(goog.net.ErrorCode.EXCEPTION, err);
   }
+};
+
+
+/**
+ * @param {string} header An HTTP header key.
+ * @return {boolean} Whether the key is a content type header (ignoring
+ *     case.
+ * @private
+ */
+goog.net.XhrIo.isContentTypeHeader_ = function(header) {
+  return goog.string.caseInsensitiveEquals(
+      goog.net.XhrIo.CONTENT_TYPE_HEADER, header);
 };
 
 
@@ -662,7 +656,7 @@ goog.net.XhrIo.prototype.disposeInternal = function() {
     this.cleanUpXhr_(true);
   }
 
-  goog.net.XhrIo.superClass_.disposeInternal.call(this);
+  goog.base(this, 'disposeInternal');
 };
 
 
@@ -925,11 +919,42 @@ goog.net.XhrIo.prototype.getResponseText = function() {
     // http://www.w3.org/TR/XMLHttpRequest/#the-responsetext-attribute
     // states that responseText should return '' (and responseXML null)
     // when the state is not LOADING or DONE. Instead, IE and Gears can
-    // throw unexpected exceptions, eg, when a request is aborted or no
-    // data is available yet.
+    // throw unexpected exceptions, for example when a request is aborted
+    // or no data is available yet.
     this.logger_.fine('Can not get responseText: ' + e.message);
     return '';
   }
+};
+
+
+/**
+ * Get the response body from the Xhr object. This property is only available
+ * in IE since version 7 according to MSDN:
+ * http://msdn.microsoft.com/en-us/library/ie/ms534368(v=vs.85).aspx
+ * Will only return correct result when called from the context of a callback.
+ *
+ * One option is to construct a VBArray from the returned object and convert
+ * it to a JavaScript array using the toArray method:
+ * {@code (new window['VBArray'](xhrIo.getResponseBody())).toArray()}
+ * This will result in an array of numbers in the range of [0..255]
+ *
+ * Another option is to use the VBScript CStr method to convert it into a
+ * string as outlined in http://stackoverflow.com/questions/1919972
+ *
+ * @return {Object} Binary result from the server or null if not available.
+ */
+goog.net.XhrIo.prototype.getResponseBody = function() {
+  /** @preserveTry */
+  try {
+    if (this.xhr_ && 'responseBody' in this.xhr_) {
+      return this.xhr_['responseBody'];
+    }
+  } catch (e) {
+    // IE can throw unexpected exceptions, for example when a request is aborted
+    // or no data is yet available.
+    this.logger_.fine('Can not get responseBody: ' + e.message);
+  }
+  return null;
 };
 
 

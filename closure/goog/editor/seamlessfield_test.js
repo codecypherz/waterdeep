@@ -20,6 +20,7 @@
  *     and the mocks don't fit well in the type system.
  */
 
+/** @suppress {extraProvide} */
 goog.provide('goog.editor.seamlessfield_test');
 
 goog.require('goog.dom');
@@ -46,7 +47,7 @@ function setUp() {
 }
 
 function tearDown() {
-  goog.events.removeAll();
+  goog.events.removeAllNativeListeners();
   fieldElem.parentNode.replaceChild(fieldElemClone, fieldElem);
 }
 
@@ -248,7 +249,7 @@ function testDispatchBlur() {
       clearSelection(opt_window);
       cleared = true;
       clearedWindow = opt_window;
-    }
+    };
     var clock = new goog.testing.MockClock(true);
 
     mockRange.collapse(true);
@@ -304,7 +305,7 @@ function testSetMinHeight() {
       assertFalse('Setting min height must not cause delayed change event.',
           delayedChangeCalled);
     } finally {
-      goog.events.removeAll();
+      goog.events.removeAllNativeListeners();
       field.dispose();
       clock.dispose();
     }
@@ -323,7 +324,7 @@ function testSetMinHeightWithNoIframe() {
       field.setMinHeight(30);
     } finally {
       field.dispose();
-      goog.events.removeAll();
+      goog.events.removeAllNativeListeners();
     }
   }
 }

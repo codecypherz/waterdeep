@@ -811,8 +811,8 @@ See the COPYING file for details.
     } catch (e) {
       // Some browsers don't have a stack trace so expect to at least have the
       // error description. For Gecko and IE7 not even that is included.
-      if (!goog.userAgent.GECKO && 
-          (!goog.userAgent.IE || goog.userAgent.isVersion('8'))) {
+      if (!goog.userAgent.GECKO &&
+          (!goog.userAgent.IE || goog.userAgent.isVersionOrHigher('8'))) {
         assertContains(errorDescription, e.message);
       }
     }
@@ -1020,6 +1020,21 @@ See the COPYING file for details.
     assertNotNull(goog.testing.asserts.findDifferences(a, c));
   }
 
+  function testFindDifferences_multiCycles() {
+    var a = {};
+    a.cycle1 = a;
+    a.test = {
+      cycle2: a
+    };
+
+    var b = {};
+    b.cycle1 = b;
+    b.test = {
+      cycle2: b
+    };
+    assertNull(goog.testing.asserts.findDifferences(a, b));
+  }
+
   function testFindDifferences_binaryTree() {
     function createBinTree(depth, root) {
       if (depth == 0) {
@@ -1041,7 +1056,7 @@ See the COPYING file for details.
   }
 
   function testStringForWindowIE() {
-    if (goog.userAgent.IE && !goog.userAgent.isVersion('8')) {
+    if (goog.userAgent.IE && !goog.userAgent.isVersionOrHigher('8')) {
       // NOTE(user): This test sees of we are being affected by a JScript bug
       // in try/finally handling. This bug only affects the lowest try/finally
       // block in the stack. Calling this function via VBScript allows
@@ -1087,6 +1102,19 @@ See the COPYING file for details.
         },
         'length mismatch: Message\n' +
         'Expected <2> (Number) but was <1> (Number)');
+  }
+
+  function testStackTrace() {
+    try {
+      assertTrue(false);
+    } catch (e) {
+      if (Error.captureStackTrace) {
+        assertNotUndefined(e.stack);
+      }
+      if (e.stack) {
+        assertContains('testStackTrace', e.stack);
+      }
+    }
   }
 
   function stringForWindowIEHelper() {

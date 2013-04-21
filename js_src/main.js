@@ -7,14 +7,8 @@ goog.provide('low.Main');
 
 goog.require('goog.Disposable');
 goog.require('goog.debug.Console');
-/** @suppress {extraRequire} Added for compilation warnings. */
-goog.require('goog.debug.ErrorHandler');
 goog.require('goog.debug.LogManager');
 goog.require('goog.debug.Logger');
-/** @suppress {extraRequire} Added for compilation warnings. */
-goog.require('goog.events.EventHandler');
-/** @suppress {extraRequire} Added for compilation warnings. */
-goog.require('goog.net.XhrLite');
 goog.require('low.Config');
 
 

@@ -14,8 +14,8 @@ See the COPYING file for details.
 <script src="../base.js"></script>
 <script type="text/javascript">
   goog.require('goog.dom');
-  goog.require('goog.dom.a11y');
-  goog.require('goog.dom.a11y.State');
+  goog.require('goog.a11y.aria');
+  goog.require('goog.a11y.aria.State');
   goog.require('goog.dom.classes');
   goog.require('goog.events');
   goog.require('goog.events.EventType');
@@ -223,7 +223,7 @@ function setUp() {
 }
 
 function tearDown() {
-  goog.events.removeAll();
+  goog.events.removeAllNativeListeners();
   oneThumbSlider.dispose();
   twoThumbSlider.dispose();
   oneThumbSliderRtl.dispose();
@@ -356,11 +356,11 @@ function testGetAndSetExtent() {
 function testUpdateValueExtent() {
   twoThumbSlider.setValueAndExtent(30, 50);
 
+  assertNotNull(twoThumbSlider.getElement());
   assertEquals('Setting value results in updating aria-valuenow',
       '30',
-      goog.dom.a11y.getState(
-          twoThumbSlider.getElement(),
-          goog.dom.a11y.State.VALUENOW));
+      goog.a11y.aria.getState(twoThumbSlider.getElement(),
+          goog.a11y.aria.State.VALUENOW));
   assertEquals(30, twoThumbSlider.getValue());
   assertEquals(50, twoThumbSlider.getExtent());
 }
@@ -711,6 +711,17 @@ function testMouseClickWithMoveToPointEnabled() {
   // Case when thumb is clicked
   goog.testing.events.fireClickSequence(oneThumbSlider.getElement());
   assertEquals(oneThumbSlider.getValue(), initialValue);
+}
+
+function testNonIntegerStepSize() {
+  var stepSize = 0.02;
+  oneThumbSlider.setStep(stepSize);
+  oneThumbSlider.setMinimum(-1);
+  oneThumbSlider.setMaximum(1);
+  oneThumbSlider.setValue(0.7);
+  assertRoughlyEquals(0.7, oneThumbSlider.getValue(), 0.000001);
+  oneThumbSlider.setValue(0.3);
+  assertRoughlyEquals(0.3, oneThumbSlider.getValue(), 0.000001);
 }
 
 /**

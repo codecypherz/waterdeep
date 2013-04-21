@@ -45,11 +45,12 @@ goog.provide('goog.ui.SliderBase.AnimationFactory');
 goog.provide('goog.ui.SliderBase.Orientation');
 
 goog.require('goog.Timer');
+goog.require('goog.a11y.aria');
+goog.require('goog.a11y.aria.Role');
+goog.require('goog.a11y.aria.State');
 goog.require('goog.array');
+goog.require('goog.asserts');
 goog.require('goog.dom');
-goog.require('goog.dom.a11y');
-goog.require('goog.dom.a11y.Role');
-goog.require('goog.dom.a11y.State');
 goog.require('goog.dom.classes');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
@@ -855,9 +856,15 @@ goog.ui.SliderBase.prototype.setThumbPosition_ = function(thumb, position) {
     // rounded sum of position and extent is not equal to the sum of the
     // position and extent rounded individually. If this happens, we simply
     // ignore the update to prevent inconsistent moves of the extent thumb.
-    if (this.rangeModel.roundToStepWithMin(position) +
-            this.rangeModel.roundToStepWithMin(newExtent) ==
-        this.rangeModel.roundToStepWithMin(position + newExtent)) {
+    // TODO(user): This no-op needs to be fixed. We should never ignore an
+    // update, and instead remove logic where we rely on round(position) +
+    // round(extent) = round(position + extent).
+    var roundedPosition = this.rangeModel.roundToStepWithMin(position);
+    var roundedNewExtent = this.rangeModel.roundToStepWithMin(newExtent);
+    var roundedSum = this.rangeModel.roundToStepWithMin(position + newExtent);
+    var roundedValuesAreConsistent = goog.math.nearlyEquals(
+        roundedPosition + roundedNewExtent, roundedSum);
+    if (roundedValuesAreConsistent) {
       // Atomically update the position and extent.
       this.setValueAndExtent(position, newExtent);
       intermediateExtent = null;
@@ -1468,7 +1475,7 @@ goog.ui.SliderBase.prototype.setExtent = function(extent) {
  * @param {boolean} visible Whether to show the slider.
  */
 goog.ui.SliderBase.prototype.setVisible = function(visible) {
-  goog.style.showElement(this.getElement(), visible);
+  goog.style.setElementShown(this.getElement(), visible);
   if (visible) {
     this.updateUi_();
   }
@@ -1480,7 +1487,10 @@ goog.ui.SliderBase.prototype.setVisible = function(visible) {
  * @protected
  */
 goog.ui.SliderBase.prototype.setAriaRoles = function() {
-  goog.dom.a11y.setRole(this.getElement(), goog.dom.a11y.Role.SLIDER);
+  var el = this.getElement();
+  goog.asserts.assert(el,
+      'The DOM element for the slider base cannot be null.');
+  goog.a11y.aria.setRole(el, goog.a11y.aria.Role.SLIDER);
   this.updateAriaStates();
 };
 
@@ -1492,15 +1502,12 @@ goog.ui.SliderBase.prototype.setAriaRoles = function() {
 goog.ui.SliderBase.prototype.updateAriaStates = function() {
   var element = this.getElement();
   if (element) {
-    goog.dom.a11y.setState(element,
-                           goog.dom.a11y.State.VALUEMIN,
-                           this.getMinimum());
-    goog.dom.a11y.setState(element,
-                           goog.dom.a11y.State.VALUEMAX,
-                           this.getMaximum());
-    goog.dom.a11y.setState(element,
-                           goog.dom.a11y.State.VALUENOW,
-                           this.getValue());
+    goog.a11y.aria.setState(element, goog.a11y.aria.State.VALUEMIN,
+        this.getMinimum());
+    goog.a11y.aria.setState(element, goog.a11y.aria.State.VALUEMAX,
+        this.getMaximum());
+    goog.a11y.aria.setState(element, goog.a11y.aria.State.VALUENOW,
+        this.getValue());
   }
 };
 

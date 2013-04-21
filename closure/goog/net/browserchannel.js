@@ -17,11 +17,6 @@
  * simulates a bidirectional socket over HTTP. It is the basis of the
  * Gmail Chat IM connections to the server.
  *
- * See http://wiki/Main/BrowserChannel
- * This doesn't yet completely comform to the design document as we've done
- * some renaming and cleanup in the design document that hasn't yet been
- * implemented in the protocol.
- *
  * Typical usage will look like
  *  var handler = [handler object];
  *  var channel = new BrowserChannel(clientVersion);
@@ -58,13 +53,11 @@ goog.require('goog.json.EvalJsonProcessor');
 goog.require('goog.net.BrowserTestChannel');
 goog.require('goog.net.ChannelDebug');
 goog.require('goog.net.ChannelRequest');
-goog.require('goog.net.ChannelRequest.Error');
 goog.require('goog.net.XhrIo');
 goog.require('goog.net.tmpnetwork');
 goog.require('goog.string');
 goog.require('goog.structs');
 goog.require('goog.structs.CircularBuffer');
-goog.require('goog.userAgent');
 
 
 
@@ -73,9 +66,14 @@ goog.require('goog.userAgent');
  *
  * @param {string=} opt_clientVersion An application-specific version number
  *        that is sent to the server when connected.
+ * @param {Array.<string>=} opt_firstTestResults Previously determined results
+ *        of the first browser channel test.
+ * @param {boolean=} opt_secondTestResults Previously determined results
+ *        of the second browser channel test.
  * @constructor
  */
-goog.net.BrowserChannel = function(opt_clientVersion) {
+goog.net.BrowserChannel = function(opt_clientVersion, opt_firstTestResults,
+    opt_secondTestResults) {
   /**
    * The application specific version that is passed to the server.
    * @type {?string}
@@ -121,6 +119,22 @@ goog.net.BrowserChannel = function(opt_clientVersion) {
    * @private
    */
   this.parser_ = new goog.json.EvalJsonProcessor(null, true);
+
+  /**
+   * An array of results for the first browser channel test call.
+   * @type {Array.<string>}
+   * @private
+   */
+  this.firstTestResults_ = opt_firstTestResults || null;
+
+  /**
+   * The results of the second browser channel test. True implies the
+   * connection is buffered, False means unbuffered, null means that
+   * the results are not available.
+   * @private
+   */
+  this.secondTestResults_ = goog.isDefAndNotNull(opt_secondTestResults) ?
+      opt_secondTestResults : null;
 };
 
 
@@ -2273,6 +2287,26 @@ goog.net.BrowserChannel.prototype.getForwardChannelUri =
   var uri = this.createDataUri(null, path);
   this.channelDebug_.debug('GetForwardChannelUri: ' + uri);
   return uri;
+};
+
+
+/**
+ * Gets the results for the first browser channel test
+ * @return {Array.<string>} The results.
+ */
+goog.net.BrowserChannel.prototype.getFirstTestResults =
+    function() {
+  return this.firstTestResults_;
+};
+
+
+/**
+ * Gets the results for the second browser channel test
+ * @return {?boolean} The results. True -> buffered connection,
+ *      False -> unbuffered, null -> unknown.
+ */
+goog.net.BrowserChannel.prototype.getSecondTestResults = function() {
+  return this.secondTestResults_;
 };
 
 
