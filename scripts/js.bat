@@ -8,12 +8,14 @@ echo ==============
   --root ..\closure\ ^
   --root ..\js_src\ ^
   --root ..\js_generated\ ^
-  -n low ^
+  -n low.Main ^
   -c ..\closure\compiler\compiler.jar ^
   -o compiled ^
   -f --compilation_level=ADVANCED_OPTIMIZATIONS ^
   -f --warning_level=VERBOSE ^
   -f --closure_entry_point=low.Main ^
+  -f --only_closure_dependencies ^
+  -f --manage_closure_dependencies ^
   -f --accept_const_keyword ^
   -f --externs=..\js_externs\externs.js ^
   --output_file=..\war\generated\low.js

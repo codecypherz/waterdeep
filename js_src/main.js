@@ -2,14 +2,17 @@
  * Main bootstrapping file which gets the entire application going.
  */
 
-goog.provide('low');
 goog.provide('low.Main');
 
 goog.require('goog.Disposable');
 goog.require('goog.debug.Console');
-goog.require('goog.debug.LogManager');
-goog.require('goog.debug.Logger');
+/** @suppress {extraRequire} Needed for compilation warnings within closure. */
+goog.require('goog.debug.ErrorHandler');
+/** @suppress {extraRequire} Needed for compilation warnings within closure. */
+goog.require('goog.events.EventWrapper');
+goog.require('goog.log');
 goog.require('low.Config');
+goog.require('low.ui.PageContainer');
 
 
 
@@ -21,8 +24,8 @@ goog.require('low.Config');
 low.Main = function() {
   goog.base(this);
 
-  /** @protected {!goog.debug.Logger} */
-  this.logger = goog.debug.Logger.getLogger('low.Main');
+  /** @protected {goog.log.Logger} */
+  this.logger = goog.log.getLogger('low.Main');
 
   /** @private {!low.Config} */
   this.config_ = low.Config.getInstance();
@@ -33,16 +36,15 @@ low.Main = function() {
   }
   var console = goog.debug.Console.instance;
   console.setCapturing(true);
-
-  if (this.config_.getMode() == low.Config.Mode.RAW) {
-    goog.debug.LogManager.getRoot().setLevel(goog.debug.Logger.Level.INFO);
-  } else {
-    goog.debug.LogManager.getRoot().setLevel(goog.debug.Logger.Level.WARNING);
-  }
-  this.logger.info('Finished setting up logging');
+  goog.log.info(this.logger, 'Finished setting up logging');
 
   // Register an unload event to properly clean up resources.
   window.onbeforeunload = goog.bind(this.onUnload_, this);
+
+  // Create and render the UI.
+  var pageContainer = new low.ui.PageContainer();
+  this.registerDisposable(pageContainer);
+  pageContainer.render();
 };
 goog.inherits(low.Main, goog.Disposable);
 
@@ -59,10 +61,10 @@ low.Main.prototype.onUnload_ = function() {
 /**
  * Main entry point to the program.  All bootstrapping happens here.
  */
-low.bootstrap = function() {
+low.Main.bootstrap = function() {
   new low.Main();
 };
 
 
 // Ensures the symbol will be visible after compiler renaming.
-goog.exportSymbol('low.bootstrap', low.bootstrap);
+goog.exportSymbol('low.Main.bootstrap', low.Main.bootstrap);
