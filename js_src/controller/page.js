@@ -35,7 +35,8 @@ low.controller.Page = function() {
 
   // No harm in setting the token here since not listening yet.
   if (this.currentPage_ != this.history_.getToken()) {
-    goog.log.info(this.logger, 'Setting the token to be ' + this.currentPage_);
+    goog.log.info(this.logger,
+        'Initializing the token to be ' + this.currentPage_);
     this.history_.setToken(this.currentPage_);
   }
 
@@ -66,6 +67,21 @@ low.controller.Page.EventType = {
  */
 low.controller.Page.prototype.getCurrentPage = function() {
   return this.currentPage_;
+};
+
+
+/**
+ * @param {!low.ui.Page} page The page to visit.
+ */
+low.controller.Page.prototype.setCurrentPage = function(page) {
+  if (this.currentPage_ == page) {
+    goog.log.info(this.logger, 'Ignoring setting page to ' + page +
+        ' because it\'s the current page');
+    return;
+  }
+  // This will trigger a NAVIGATE event which will trigger a PAGE_CHANGED event.
+  goog.log.info(this.logger, 'Setting current page to ' + page);
+  this.history_.setToken(page);
 };
 
 

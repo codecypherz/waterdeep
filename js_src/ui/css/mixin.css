@@ -4,6 +4,17 @@
 
 
 /**
+ * Mixin for background-size.
+ * @param SIZE the size definition.
+ */
+@defmixin background_size(SIZE) {
+	/** @alternate */ -webkit-background-size: SIZE;
+	/** @alternate */ -moz-background-size: SIZE;
+	/** @alternate */ -o-background-size: SIZE;
+	/** @alternate */ background-size: SIZE;
+}
+
+/**
  * Mixin for border-radius.
  * @param RADIUS The radius definition.
  */

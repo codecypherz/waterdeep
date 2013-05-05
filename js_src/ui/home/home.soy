@@ -1,0 +1,21 @@
+
+{namespace low.ui.home.soy}
+
+
+/**
+ * HTML for the home page.
+ * @param ids
+ */
+{template .HOME}
+  <div class="{css low-home}">
+    <div class="{css low-header}">
+      <img src="/images/logo.png" class="{css low-logo}"></img>
+    </div>
+    <div class="{css low-game-container}">
+      <button id="{$ids.CREATE_GAME_BUTTON|id}"
+          class="{css low-game-create-button}">
+        Create new game
+      </button>
+    </div>
+  </div>
+{/template}

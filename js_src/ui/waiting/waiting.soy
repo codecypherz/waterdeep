@@ -1,0 +1,27 @@
+
+{namespace low.ui.waiting.soy}
+
+
+/**
+ * HTML for the waiting page.
+ * @param ids
+ */
+{template .WAITING_ROOM}
+  <div class="{css low-waiting}">
+    <div class="{css low-header}">
+      <img src="/images/logo.png" class="{css low-logo}"></img>
+    </div>
+    <div class="{css low-waiting-container}">
+      <div class="{css low-waiting-content}">
+        <div class="{css low-waiting-title}">
+          Waiting Room
+        </div>
+        <span id="{$ids.LEAVE_BUTTON|id}" class="{css low-waiting-leave-button}">
+          [X] Leave
+        </span>
+        <div>
+        </div>
+      </div>
+    </div>
+  </div>
+{/template}

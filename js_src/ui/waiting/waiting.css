@@ -1,0 +1,36 @@
+/**
+ * CSS for the waiting page.
+ */
+
+@def WAITING_TITLE_HEIGHT           55px;
+
+.low-waiting {
+  text-align: center;
+}
+
+.low-waiting-container {
+  background-color: rgba(0, 0, 0, 0.8);
+  display: inline-block;
+  min-width: 700px;
+  padding: 30px;
+  @mixin border_radius(30px);
+}
+
+.low-waiting-content {
+	position: relative;
+}
+
+.low-waiting-title {
+	font-size: 41px;
+	line-height: WAITING_TITLE_HEIGHT;
+	text-align: left;
+}
+
+.low-waiting-leave-button {
+	cursor: pointer;
+  font-size: 20px;
+  line-height: WAITING_TITLE_HEIGHT;
+  position: absolute;
+  right: 0;
+  top: 0;
+}

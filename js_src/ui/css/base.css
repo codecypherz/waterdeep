@@ -2,8 +2,50 @@
  * Base css for the application.
  */
 
+@def BUTTON_BACKGROUND_COLOR       #d0d0d0;
+@def BUTTON_BACKGROUND_COLOR_HOVER #e0e0e0;
+@def BUTTON_GRADIENT               top, #fff 0%, BUTTON_BACKGROUND_COLOR 100%;
+@def BUTTON_GRADIENT_ACTIVE        top, BUTTON_BACKGROUND_COLOR 0%, #fff 100%;
+@def BUTTON_GRADIENT_HOVER         top, #fff 0%, BUTTON_BACKGROUND_COLOR_HOVER 100%;
+
 body {
+	background: url(/images/background.jpg) no-repeat center top fixed;
+	color: #fff;
   font-family: Cinzel;
   font-size: 16px;
+  margin: 0;
+  padding: 0;
   text-shadow: 1px 0px rgba(0, 0, 0, .25);
+  @mixin background_size(cover);
+}
+
+button {
+	border: 1px solid rgba(0, 0, 0, .5);
+	color: #333;
+	cursor: pointer;
+	font-family: Cinzel;
+	font-size: 16px;
+	padding: 4px 12px;
+	text-shadow: 1px 0px rgba(0, 0, 0, .25);
+	@mixin border_radius(3px);
+	@mixin linear_gradient(BUTTON_GRADIENT, BUTTON_BACKGROUND_COLOR);
+}
+
+button:hover {
+	@mixin linear_gradient(BUTTON_GRADIENT_HOVER, BUTTON_BACKGROUND_COLOR_HOVER);
+}
+
+button:active {
+	padding: 5px 12px 3px 12px;
+  @mixin linear_gradient(BUTTON_GRADIENT_ACTIVE, BUTTON_BACKGROUND_COLOR);
+}
+
+.low-header {
+	margin-bottom: 10px;
+  text-align: left;
+}
+
+.low-logo {
+  height: 75px;
+  margin: 5px 8px;
 }
