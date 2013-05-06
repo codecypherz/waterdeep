@@ -40,6 +40,15 @@ goog.addSingletonGetter(low.Config);
 
 
 /**
+ * The various servlet paths used by the front-end.
+ * @enum {string}
+ */
+low.Config.ServletPath = {
+  GAMES: '/games'
+};
+
+
+/**
  * The various URL parameters to the application.
  * @enum {string}
  */

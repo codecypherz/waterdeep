@@ -12,6 +12,7 @@ goog.require('low');
 goog.require('low.controller.Page');
 goog.require('low.ui');
 goog.require('low.ui.Page');
+goog.require('low.ui.home.GamesContainer');
 goog.require('low.ui.home.soy');
 
 
@@ -29,6 +30,10 @@ low.ui.home.Home = function() {
   /** @private {!low.controller.Page} */
   this.pageController_ = low.controller.Page.getInstance();
 
+  /** @private {!low.ui.home.GamesContainer} */
+  this.gamesContainer_ = new low.ui.home.GamesContainer();
+  this.addChild(this.gamesContainer_);
+
   /** @private {!goog.ui.Button} */
   this.createGameButton_ = new goog.ui.Button(null);
   this.addChild(this.createGameButton_);
@@ -41,7 +46,8 @@ goog.inherits(low.ui.home.Home, goog.ui.Component);
  * @private
  */
 low.ui.home.Home.Id_ = {
-  CREATE_GAME_BUTTON: low.getUniqueId('create-game-button')
+  CREATE_GAME_BUTTON: low.getUniqueId('create-game-button'),
+  GAMES_CONTAINER: low.getUniqueId('games-container')
 };
 
 
@@ -52,6 +58,8 @@ low.ui.home.Home.prototype.createDom = function() {
         ids: this.makeIds(low.ui.home.Home.Id_)
       }));
 
+  this.gamesContainer_.render(low.ui.getElementByFragment(
+      this, low.ui.home.Home.Id_.GAMES_CONTAINER));
   this.createGameButton_.decorate(low.ui.getElementByFragment(
       this, low.ui.home.Home.Id_.CREATE_GAME_BUTTON));
 };

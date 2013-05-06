@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import low.model.Game;
 
 import com.google.code.twig.ObjectDatastore;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -37,12 +38,9 @@ public class GamesServlet extends HttpServlet {
 			throws IOException {
 
 		ObjectDatastore datastore = datastoreProvider.get();
-		Iterator<Game> games = datastore.find().type(Game.class).now();
-
+		Iterator<Game> gamesIterator = datastore.find().type(Game.class).now();
+		
 		Gson gson = new Gson();
-		while (games.hasNext()) {
-			Game game = games.next();
-			res.getWriter().write(gson.toJson(game) + "\n");			
-		}
+		res.getWriter().write(gson.toJson(Lists.newArrayList(gamesIterator)));
 	}
 }
