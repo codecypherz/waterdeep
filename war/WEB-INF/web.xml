@@ -4,34 +4,21 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.5"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
-  <!-- ===================================================================== -->
-  <!--      Waterdeep Pages                                                  -->
-  <!-- ===================================================================== -->
+  <!-- Setup the Guice filter -->
+  <filter>
+    <filter-name>guiceFilter</filter-name>
+    <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
+  </filter>
 
-	<servlet>
-		<servlet-name>Waterdeep Home</servlet-name>
-		<servlet-class>low.servlet.HomeServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Waterdeep Home</servlet-name>
-		<url-pattern>/</url-pattern>
-	</servlet-mapping>
+  <!--  Give servlet configuration over to WaterdeepServletModule. -->
+  <filter-mapping>
+    <filter-name>guiceFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
-  <!-- ===================================================================== -->
-  <!--      AppEngine Services                                               -->
-  <!-- ===================================================================== -->
-
-	<servlet>
-		<servlet-name>SystemServiceServlet</servlet-name>
-		<servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
-		<init-param>
-			<param-name>services</param-name>
-			<param-value />
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>SystemServiceServlet</servlet-name>
-		<url-pattern>/_ah/spi/*</url-pattern>
-	</servlet-mapping>
+  <!-- This is the hook that registers Guice module during initialization. -->
+  <listener>
+    <listener-class>low.WaterdeepGuiceServletConfig</listener-class>
+  </listener>
 	
 </web-app>

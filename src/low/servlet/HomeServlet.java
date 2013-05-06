@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.inject.Singleton;
 
+@Singleton
 public class HomeServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 3019354499979471833L;
@@ -18,9 +20,9 @@ public class HomeServlet extends HttpServlet {
 	/**
 	 * This is request for the application.
 	 */
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
+	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 
-		PageWriter.getInstance().write(req, resp, Page.HOME);
+		PageWriter.getInstance().write(req, res, Page.HOME);
 	}
 }
