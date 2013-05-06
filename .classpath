@@ -8,11 +8,11 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/httpclient-4.2.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/httpcore-4.2.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/json-rpc-1.0.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/twig-persist-2.0-rc.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-14.0.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/gson-2.2.3.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guice-3.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guice-servlet-3.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/aopalliance.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/twig-persist-2.0-rc.jar" sourcepath="C:/Users/james/workspaces/waterdeep/sources/twig-persist-2.0-rc-sources.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-10.0.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

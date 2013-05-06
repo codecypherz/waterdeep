@@ -1,6 +1,7 @@
 package low.servlet;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import low.model.Game;
 
 import com.google.code.twig.ObjectDatastore;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -33,11 +35,14 @@ public class GamesServlet extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
-		
-		Game game = new Game();
-		game.addPlayer("James");
-		
+
 		ObjectDatastore datastore = datastoreProvider.get();
-		datastore.store().instance(game).now();
+		Iterator<Game> games = datastore.find().type(Game.class).now();
+
+		Gson gson = new Gson();
+		while (games.hasNext()) {
+			Game game = games.next();
+			res.getWriter().write(gson.toJson(game) + "\n");			
+		}
 	}
 }

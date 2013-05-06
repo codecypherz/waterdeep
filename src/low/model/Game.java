@@ -1,22 +1,19 @@
 package low.model;
 
-import com.google.code.twig.ObjectDatastoreFactory;
+import java.util.List;
+
 import com.google.code.twig.annotation.Embed;
+import com.google.common.collect.Lists;
 
 public class Game {
 
-	static {
-		ObjectDatastoreFactory.register(Game.class);		
-	}
-
-	@Embed private Player[] players;
+	@Embed private List<Player> players;
 	
 	public Game() {
-		players = new Player[5];
+		players = Lists.newArrayList();
 	}
 	
 	public void addPlayer(String name) {
-		Player player = new Player(this, name);
-		players[0] = player;
+		players.add(new Player(name));
 	}
 }
