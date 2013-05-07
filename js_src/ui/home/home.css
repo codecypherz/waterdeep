@@ -9,12 +9,22 @@
 .low-game-container {
 	background-color: rgba(0, 0, 0, 0.8);
 	display: inline-block;
-	min-width: 400px;
 	padding: 30px;
 	@mixin border_radius(30px);
 }
 
+.low-game {
+	display: block;
+	margin-bottom: 30px;
+	min-width: 500px;
+	text-align: left;
+}
+
+.low-game-title {
+	font-size: 23px;
+}
+
 .low-game-create-button {
-	font-size: 20px;
+	font-size: 23px;
 	width: 100%;
 }

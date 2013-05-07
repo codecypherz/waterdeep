@@ -21,3 +21,21 @@
     </div>
   </div>
 {/template}
+
+
+/**
+ * HTML for a single game button.
+ * @param playerNames
+ */
+{template .GAME}
+  <button class="{css low-game}">
+    <div class="{css low-game-title}">
+      Waiting for players
+    </div>
+    {foreach $playerName in $playerNames}
+      <div class="{css low-game-player}">
+        {$playerName}
+      </div>
+    {/foreach}
+  </button>
+{/template}

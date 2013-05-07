@@ -7,6 +7,7 @@
 @def BUTTON_GRADIENT               top, #fff 0%, BUTTON_BACKGROUND_COLOR 100%;
 @def BUTTON_GRADIENT_ACTIVE        top, BUTTON_BACKGROUND_COLOR 0%, #fff 100%;
 @def BUTTON_GRADIENT_HOVER         top, #fff 0%, BUTTON_BACKGROUND_COLOR_HOVER 100%;
+@def TEXT_SHADOW                   1px 0px rgba(0, 0, 0, .5);
 
 body {
 	background: url(/images/background.jpg) no-repeat center top fixed;
@@ -15,7 +16,7 @@ body {
   font-size: 16px;
   margin: 0;
   padding: 0;
-  text-shadow: 1px 0px rgba(0, 0, 0, .25);
+  text-shadow: TEXT_SHADOW;
   @mixin background_size(cover);
 }
 
@@ -25,8 +26,10 @@ button {
 	cursor: pointer;
 	font-family: Cinzel;
 	font-size: 16px;
+	margin: 0;
+	outline: none;
 	padding: 4px 12px;
-	text-shadow: 1px 0px rgba(0, 0, 0, .25);
+	text-shadow: TEXT_SHADOW;
 	@mixin border_radius(3px);
 	@mixin linear_gradient(BUTTON_GRADIENT, BUTTON_BACKGROUND_COLOR);
 }
