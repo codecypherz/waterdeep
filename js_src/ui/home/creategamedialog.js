@@ -5,11 +5,13 @@
 goog.provide('low.ui.home.CreateGameDialog');
 
 goog.require('goog.dom');
+goog.require('goog.dom.classes');
 goog.require('goog.log');
 goog.require('goog.soy');
 goog.require('goog.ui.Dialog');
 goog.require('low');
 goog.require('low.controller.Page');
+goog.require('low.ui.Css');
 goog.require('low.ui.Page');
 goog.require('low.ui.home.soy');
 
@@ -63,6 +65,10 @@ low.ui.home.CreateGameDialog.prototype.createDom = function() {
       low.ui.home.soy.CREATE_GAME_CONTENT, {
         ids: this.makeIds(low.ui.home.CreateGameDialog.Id_)
       }));
+
+  var createButton = this.getButtonSet().getButton(
+      low.ui.home.CreateGameDialog.Id_.CREATE_BUTTON);
+  goog.dom.classes.add(createButton, low.ui.Css.CALL_TO_ACTION);
 
   goog.dom.setTextContent(this.getTitleCloseElement(), 'X');
 };
