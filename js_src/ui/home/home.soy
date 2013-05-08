@@ -39,3 +39,15 @@
     {/foreach}
   </button>
 {/template}
+
+
+/**
+ * HTML for the create game dialog content.
+ * @param ids
+ */
+{template .CREATE_GAME_CONTENT}
+  <div>
+    <span>Name:</span>
+    <input type="text" id="{$ids.NAME_INPUT|id}"></input>
+  </div>
+{/template}

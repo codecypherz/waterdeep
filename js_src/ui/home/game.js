@@ -52,7 +52,8 @@ low.ui.home.Game.prototype.createDom = function() {
 low.ui.home.Game.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
-  // TODO Figure out why the goog.ui.Component.EventType.ACTION fires twice.
+  // Don't using goog.ui.Component.EventType.ACTION because it's fired twice
+  // when you bypass the renderer paradigm with the createDom method above.
   this.getHandler().listen(this.getElement(),
       goog.events.EventType.CLICK,
       this.joinGame_);
@@ -63,7 +64,7 @@ low.ui.home.Game.prototype.enterDocument = function() {
  * Joins the game.
  * @private
  */
-low.ui.home.Game.prototype.joinGame_ = function(e) {
+low.ui.home.Game.prototype.joinGame_ = function() {
   goog.log.info(this.logger, 'Attempting to join the game.');
 
   // TODO Actually join a game.

@@ -9,9 +9,8 @@ goog.require('goog.soy');
 goog.require('goog.ui.Button');
 goog.require('goog.ui.Component');
 goog.require('low');
-goog.require('low.controller.Page');
 goog.require('low.ui');
-goog.require('low.ui.Page');
+goog.require('low.ui.home.CreateGameDialog');
 goog.require('low.ui.home.GamesContainer');
 goog.require('low.ui.home.soy');
 
@@ -26,9 +25,6 @@ low.ui.home.Home = function() {
 
   /** @protected {goog.log.Logger} */
   this.logger = goog.log.getLogger('low.ui.home.Home');
-
-  /** @private {!low.controller.Page} */
-  this.pageController_ = low.controller.Page.getInstance();
 
   /** @private {!low.ui.home.GamesContainer} */
   this.gamesContainer_ = new low.ui.home.GamesContainer();
@@ -80,9 +76,6 @@ low.ui.home.Home.prototype.enterDocument = function() {
  * @private
  */
 low.ui.home.Home.prototype.createNewGame_ = function() {
-  goog.log.info(this.logger, 'Creating a new game.');
-
-  // TODO Actually start creating a game.
-
-  this.pageController_.setCurrentPage(low.ui.Page.WAITING_ROOM);
+  goog.log.info(this.logger, 'Showing the create game dialog.');
+  new low.ui.home.CreateGameDialog().setVisible(true);
 };
