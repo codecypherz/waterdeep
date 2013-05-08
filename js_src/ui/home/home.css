@@ -20,8 +20,19 @@
 	text-align: left;
 }
 
+.low-game,
+.low-game:active {
+	padding: 8px 12px;
+}
+
 .low-game-title {
 	font-size: 23px;
+}
+
+.low-game-player-icon {
+	display: inline-block;
+	margin-right: 5px;
+	vertical-align: middle;
 }
 
 .low-game-create-button {

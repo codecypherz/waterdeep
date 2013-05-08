@@ -10,6 +10,7 @@ java -jar ..\closure\gss\closure-stylesheets-20111230.jar ^
   ..\js_src\ui\css\input.css ^
   ..\js_src\ui\css\dialog.css ^
   ..\js_src\ui\home\home.css ^
-  ..\js_src\ui\waiting\waiting.css
+  ..\js_src\ui\waiting\waiting.css ^
+  ..\war\images\sprite\sprite.css
 
 echo Finished building CSS

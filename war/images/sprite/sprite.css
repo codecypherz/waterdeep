@@ -1,0 +1,7 @@
+.sprite { background-image: url('/images/sprite/sprite.png'); background-color: transparent; background-repeat: no-repeat; }
+.holder-black-22 { width: 22px; height: 22px; background-position: 0px -110px; }
+.holder-blue-22 { width: 22px; height: 22px; background-position: 0px -88px; }
+.holder-green-22 { width: 22px; height: 22px; background-position: 0px -66px; }
+.holder-other-22 { width: 22px; height: 22px; background-position: 0px -44px; }
+.holder-red-22 { width: 22px; height: 22px; background-position: 0px -22px; }
+.holder-yellow-22 { width: 22px; height: 22px; background-position: 0px 0px; }

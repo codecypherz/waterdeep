@@ -33,9 +33,10 @@ goog.addSingletonGetter(low.service.Game);
 
 /**
  * @param {string} moderatorName The name of the moderator creating the game.
+ * @param {!low.model.Player.Color} color The player color.
  * @return {!goog.async.Deferred}
  */
-low.service.Game.prototype.createGame = function(moderatorName) {
+low.service.Game.prototype.createGame = function(moderatorName, color) {
   goog.log.info(this.logger, moderatorName + ' is creating a new game.');
 
   // Create the request URL.
@@ -44,7 +45,7 @@ low.service.Game.prototype.createGame = function(moderatorName) {
 
   // Send the request.
   var deferred = this.xhrService_.post(
-      uri, new low.message.CreateGameRequest(moderatorName));
+      uri, new low.message.CreateGameRequest(moderatorName, color));
 
   // Handle the response.
   deferred.addCallback(goog.bind(this.onGameCreated_, this));

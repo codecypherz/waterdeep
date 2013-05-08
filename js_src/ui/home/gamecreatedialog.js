@@ -12,6 +12,7 @@ goog.require('goog.string');
 goog.require('goog.ui.Dialog');
 goog.require('low');
 goog.require('low.controller.Page');
+goog.require('low.model.Player');
 goog.require('low.service.Game');
 goog.require('low.ui.Css');
 goog.require('low.ui.Page');
@@ -113,8 +114,11 @@ low.ui.home.GameCreateDialog.prototype.onSelect_ = function(e) {
       return;
     }
 
+    // TODO Create the color picker.
+    var color = low.model.Player.Color.BLUE;
+
     // Create the game and go to the waiting room once complete.
-    this.gameService_.createGame(moderatorName).addCallbacks(
+    this.gameService_.createGame(moderatorName, color).addCallbacks(
         function() {
           this.pageController_.setCurrentPage(low.ui.Page.WAITING_ROOM);
         },

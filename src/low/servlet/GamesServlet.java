@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import low.message.CreateGameRequest;
 import low.model.Game;
+import low.model.Player.Color;
 
 import com.google.code.twig.ObjectDatastore;
 import com.google.common.collect.Lists;
@@ -63,14 +64,22 @@ public class GamesServlet extends HttpServlet {
 		CreateGameRequest createGameRequest = gson.fromJson(
 				req.getReader(), CreateGameRequest.class);
 		
-		// Validate the game create request.
+		// Validate the moderator name.
 		String moderatorName = createGameRequest.getModeratorName();
 		if (moderatorName == null || moderatorName.trim().isEmpty()) {
 			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
 			return;
 		}
 		
-		Game game = new Game(moderatorName);
+		// Validate the color.
+		String colorString = createGameRequest.getColor();
+		if (colorString == null || colorString.trim().isEmpty()) {
+			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
+			return;
+		}
+		Color color = Color.valueOf(colorString.toUpperCase());
+		
+		Game game = new Game(moderatorName, color);
 		ObjectDatastore datastore = datastoreProvider.get();
 		datastore.store().instance(game).now();
 		

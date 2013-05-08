@@ -7,8 +7,10 @@ goog.provide('low.ui.home.GameButton');
 goog.require('goog.array');
 goog.require('goog.events.EventType');
 goog.require('goog.log');
+goog.require('goog.object');
 goog.require('goog.soy');
 goog.require('goog.ui.Button');
+goog.require('low.model.Player');
 goog.require('low.ui.home.soy');
 
 
@@ -30,20 +32,34 @@ low.ui.home.GameButton = function(game) {
 goog.inherits(low.ui.home.GameButton, goog.ui.Button);
 
 
+/** @private {!Object} */
+low.ui.home.GameButton.COLOR_TO_CSS_MAP_ = goog.object.create(
+    low.model.Player.Color.BLACK, goog.getCssName('holder-black-22'),
+    low.model.Player.Color.BLUE, goog.getCssName('holder-blue-22'),
+    low.model.Player.Color.GREEN, goog.getCssName('holder-green-22'),
+    low.model.Player.Color.RED, goog.getCssName('holder-red-22'),
+    low.model.Player.Color.YELLOW, goog.getCssName('holder-yellow-22')
+    );
+
+
 /** @override */
 low.ui.home.GameButton.prototype.createDom = function() {
 
-  // Get the template data.
-  var playerNames = goog.array.map(
+  // Create the template data.
+  var playerData = goog.array.map(
       this.game_.getPlayers(),
       function(player) {
-        return player.getName();
+        return {
+          'name': player.getName(),
+          'iconClass': low.ui.home.GameButton.COLOR_TO_CSS_MAP_[
+              player.getColor()]
+        };
       });
 
   // Render the template.
   this.setElementInternal(goog.soy.renderAsElement(
       low.ui.home.soy.GAME, {
-        playerNames: playerNames
+        players: playerData
       }));
 };
 

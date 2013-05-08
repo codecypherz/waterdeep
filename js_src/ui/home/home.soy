@@ -25,16 +25,19 @@
 
 /**
  * HTML for a single game button.
- * @param playerNames
+ * @param players
  */
 {template .GAME}
   <button class="{css low-game}">
     <div class="{css low-game-title}">
       Waiting for players
     </div>
-    {foreach $playerName in $playerNames}
+    {foreach $player in $players}
       <div class="{css low-game-player}">
-        {$playerName}
+        <div class="{css sprite}{sp}{$player.iconClass}{sp}
+            {css low-game-player-icon}">
+        </div>
+        {$player.name}
       </div>
     {/foreach}
   </button>
