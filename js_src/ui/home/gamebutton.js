@@ -2,7 +2,7 @@
  * The component representing a single game.
  */
 
-goog.provide('low.ui.home.Game');
+goog.provide('low.ui.home.GameButton');
 
 goog.require('goog.array');
 goog.require('goog.events.EventType');
@@ -18,20 +18,20 @@ goog.require('low.ui.home.soy');
  * @param {!low.model.Game} game
  * @extends {goog.ui.Button}
  */
-low.ui.home.Game = function(game) {
+low.ui.home.GameButton = function(game) {
   goog.base(this, null);
 
   /** @protected {goog.log.Logger} */
-  this.logger = goog.log.getLogger('low.ui.home.Game');
+  this.logger = goog.log.getLogger('low.ui.home.GameButton');
 
   /** @private {!low.model.Game} */
   this.game_ = game;
 };
-goog.inherits(low.ui.home.Game, goog.ui.Button);
+goog.inherits(low.ui.home.GameButton, goog.ui.Button);
 
 
 /** @override */
-low.ui.home.Game.prototype.createDom = function() {
+low.ui.home.GameButton.prototype.createDom = function() {
 
   // Get the template data.
   var playerNames = goog.array.map(
@@ -49,7 +49,7 @@ low.ui.home.Game.prototype.createDom = function() {
 
 
 /** @override */
-low.ui.home.Game.prototype.enterDocument = function() {
+low.ui.home.GameButton.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
   // Don't using goog.ui.Component.EventType.ACTION because it's fired twice
@@ -64,7 +64,7 @@ low.ui.home.Game.prototype.enterDocument = function() {
  * Joins the game.
  * @private
  */
-low.ui.home.Game.prototype.joinGame_ = function() {
+low.ui.home.GameButton.prototype.joinGame_ = function() {
   goog.log.info(this.logger, 'Attempting to join the game.');
 
   // TODO Actually join a game.

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import low.message.CreateGameRequest;
 import low.model.Game;
 
 import com.google.code.twig.ObjectDatastore;
@@ -16,6 +17,11 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
+/**
+ * Servlet offering interaction with games.
+ * POST here will result in a new game.
+ * GET here will result in a list of games.
+ */
 @Singleton
 public class GamesServlet extends HttpServlet {
 
@@ -42,5 +48,33 @@ public class GamesServlet extends HttpServlet {
 		
 		Gson gson = new Gson();
 		res.getWriter().write(gson.toJson(Lists.newArrayList(gamesIterator)));
+	}
+	
+	/**
+	 * Creates a new game.
+	 * @param req
+	 * @param res
+	 * @throws IOException
+	 */
+	public void doPost(HttpServletRequest req, HttpServletResponse res)
+			throws IOException {
+		
+		Gson gson = new Gson();
+		CreateGameRequest createGameRequest = gson.fromJson(
+				req.getReader(), CreateGameRequest.class);
+		
+		// Validate the game create request.
+		String moderatorName = createGameRequest.getModeratorName();
+		if (moderatorName == null || moderatorName.trim().isEmpty()) {
+			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
+			return;
+		}
+		
+		Game game = new Game(moderatorName);
+		ObjectDatastore datastore = datastoreProvider.get();
+		datastore.store().instance(game).now();
+		
+		// Send the resulting game back to the client.
+		res.getWriter().write(gson.toJson(game));
 	}
 }

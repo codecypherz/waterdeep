@@ -13,7 +13,13 @@ public class Game {
 		players = Lists.newArrayList();
 	}
 	
+	public Game(String moderatorName) {
+		this();
+		Player moderator = new Player(moderatorName, true);
+		players.add(moderator);
+	}
+	
 	public void addPlayer(String name) {
-		players.add(new Player(name));
+		players.add(new Player(name, false));
 	}
 }

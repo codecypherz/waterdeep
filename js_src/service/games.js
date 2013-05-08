@@ -51,7 +51,7 @@ low.service.Games.prototype.loadGames = function() {
   uri.setPath(low.Config.ServletPath.GAMES);
 
   // Send the request.
-  var deferred = this.xhrService_.send(uri);
+  var deferred = this.xhrService_.get(uri);
 
   // Handle the response.
   deferred.addCallback(goog.bind(this.onGamesLoaded_, this));
@@ -62,19 +62,30 @@ low.service.Games.prototype.loadGames = function() {
 
 /**
  * Called when the request for games completes successfully.
- * @param {!goog.net.XhrManager.Event} e
+ * @param {!goog.net.XhrManager.Event} event
  * @return {!Array.<!low.model.Game>} The parsed game objects from the response.
  * @private
  */
-low.service.Games.prototype.onGamesLoaded_ = function(e) {
+low.service.Games.prototype.onGamesLoaded_ = function(event) {
   goog.log.info(this.logger, 'Games just loaded.');
 
-  var gamesJson = e.xhrIo.getResponseJson();
+  var gamesJson;
+  try {
+    gamesJson = event.xhrIo.getResponseJson();
+  } catch (e) {
+    goog.log.error(this.logger, 'Failed to get games response JSON', e);
+    throw e;
+  }
+
   if (!gamesJson) {
-    throw Error('No JSON in the games response.');
+    var errorMsg = 'No JSON in the games response.';
+    goog.log.error(this.logger, errorMsg);
+    throw Error(errorMsg);
   }
   if (!goog.isArray(gamesJson)) {
-    throw Error('JSON was not in array format.');
+    var errorMsg = 'JSON was not in array format.';
+    goog.log.error(this.logger, errorMsg);
+    throw Error(errorMsg);
   }
 
   // Convert all the JSON into model objects.

@@ -7,6 +7,7 @@ goog.provide('low.service.Xhr');
 goog.require('goog.Disposable');
 goog.require('goog.async.Deferred');
 goog.require('goog.events.EventHandler');
+goog.require('goog.json');
 goog.require('goog.log');
 goog.require('goog.net.EventType');
 /** @suppress {extraRequire} Needed for compiler type warning. */
@@ -54,17 +55,37 @@ goog.addSingletonGetter(low.service.Xhr);
 
 
 /**
- * Sends a request to the given URI.
+ * Sends a GET request to the given URI.
  * @param {!goog.Uri} uri The URI to which to make the request.
  * @return {!goog.async.Deferred.<!goog.net.XhrManager.Event>} The callback
  *     happens after the send completes successfully and the errback happens if
  *     an error occurs.
  */
-low.service.Xhr.prototype.send = function(uri) {
+low.service.Xhr.prototype.get = function(uri) {
   var deferred = new goog.async.Deferred();
 
   var requestId = this.idGenerator_.getNextUniqueId();
   this.xhrManager_.send(requestId, uri.toString());
+  this.pendingMap_[requestId] = deferred;
+
+  return deferred;
+};
+
+
+/**
+ * Sends a POST request to the given URI.
+ * @param {!goog.Uri} uri The URI to which to make the request.
+ * @param {!low.message.Message} message The message to post.
+ * @return {!goog.async.Deferred.<!goog.net.XhrManager.Event>} The callback
+ *     happens after the send completes successfully and the errback happens if
+ *     an error occurs.
+ */
+low.service.Xhr.prototype.post = function(uri, message) {
+  var deferred = new goog.async.Deferred();
+
+  var requestId = this.idGenerator_.getNextUniqueId();
+  var json = goog.json.serialize(message.toJson());
+  this.xhrManager_.send(requestId, uri.toString(), 'POST', json);
   this.pendingMap_[requestId] = deferred;
 
   return deferred;

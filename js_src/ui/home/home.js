@@ -10,7 +10,7 @@ goog.require('goog.ui.Button');
 goog.require('goog.ui.Component');
 goog.require('low');
 goog.require('low.ui');
-goog.require('low.ui.home.CreateGameDialog');
+goog.require('low.ui.home.GameCreateDialog');
 goog.require('low.ui.home.GamesContainer');
 goog.require('low.ui.home.soy');
 
@@ -77,5 +77,5 @@ low.ui.home.Home.prototype.enterDocument = function() {
  */
 low.ui.home.Home.prototype.createNewGame_ = function() {
   goog.log.info(this.logger, 'Showing the create game dialog.');
-  new low.ui.home.CreateGameDialog().setVisible(true);
+  new low.ui.home.GameCreateDialog().setVisible(true);
 };

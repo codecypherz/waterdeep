@@ -8,7 +8,7 @@ goog.require('goog.array');
 goog.require('goog.log');
 goog.require('goog.ui.Component');
 goog.require('low.service.Games');
-goog.require('low.ui.home.Game');
+goog.require('low.ui.home.GameButton');
 
 
 
@@ -49,7 +49,7 @@ low.ui.home.GamesContainer.prototype.renderGames_ = function() {
 
   var games = this.gamesService_.getGames();
   goog.array.forEach(games, function(game) {
-    var gameComponent = new low.ui.home.Game(game);
-    this.addChild(gameComponent, true);
+    var gameButton = new low.ui.home.GameButton(game);
+    this.addChild(gameButton, true);
   }, this);
 };
