@@ -16,6 +16,7 @@
   background: #333;
   border: DIALOG_BORDER;
   color: #fff;
+  outline: none;
   position: absolute;
   @mixin border_radius(6px);
 }
@@ -43,4 +44,12 @@
 
 .modal-dialog-buttons {
 	text-align: right;
+}
+
+.modal-dialog-buttons > button {
+	vertical-align: top;
+}
+
+.goog-buttonset-default {
+	margin-left: 10px;
 }

@@ -30,6 +30,14 @@ low.ui.home.CreateGameDialog = function() {
 
   this.setTitle('Create game');
   this.setDisposeOnHide(true);
+
+  var buttonSet = new goog.ui.Dialog.ButtonSet()
+      .addButton(goog.ui.Dialog.ButtonSet.DefaultButtons.CANCEL, false, true)
+      .addButton({
+        key: low.ui.home.CreateGameDialog.Id_.CREATE_BUTTON,
+        caption: 'Create'
+      }, true);
+  this.setButtonSet(buttonSet);
 };
 goog.inherits(low.ui.home.CreateGameDialog, goog.ui.Dialog);
 
@@ -39,6 +47,7 @@ goog.inherits(low.ui.home.CreateGameDialog, goog.ui.Dialog);
  * @private
  */
 low.ui.home.CreateGameDialog.Id_ = {
+  CREATE_BUTTON: low.getUniqueId('create-button'),
   NAME_INPUT: low.getUniqueId('name-input')
 };
 
@@ -69,12 +78,20 @@ low.ui.home.CreateGameDialog.prototype.enterDocument = function() {
 };
 
 
+/** @override */
+low.ui.home.CreateGameDialog.prototype.focus = function() {
+  goog.base(this, 'focus');
+  this.getElementByFragment(
+      low.ui.home.CreateGameDialog.Id_.NAME_INPUT).focus();
+};
+
+
 /**
  * @param {!goog.ui.Dialog.Event} e
  * @private
  */
 low.ui.home.CreateGameDialog.prototype.onSelect_ = function(e) {
-  if (goog.ui.Dialog.DefaultButtonKeys.OK == e.key) {
+  if (low.ui.home.CreateGameDialog.Id_.CREATE_BUTTON == e.key) {
     // TODO Actually create a game.
     this.pageController_.setCurrentPage(low.ui.Page.WAITING_ROOM);
   }
