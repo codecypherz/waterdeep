@@ -17,6 +17,18 @@ body {
   @mixin background_size(cover);
 }
 
+.low-table {
+	display: table;
+}
+
+.low-row {
+	display: table-row;
+}
+
+.low-cell {
+	display: table-cell;
+}
+
 .low-header {
 	margin-bottom: 10px;
   text-align: left;

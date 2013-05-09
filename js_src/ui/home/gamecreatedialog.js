@@ -14,8 +14,10 @@ goog.require('low');
 goog.require('low.controller.Page');
 goog.require('low.model.Player');
 goog.require('low.service.Game');
+goog.require('low.ui');
 goog.require('low.ui.Css');
 goog.require('low.ui.Page');
+goog.require('low.ui.home.ColorPicker');
 goog.require('low.ui.home.soy');
 
 
@@ -36,15 +38,19 @@ low.ui.home.GameCreateDialog = function() {
   /** @private {!low.service.Game} */
   this.gameService_ = low.service.Game.getInstance();
 
+  /** @private {!low.ui.home.ColorPicker} */
+  this.colorPicker_ = new low.ui.home.ColorPicker();
+  this.addChild(this.colorPicker_);
+
   this.setTitle('Create game');
   this.setDisposeOnHide(true);
 
   var buttonSet = new goog.ui.Dialog.ButtonSet()
-      .addButton(goog.ui.Dialog.ButtonSet.DefaultButtons.CANCEL, false, true)
       .addButton({
         key: low.ui.home.GameCreateDialog.Id_.CREATE_BUTTON,
         caption: 'Create'
-      }, true);
+      }, true)
+      .addButton(goog.ui.Dialog.ButtonSet.DefaultButtons.CANCEL, false, true);
   this.setButtonSet(buttonSet);
 };
 goog.inherits(low.ui.home.GameCreateDialog, goog.ui.Dialog);
@@ -55,6 +61,7 @@ goog.inherits(low.ui.home.GameCreateDialog, goog.ui.Dialog);
  * @private
  */
 low.ui.home.GameCreateDialog.Id_ = {
+  COLOR_PICKER: low.getUniqueId('color-picker'),
   CREATE_BUTTON: low.getUniqueId('create-button'),
   NAME_INPUT: low.getUniqueId('name-input')
 };
@@ -71,6 +78,9 @@ low.ui.home.GameCreateDialog.prototype.createDom = function() {
       low.ui.home.soy.CREATE_GAME_CONTENT, {
         ids: this.makeIds(low.ui.home.GameCreateDialog.Id_)
       }));
+
+  this.colorPicker_.render(low.ui.getElementByFragment(
+      this, low.ui.home.GameCreateDialog.Id_.COLOR_PICKER));
 
   var createButton = this.getButtonSet().getButton(
       low.ui.home.GameCreateDialog.Id_.CREATE_BUTTON);

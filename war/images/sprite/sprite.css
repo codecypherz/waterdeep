@@ -1,7 +1,13 @@
 .sprite { background-image: url('/images/sprite/sprite.png'); background-color: transparent; background-repeat: no-repeat; }
-.holder-black-22 { width: 22px; height: 22px; background-position: 0px -110px; }
-.holder-blue-22 { width: 22px; height: 22px; background-position: 0px -88px; }
-.holder-green-22 { width: 22px; height: 22px; background-position: 0px -66px; }
-.holder-other-22 { width: 22px; height: 22px; background-position: 0px -44px; }
-.holder-red-22 { width: 22px; height: 22px; background-position: 0px -22px; }
-.holder-yellow-22 { width: 22px; height: 22px; background-position: 0px 0px; }
+.holder-black-50 { width: 50px; height: 50px; background-position: 0px -272px; }
+.holder-blue-50 { width: 50px; height: 50px; background-position: 0px -222px; }
+.holder-green-50 { width: 50px; height: 50px; background-position: 0px -172px; }
+.holder-other-50 { width: 50px; height: 50px; background-position: 0px -122px; }
+.holder-red-50 { width: 50px; height: 50px; background-position: 0px -72px; }
+.holder-yellow-50 { width: 50px; height: 50px; background-position: 0px -22px; }
+.holder-black-22 { width: 22px; height: 22px; background-position: 0px 0px; }
+.holder-blue-22 { width: 22px; height: 22px; background-position: -22px 0px; }
+.holder-green-22 { width: 22px; height: 22px; background-position: -44px 0px; }
+.holder-other-22 { width: 22px; height: 22px; background-position: -50px -66px; }
+.holder-red-22 { width: 22px; height: 22px; background-position: -50px -44px; }
+.holder-yellow-22 { width: 22px; height: 22px; background-position: -50px -22px; }

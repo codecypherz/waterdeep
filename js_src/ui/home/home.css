@@ -44,3 +44,12 @@
 .low-game-name-input {
 	margin-left: 5px;
 }
+
+.low-color-container {
+	display: inline-block;
+}
+
+.low-color-icon {
+  display: inline-block;
+  vertical-align: middle;
+}

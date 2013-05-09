@@ -49,10 +49,39 @@
  * @param ids
  */
 {template .CREATE_GAME_CONTENT}
+  <div class="{css low-table}">
+    <div class="{css low-row}">
+      <div class="{css low-cell}">
+        Color:
+      </div>
+      <div id="{$ids.COLOR_PICKER|id}" class="{css low-cell}">
+      </div>
+    </div>
+    <div class="{css low-row}">
+      <div class="{css low-cell}">
+        Name:
+      </div>
+      <div class="{css low-cell}">
+        <input type="text" id="{$ids.NAME_INPUT|id}"
+            class="{css low-game-name-input}">
+        </input>
+      </div>
+    </div>
+  </div>
+{/template}
+
+
+/**
+ * HTML for the color picker in the game create/join dialog.
+ * @param colors
+ */
+{template .COLOR_PICKER}
   <div>
-    <span>Name:</span>
-    <input type="text" id="{$ids.NAME_INPUT|id}"
-        class="{css low-game-name-input}">
-    </input>
+    {foreach $color in $colors}
+      <div id="{$color.id|id}" class="{css low-color-container}">
+        <div class="{css sprite}{sp}{$color.iconClass}{sp}{css low-color-icon}">
+        </div>
+      </div>
+    {/foreach}
   </div>
 {/template}
