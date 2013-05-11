@@ -2,6 +2,8 @@
  * CSS for the home page.
  */
 
+@def GAME_DIALOG_LEFT_COLUMN_SPACING      20px;
+
 .low-home {
 	text-align: center;
 }
@@ -46,7 +48,7 @@
 }
 
 .low-game-name-input-container {
-	margin-left: 10px;
+	margin-left: GAME_DIALOG_LEFT_COLUMN_SPACING;
 	position: relative;
 }
 
@@ -56,7 +58,7 @@
 }
 
 .low-color-picker {
-	margin-left: 10px;
+	margin-left: GAME_DIALOG_LEFT_COLUMN_SPACING;
 	margin-bottom: 20px;
 }
 

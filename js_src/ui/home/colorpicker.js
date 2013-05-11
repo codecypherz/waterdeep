@@ -98,21 +98,22 @@ low.ui.home.ColorPicker.prototype.enterDocument = function() {
 
 
 /**
- * Selects the color.
+ * Selects the color for the element that was clicked.
+ * @param {!goog.events.Event} e
  * @private
  */
 low.ui.home.ColorPicker.prototype.onColorClick_ = function(e) {
-  this.select_(this.getColorFromElement_(e.currentTarget));
+  this.select_(
+      this.getColorFromElement_(/** @type {Element} */ (e.currentTarget)));
 };
 
 
 /**
  * Sets the selected color to the given one and updates the UI.
- * @param {!low.model.Color.Picker} color
+ * @param {!low.model.Player.Color} newColor
  * @private
  */
 low.ui.home.ColorPicker.prototype.select_ = function(newColor) {
-  window.console.info('Selecting ' + newColor);
   this.color_ = newColor;
   goog.object.forEach(
       low.ui.home.ColorPicker.COLOR_TO_CSS_MAP_,
@@ -131,5 +132,6 @@ low.ui.home.ColorPicker.prototype.select_ = function(newColor) {
  * @private
  */
 low.ui.home.ColorPicker.prototype.getColorFromElement_ = function(element) {
-  return this.getFragmentFromId(element.id);
+  return /** @type {!low.model.Player.Color} */ (
+      this.getFragmentFromId(element.id));
 };

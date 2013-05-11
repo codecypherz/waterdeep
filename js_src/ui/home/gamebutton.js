@@ -1,6 +1,3 @@
-/**
- * The component representing a single game.
- */
 
 goog.provide('low.ui.home.GameButton');
 
@@ -11,11 +8,13 @@ goog.require('goog.object');
 goog.require('goog.soy');
 goog.require('goog.ui.Button');
 goog.require('low.model.Player');
+goog.require('low.ui.home.GameDialog');
 goog.require('low.ui.home.soy');
 
 
 
 /**
+ * The component representing a single game.
  * @constructor
  * @param {!low.model.Game} game
  * @extends {goog.ui.Button}
@@ -72,16 +71,34 @@ low.ui.home.GameButton.prototype.enterDocument = function() {
   // when you bypass the renderer paradigm with the createDom method above.
   this.getHandler().listen(this.getElement(),
       goog.events.EventType.CLICK,
-      this.joinGame_);
+      this.promptToJoin_);
 };
 
 
 /**
- * Joins the game.
+ * Prompts the user to join a new game.
  * @private
  */
-low.ui.home.GameButton.prototype.joinGame_ = function() {
-  goog.log.info(this.logger, 'Attempting to join the game.');
+low.ui.home.GameButton.prototype.promptToJoin_ = function() {
+  goog.log.info(this.logger, 'Showing the game join dialog.');
 
-  // TODO Actually join a game.
+  // TODO Filter the colors to the remaining ones.
+
+  var gameDialog = new low.ui.home.GameDialog('Join game', 'Join');
+  gameDialog.prompt().addCallback(function() {
+    this.onConfirm_(gameDialog.getName(), gameDialog.getColor());
+  }, this);
+};
+
+
+/**
+ * Called when the user confirms their desire to join a game.
+ * @param {string} name The name they chose.
+ * @param {!low.model.Player.Color} color The color they chose.
+ * @private
+ */
+low.ui.home.GameButton.prototype.onConfirm_ = function(name, color) {
+  window.console.info('joining game with ' + name + ' and ' + color);
+
+  // TODO Actually join the game and go to the waiting room.
 };
