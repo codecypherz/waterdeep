@@ -9,6 +9,8 @@ input[type=text] {
 	padding: 4px 8px;
 }
 
+/*
 input[type=text]:focus {
   outline: 2px solid #0cf;
 }
+*/

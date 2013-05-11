@@ -29,6 +29,10 @@
 	font-size: 23px;
 }
 
+.low-game-label {
+	text-align: right;
+}
+
 .low-game-player-icon {
 	display: inline-block;
 	margin-right: 5px;
@@ -41,12 +45,30 @@
 	width: 100%;
 }
 
+.low-game-name-input-container {
+	margin-left: 10px;
+	position: relative;
+}
+
 .low-game-name-input {
-	margin-left: 5px;
+	width: 100%;
+	@mixin box_sizing(border-box);
+}
+
+.low-color-picker {
+	margin-left: 10px;
+	margin-bottom: 20px;
 }
 
 .low-color-container {
+	border: 1px solid transparent;
+	cursor: pointer;
 	display: inline-block;
+	padding: 8px;
+}
+
+.low-color-selected {
+	border-color: rgba(255, 255, 255, 0.8);
 }
 
 .low-color-icon {
