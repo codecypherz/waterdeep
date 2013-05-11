@@ -1,18 +1,21 @@
 package low.servlet;
 
 import java.io.IOException;
-import java.net.URI;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import low.annotation.GameKey;
 import low.message.JoinGameRequest;
+import low.model.Game;
 import low.model.Player.Color;
 import low.service.GameService;
 
 import com.google.gson.Gson;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 /**
@@ -23,11 +26,16 @@ public class GameServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 2537789499822803611L;
 	
+	private static final Logger logger = Logger.getLogger(GameServlet.class.getName());
+	
 	private final GameService gameService;
+	private final @GameKey Provider<String> gameKeyProvider;
 	
 	@Inject
-	public GameServlet(GameService gameService) {
+	public GameServlet(GameService gameService,
+			@GameKey Provider<String> gameKeyProvider) {
 		this.gameService = gameService;
+		this.gameKeyProvider = gameKeyProvider;
 	}
 	
 	/**
@@ -37,13 +45,9 @@ public class GameServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		
-		String gameKey = getGameKey(req);
-		if (gameKey == null) {
-			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
-			return;
-		}
-		
-		res.getWriter().write(new Gson().toJson(gameService.getGame(gameKey)));
+		logger.info("\n\n" + gameKeyProvider.get() + "\n\n");
+		Game game = gameService.getGame(gameKeyProvider.get());
+		res.getWriter().write(new Gson().toJson(game));
 	}
 	
 	/**
@@ -52,12 +56,6 @@ public class GameServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
-		
-		String gameKey = getGameKey(req);
-		if (gameKey == null) {
-			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
-			return;
-		}
 		
 		Gson gson = new Gson();
 		JoinGameRequest joinGameRequest = gson.fromJson(
@@ -78,25 +76,6 @@ public class GameServlet extends HttpServlet {
 		}
 		Color color = Color.valueOf(colorString.toUpperCase());
 		
-		gameService.joinGame(gameKey, name, color);
-	}
-	
-	/**
-	 * Gets the game key from the path of the request.
-	 * @param req The request.
-	 * @return The game key in the request path or null if there wasn't one.
-	 */
-	private String getGameKey(HttpServletRequest req) {
-		// TODO Move this to a filter for this servlet and inject the key.
-		URI uri = URI.create(req.getRequestURI());
-		String[] pathParts = uri.getPath().split("/");
-		// Path is something like /game/1234 which would be ["","game","1234"]
-		if (pathParts.length > 2) {
-			String gameKey = pathParts[2];
-			if (gameKey != null && !gameKey.isEmpty()) {
-				return gameKey;
-			}
-		}
-		return null;
+		gameService.joinGame(gameKeyProvider.get(), name, color);
 	}
 }

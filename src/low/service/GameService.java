@@ -63,7 +63,9 @@ public class GameService {
 	public Game getGame(String stringKey) {
 		Key key = KeyFactory.stringToKey(stringKey);
 		ObjectDatastore datastore = datastoreProvider.get();
-		return datastore.load(key);
+		Game game = datastore.load(key);
+		game.setKey(KeyFactory.keyToString(key));
+		return game;
 	}
 	
 	/**

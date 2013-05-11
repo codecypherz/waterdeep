@@ -1,5 +1,6 @@
 package low.module;
 
+import low.filter.GameKeyFilter;
 import low.servlet.GameServlet;
 import low.servlet.GamesServlet;
 import low.servlet.HomeServlet;
@@ -10,6 +11,8 @@ public class WaterdeepServletModule extends ServletModule {
 
 	@Override
 	protected void configureServlets() {
+		
+		filter("/game/*").through(GameKeyFilter.class);
 		
 		serve("/").with(HomeServlet.class);
 		serve("/games").with(GamesServlet.class);
