@@ -1,11 +1,13 @@
 package low.module;
 
+import low.service.GameService;
+
 import com.google.inject.AbstractModule;
 
 public class WaterdeepGuiceModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		// Bind things here.
+		bind(GameService.class);
 	}
 }

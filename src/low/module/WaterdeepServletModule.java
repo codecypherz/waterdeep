@@ -1,5 +1,6 @@
 package low.module;
 
+import low.servlet.GameServlet;
 import low.servlet.GamesServlet;
 import low.servlet.HomeServlet;
 
@@ -12,5 +13,6 @@ public class WaterdeepServletModule extends ServletModule {
 		
 		serve("/").with(HomeServlet.class);
 		serve("/games").with(GamesServlet.class);
+		serve("/game/*").with(GameServlet.class);
 	}
 }
