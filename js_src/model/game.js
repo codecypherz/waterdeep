@@ -41,6 +41,15 @@ low.model.Game.prototype.getPlayers = function() {
 
 
 /**
+ * Adds a player to the game.
+ * @param {!low.model.Player} player
+ */
+low.model.Game.prototype.addPlayer = function(player) {
+  this.players_.push(player);
+};
+
+
+/**
  * @param {!Object} json The JSON for a game object.
  * @return {!low.model.Game} The parsed game model.
  */

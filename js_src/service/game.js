@@ -13,6 +13,7 @@ goog.require('low.message.CreateGameRequest');
 goog.require('low.message.JoinGameRequest');
 goog.require('low.message.JoinGameResponse');
 goog.require('low.model.Game');
+goog.require('low.model.Player');
 goog.require('low.service.Xhr');
 
 
@@ -31,13 +32,27 @@ low.service.Game = function() {
   this.xhrService_ = low.service.Xhr.getInstance();
 
   /**
-   * True if currently trying to create a join a game.
+   * True if currently trying to create or join a game.
    * @private {boolean}
    */
   this.isBusy_ = false;
+
+  /**
+   * The currently active game.
+   * @private {low.model.Game}
+   */
+  this.currentGame_ = null;
 };
 goog.inherits(low.service.Game, goog.events.EventTarget);
 goog.addSingletonGetter(low.service.Game);
+
+
+/**
+ * @return {low.model.Game} The currently active game.
+ */
+low.service.Game.prototype.getCurrentGame = function() {
+  return this.currentGame_;
+};
 
 
 /**
@@ -54,7 +69,10 @@ low.service.Game.prototype.isBusy = function() {
  * @return {!goog.async.Deferred}
  */
 low.service.Game.prototype.createGame = function(moderatorName, color) {
-  goog.asserts.assert(!this.isBusy_, 'Cannot create - currently busy.');
+  goog.asserts.assert(!this.currentGame_,
+      'Cannot create - client already has a game going.');
+  goog.asserts.assert(!this.isBusy_,
+      'Cannot create - currently busy.');
   goog.log.info(this.logger, moderatorName + ' is creating a new game.');
   this.isBusy_ = true;
 
@@ -72,7 +90,8 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
   deferred.addCallback(function(json) {
     goog.log.info(this.logger, 'Game created.');
     this.isBusy_ = false;
-    return low.model.Game.fromJson(json);
+    this.currentGame_ = low.model.Game.fromJson(json);
+    return this.currentGame_;
   }, this);
 
   return deferred;
@@ -86,7 +105,10 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
  * @return {!goog.async.Deferred}
  */
 low.service.Game.prototype.joinGame = function(game, name, color) {
-  goog.asserts.assert(!this.isBusy_, 'Cannot join - currently busy.');
+  goog.asserts.assert(!this.currentGame_,
+      'Cannot join - client already has a game going.');
+  goog.asserts.assert(!this.isBusy_,
+      'Cannot join - currently busy.');
   goog.log.info(
       this.logger, name + ' is joining a game with this key: ' + game.getKey());
   this.isBusy_ = true;
@@ -108,6 +130,9 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
     var response = low.message.JoinGameResponse.fromJson(json);
     var joinResult = response.getResult();
     if (joinResult == low.message.JoinGameResponse.Result.SUCCESS) {
+      var player = new low.model.Player(name, color, false);
+      game.addPlayer(player);
+      this.currentGame_ = game;
       return;
     } else {
       throw Error(joinResult);
