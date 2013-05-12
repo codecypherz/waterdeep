@@ -10,12 +10,25 @@ goog.require('low.model.Player');
 
 
 /**
+ * @param {string} key
+ * @param {!Array.<!low.model.Player>} players
  * @constructor
  */
-low.model.Game = function() {
+low.model.Game = function(key, players) {
+
+  /** @private {string} */
+  this.key_ = key;
 
   /** @private {!Array.<!low.model.Player>} */
-  this.players_ = [];
+  this.players_ = players;
+};
+
+
+/**
+ * @return {string}
+ */
+low.model.Game.prototype.getKey = function() {
+  return this.key_;
 };
 
 
@@ -32,12 +45,14 @@ low.model.Game.prototype.getPlayers = function() {
  * @return {!low.model.Game} The parsed game model.
  */
 low.model.Game.fromJson = function(json) {
-  var game = new low.model.Game();
 
+  var key = json['key'];
+
+  var players = [];
   var playersJson = json['players'];
   goog.array.forEach(playersJson, function(playerJson) {
-    game.players_.push(low.model.Player.fromJson(playerJson));
+    players.push(low.model.Player.fromJson(playerJson));
   });
 
-  return game;
+  return new low.model.Game(key, players);
 };

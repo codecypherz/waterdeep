@@ -32,6 +32,10 @@ public class Game {
 		this.key = key;
 	}
 	
+	public List<Player> getPlayers() {
+		return players;
+	}
+	
 	public void addPlayer(String name, Color color) {
 		players.add(new Player(name, color, false));
 	}

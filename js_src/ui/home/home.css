@@ -35,6 +35,14 @@
 	text-align: right;
 }
 
+.low-game-player {
+	margin-bottom: 5px;
+}
+
+.low-game-players:first-child {
+	margin: 0;
+}
+
 .low-game-player-icon {
 	display: inline-block;
 	margin-right: 5px;

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import low.annotation.GameKey;
 import low.servlet.HttpResponseCode;
 
+import com.google.appengine.api.datastore.Key;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -23,10 +24,10 @@ import com.google.inject.Singleton;
 @Singleton
 public class GameKeyFilter implements Filter {
 
-	private final @GameKey Provider<String> gameKeyProvider;
+	private final @GameKey Provider<Key> gameKeyProvider;
 	
 	@Inject
-	public GameKeyFilter(@GameKey Provider<String> gameKeyProvider) {
+	public GameKeyFilter(@GameKey Provider<Key> gameKeyProvider) {
 		this.gameKeyProvider = gameKeyProvider;
 	}
 	
@@ -37,7 +38,7 @@ public class GameKeyFilter implements Filter {
 		
 		HttpServletResponse res = (HttpServletResponse) servletRes;
 		
-		String gameKey = gameKeyProvider.get();
+		Key gameKey = gameKeyProvider.get();
 		if (gameKey == null) {
 			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
 			return;

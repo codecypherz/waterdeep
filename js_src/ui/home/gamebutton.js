@@ -7,7 +7,10 @@ goog.require('goog.log');
 goog.require('goog.object');
 goog.require('goog.soy');
 goog.require('goog.ui.Button');
+goog.require('low.controller.Page');
 goog.require('low.model.Player');
+goog.require('low.service.Game');
+goog.require('low.ui.Page');
 goog.require('low.ui.home.GameDialog');
 goog.require('low.ui.home.soy');
 
@@ -27,6 +30,12 @@ low.ui.home.GameButton = function(game) {
 
   /** @private {!low.model.Game} */
   this.game_ = game;
+
+  /** @private {!low.controller.Page} */
+  this.pageController_ = low.controller.Page.getInstance();
+
+  /** @private {!low.service.Game} */
+  this.gameService_ = low.service.Game.getInstance();
 };
 goog.inherits(low.ui.home.GameButton, goog.ui.Button);
 
@@ -98,7 +107,14 @@ low.ui.home.GameButton.prototype.promptToJoin_ = function() {
  * @private
  */
 low.ui.home.GameButton.prototype.onConfirm_ = function(name, color) {
-  window.console.info('joining game with ' + name + ' and ' + color);
-
-  // TODO Actually join the game and go to the waiting room.
+  goog.log.info(this.logger, 'joining game with ' + name + ' and ' + color);
+  this.gameService_.joinGame(this.game_, name, color).addCallbacks(
+      function() {
+        this.pageController_.setCurrentPage(low.ui.Page.WAITING_ROOM);
+      },
+      function(error) {
+        // TODO Show this error to the user.
+        goog.log.error(this.logger, 'Failed to join the game: ' + error);
+      },
+      this);
 };

@@ -51,10 +51,10 @@ low.service.Games.prototype.loadGames = function() {
   uri.setPath(low.Config.ServletPath.GAMES);
 
   // Send the request.
-  var deferred = this.xhrService_.get(uri);
+  var deferred = this.xhrService_.get(uri, true);
 
   // Handle the response.
-  deferred.addCallback(goog.bind(this.onGamesLoaded_, this));
+  deferred.addCallback(this.onGamesLoaded_, this);
 
   return deferred;
 };
@@ -62,26 +62,13 @@ low.service.Games.prototype.loadGames = function() {
 
 /**
  * Called when the request for games completes successfully.
- * @param {!goog.net.XhrManager.Event} event
+ * @param {Object} gamesJson The JSON response.
  * @return {!Array.<!low.model.Game>} The parsed game objects from the response.
  * @private
  */
-low.service.Games.prototype.onGamesLoaded_ = function(event) {
+low.service.Games.prototype.onGamesLoaded_ = function(gamesJson) {
   goog.log.info(this.logger, 'Games just loaded.');
 
-  var gamesJson;
-  try {
-    gamesJson = event.xhrIo.getResponseJson();
-  } catch (e) {
-    goog.log.error(this.logger, 'Failed to get games response JSON', e);
-    throw e;
-  }
-
-  if (!gamesJson) {
-    var errorMsg = 'No JSON in the games response.';
-    goog.log.error(this.logger, errorMsg);
-    throw Error(errorMsg);
-  }
   if (!goog.isArray(gamesJson)) {
     var errorMsg = 'JSON was not in array format.';
     goog.log.error(this.logger, errorMsg);
@@ -89,13 +76,17 @@ low.service.Games.prototype.onGamesLoaded_ = function(event) {
   }
 
   // Convert all the JSON into model objects.
-  var games = [];
+  this.games_ = [];
   goog.array.forEach(gamesJson, function(gameJson) {
-    games.push(low.model.Game.fromJson(gameJson));
-  });
-
-  this.games_ = games;
+    try {
+      this.games_.push(low.model.Game.fromJson(gameJson));
+    } catch (e) {
+      // Catch the error so other games still make it through.
+      goog.log.error(
+          this.logger, 'Failed to build game from this JSON: ' + gameJson);
+    }
+  }, this);
 
   // Games is what is now passed in the deferred chain.
-  return games;
+  return this.games_;
 };

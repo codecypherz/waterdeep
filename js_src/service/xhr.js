@@ -57,16 +57,23 @@ goog.addSingletonGetter(low.service.Xhr);
 /**
  * Sends a GET request to the given URI.
  * @param {!goog.Uri} uri The URI to which to make the request.
+ * @param {boolean=} opt_processJsonResponse True if a JSON response is expected
+ *     and should be processed.  If so, then the value passed in the callback
+ *     will be the validated JSON.
  * @return {!goog.async.Deferred.<!goog.net.XhrManager.Event>} The callback
  *     happens after the send completes successfully and the errback happens if
  *     an error occurs.
  */
-low.service.Xhr.prototype.get = function(uri) {
+low.service.Xhr.prototype.get = function(uri, opt_processJsonResponse) {
   var deferred = new goog.async.Deferred();
 
   var requestId = this.idGenerator_.getNextUniqueId();
   this.xhrManager_.send(requestId, uri.toString());
   this.pendingMap_[requestId] = deferred;
+
+  if (opt_processJsonResponse) {
+    deferred.addCallback(this.processJsonResponse_, this);
+  }
 
   return deferred;
 };
@@ -76,17 +83,25 @@ low.service.Xhr.prototype.get = function(uri) {
  * Sends a POST request to the given URI.
  * @param {!goog.Uri} uri The URI to which to make the request.
  * @param {!low.message.Message} message The message to post.
+ * @param {boolean=} opt_processJsonResponse True if a JSON response is expected
+ *     and should be processed.  If so, then the value passed in the callback
+ *     will be the validated JSON.
  * @return {!goog.async.Deferred.<!goog.net.XhrManager.Event>} The callback
  *     happens after the send completes successfully and the errback happens if
  *     an error occurs.
  */
-low.service.Xhr.prototype.post = function(uri, message) {
+low.service.Xhr.prototype.post = function(
+    uri, message, opt_processJsonResponse) {
   var deferred = new goog.async.Deferred();
 
   var requestId = this.idGenerator_.getNextUniqueId();
   var json = goog.json.serialize(message.toJson());
   this.xhrManager_.send(requestId, uri.toString(), 'POST', json);
   this.pendingMap_[requestId] = deferred;
+
+  if (opt_processJsonResponse) {
+    deferred.addCallback(this.processJsonResponse_, this);
+  }
 
   return deferred;
 };
@@ -122,4 +137,36 @@ low.service.Xhr.prototype.onSuccess_ = function(e) {
   } else {
     goog.log.error(this.logger, 'No deferred for successful request.');
   }
+};
+
+
+/**
+ * Handles common JSON validation to response processing.  If the result is
+ * valid, the next callback in the deferred chain will have the extracted JSON
+ * string.
+ * @param {!goog.net.XhrManager.Event} event
+ * @return {!Object} The JSON from the response.
+ * @private
+ */
+low.service.Xhr.prototype.processJsonResponse_ = function(event) {
+
+  // First, get the JSON from the response which can throw an error.
+  var responseJson;
+  try {
+    responseJson = event.xhrIo.getResponseJson();
+  } catch (e) {
+    goog.log.error(this.logger, 'Failed to get response JSON', e);
+    throw e;
+  }
+
+  // Next, make sure it's not empty.
+  if (!responseJson) {
+    var errorMsg = 'No JSON in the response.';
+    goog.log.error(this.logger, errorMsg);
+    throw Error(errorMsg);
+  }
+
+  // Finally, return the validated JSON.  This is now passed to the next
+  // callback in the deferred chain.
+  return responseJson;
 };

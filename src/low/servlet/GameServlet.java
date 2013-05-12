@@ -10,10 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import low.annotation.GameKey;
 import low.message.JoinGameRequest;
+import low.message.JoinGameResponse;
+import low.message.JoinGameResponse.Result;
 import low.model.Game;
 import low.model.Player.Color;
 import low.service.GameService;
 
+import com.google.appengine.api.datastore.Key;
 import com.google.gson.Gson;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -29,11 +32,12 @@ public class GameServlet extends HttpServlet {
 	private static final Logger logger = Logger.getLogger(GameServlet.class.getName());
 	
 	private final GameService gameService;
-	private final @GameKey Provider<String> gameKeyProvider;
+	private final @GameKey Provider<Key> gameKeyProvider;
 	
 	@Inject
-	public GameServlet(GameService gameService,
-			@GameKey Provider<String> gameKeyProvider) {
+	public GameServlet(
+			GameService gameService,
+			@GameKey Provider<Key> gameKeyProvider) {
 		this.gameService = gameService;
 		this.gameKeyProvider = gameKeyProvider;
 	}
@@ -76,6 +80,10 @@ public class GameServlet extends HttpServlet {
 		}
 		Color color = Color.valueOf(colorString.toUpperCase());
 		
-		gameService.joinGame(gameKeyProvider.get(), name, color);
+		// Try to join the game and send the result.
+		boolean success = gameService.joinGame(
+				gameKeyProvider.get(), name, color);
+		Result result = success ? Result.SUCCESS : Result.COLOR_TAKEN;
+		res.getWriter().write(gson.toJson(new JoinGameResponse(result)));
 	}
 }

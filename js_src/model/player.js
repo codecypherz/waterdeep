@@ -5,8 +5,7 @@
 goog.provide('low.model.Player');
 
 goog.require('goog.asserts');
-goog.require('goog.object');
-goog.require('goog.string');
+goog.require('low');
 
 
 
@@ -66,20 +65,8 @@ low.model.Player.prototype.isModerator = function() {
 low.model.Player.fromJson = function(json) {
   var name = json['name'] || '';
   var moderator = json['moderator'] || false;
-  var color = low.model.Player.getColorFromString(json['color'] || '');
+  var color = /** @type {low.model.Player.Color} */ (
+      low.stringToEnum(json['color'] || '', low.model.Player.Color));
   color = goog.asserts.assert(color);
   return new low.model.Player(name, color, moderator);
-};
-
-
-/**
- * @param {string} colorString The string to identify.
- * @return {low.model.Player.Color} The discovered color.
- */
-low.model.Player.getColorFromString = function(colorString) {
-  return /** @type {low.model.Player.Color} */ (goog.object.findValue(
-      low.model.Player.Color,
-      function(value, key, object) {
-        return goog.string.caseInsensitiveCompare(value, colorString) == 0;
-      }));
 };

@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import low.model.Game;
+import low.model.Player;
 import low.model.Player.Color;
 
 import com.google.appengine.api.datastore.Key;
@@ -18,7 +19,8 @@ public class GameService {
 	private final Provider<ObjectDatastore> datastoreProvider;
 	
 	@Inject
-	public GameService(Provider<ObjectDatastore> datastoreProvider) {
+	public GameService(
+			Provider<ObjectDatastore> datastoreProvider) {
 		this.datastoreProvider = datastoreProvider;
 	}
 	
@@ -57,11 +59,10 @@ public class GameService {
 	
 	/**
 	 * Gets the game for the given key.
-	 * @param stringKey The string form of the key.
+	 * @param key The game's key.
 	 * @return The game, if found.
 	 */
-	public Game getGame(String stringKey) {
-		Key key = KeyFactory.stringToKey(stringKey);
+	public Game getGame(Key key) {
 		ObjectDatastore datastore = datastoreProvider.get();
 		Game game = datastore.load(key);
 		game.setKey(KeyFactory.keyToString(key));
@@ -70,16 +71,24 @@ public class GameService {
 	
 	/**
 	 * Joins the game with the given name and color.
+	 * @param key The key of the game.
 	 * @param name The name of the player.
 	 * @param color Their color.
+	 * @return True if successful, false if the color has been chosen.
 	 */
-	public void joinGame(String stringKey, String name, Color color) {
-		Key key = KeyFactory.stringToKey(stringKey);
+	public boolean joinGame(Key key, String name, Color color) {
 		ObjectDatastore datastore = datastoreProvider.get();
 		Game game = datastore.load(key);
-		// TODO Make sure game exists.
-		// TODO Make sure color isn't taken.
+		
+		// Make sure the color isn't taken.
+		for (Player player : game.getPlayers()) {
+			if (player.getColor() == color) {
+				return false;
+			}
+		}
+		
 		game.addPlayer(name, color);
 		datastore.update(game);
+		return true;
 	}
 }

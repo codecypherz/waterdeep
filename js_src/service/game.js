@@ -9,6 +9,8 @@ goog.require('goog.events.EventTarget');
 goog.require('goog.log');
 goog.require('low.Config');
 goog.require('low.message.CreateGameRequest');
+goog.require('low.message.JoinGameRequest');
+goog.require('low.message.JoinGameResponse');
 goog.require('low.model.Game');
 goog.require('low.service.Xhr');
 
@@ -45,39 +47,52 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
 
   // Send the request.
   var deferred = this.xhrService_.post(
-      uri, new low.message.CreateGameRequest(moderatorName, color));
+      uri,
+      new low.message.CreateGameRequest(moderatorName, color),
+      true);
 
   // Handle the response.
-  deferred.addCallback(goog.bind(this.onGameCreated_, this));
+  deferred.addCallback(function(json) {
+    goog.log.info(this.logger, 'Game created.');
+    return low.model.Game.fromJson(json);
+  }, this);
 
   return deferred;
 };
 
 
 /**
- * Called when the request for games completes successfully.
- * @param {!goog.net.XhrManager.Event} event
- * @return {low.model.Game} The game that was just created.
- * @private
+ * @param {!low.model.Game} game The game to join.
+ * @param {string} name The name of the joining player.
+ * @param {!low.model.Player.Color} color The player color.
+ * @return {!goog.async.Deferred}
  */
-low.service.Game.prototype.onGameCreated_ = function(event) {
-  goog.log.info(this.logger, 'Game just created.');
+low.service.Game.prototype.joinGame = function(game, name, color) {
+  goog.log.info(
+      this.logger, name + ' is joining a game with this key: ' + game.getKey());
 
-  var gameJson;
-  try {
-    gameJson = event.xhrIo.getResponseJson();
-  } catch (e) {
-    goog.log.error(this.logger, 'Failed to get create game response JSON', e);
-    throw e;
-  }
+  // Create the request URL.
+  var uri = new goog.Uri();
+  uri.setPath(low.Config.ServletPath.GAME + '/' + game.getKey());
 
-  if (!gameJson) {
-    var errorMsg = 'No JSON in the create game response.';
-    goog.log.error(this.logger, errorMsg);
-    throw Error(errorMsg);
-  }
+  // Send the request.
+  var deferred = this.xhrService_.post(
+      uri, new low.message.JoinGameRequest(name, color), true);
 
-  // Convert the JSON into a model object.
-  // The game is what is now passed in the deferred chain.
-  return low.model.Game.fromJson(gameJson);
+  // Handle the response.
+  deferred.addCallback(function(json) {
+    goog.log.info(this.logger, 'Received join game response.');
+
+    // See if the request was a success or not.
+    var response = low.message.JoinGameResponse.fromJson(json);
+    var joinResult = response.getResult();
+    if (joinResult == low.message.JoinGameResponse.Result.SUCCESS) {
+      return;
+    } else {
+      throw Error(joinResult);
+    }
+
+  }, this);
+
+  return deferred;
 };

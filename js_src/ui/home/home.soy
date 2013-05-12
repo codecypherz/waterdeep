@@ -32,14 +32,16 @@
     <div class="{css low-game-title}">
       Waiting for players
     </div>
-    {foreach $player in $players}
-      <div class="{css low-game-player}">
-        <div class="{css sprite}{sp}{$player.iconClass}{sp}
-            {css low-game-player-icon}">
+    <div class="{css low-game-players}">
+      {foreach $player in $players}
+        <div class="{css low-game-player}">
+          <div class="{css sprite}{sp}{$player.iconClass}{sp}
+              {css low-game-player-icon}">
+          </div>
+          {$player.name}
         </div>
-        {$player.name}
-      </div>
-    {/foreach}
+      {/foreach}
+    </div>
   </button>
 {/template}
 

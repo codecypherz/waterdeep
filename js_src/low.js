@@ -5,6 +5,8 @@
 goog.provide('low');
 
 goog.require('goog.events');
+goog.require('goog.object');
+goog.require('goog.string');
 
 
 /**
@@ -13,3 +15,20 @@ goog.require('goog.events');
  * @return {string} A unique identifier.
  */
 low.getUniqueId = goog.events.getUniqueId;
+
+
+/**
+ * Converts the string to the given enum type by doing a case-insensitive
+ * comparison on the enum values.  If the string isn't in the enum, null is
+ * returned.
+ * @param {string} string
+ * @param {!Object} enumObj
+ * @return {*} The enum for the string or null if not found in the enum.
+ */
+low.stringToEnum = function(string, enumObj) {
+  return goog.object.findValue(
+      enumObj,
+      function(value, key, object) {
+        return goog.string.caseInsensitiveCompare(value, string) == 0;
+      });
+};
