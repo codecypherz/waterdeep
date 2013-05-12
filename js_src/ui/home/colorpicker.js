@@ -37,7 +37,8 @@ low.ui.home.ColorPicker = function(opt_game) {
   }
 
   /** @private {!low.model.Player.Color} */
-  this.color_ = goog.object.findKey(this.colorMap_, goog.functions.TRUE);
+  this.color_ = /** @type {!low.model.Player.Color} */ (
+      goog.object.findKey(this.colorMap_, goog.functions.TRUE));
 };
 goog.inherits(low.ui.home.ColorPicker, goog.ui.Component);
 

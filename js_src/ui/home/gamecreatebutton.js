@@ -46,6 +46,10 @@ low.ui.home.GameCreateButton.prototype.enterDocument = function() {
  * @private
  */
 low.ui.home.GameCreateButton.prototype.promptToCreate_ = function() {
+  if (this.gameService_.isBusy()) {
+    alert('Busy either joining or creating a game.');
+    return;
+  }
   goog.log.info(this.logger, 'Showing the game create dialog.');
 
   var gameDialog = new low.ui.home.GameDialog('Create game', 'Create');

@@ -89,6 +89,10 @@ low.ui.home.GameButton.prototype.enterDocument = function() {
  * @private
  */
 low.ui.home.GameButton.prototype.promptToJoin_ = function() {
+  if (this.gameService_.isBusy()) {
+    alert('Busy either joining or creating a game.');
+    return;
+  }
   goog.log.info(this.logger, 'Showing the game join dialog.');
 
   var gameDialog = new low.ui.home.GameDialog('Join game', 'Join', this.game_);
