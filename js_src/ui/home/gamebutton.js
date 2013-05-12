@@ -60,7 +60,8 @@ low.ui.home.GameButton.prototype.createDom = function() {
         return {
           'name': player.getName(),
           'iconClass': low.ui.home.GameButton.COLOR_TO_CSS_MAP_[
-              player.getColor()]
+              player.getColor()],
+          'isModerator': player.isModerator()
         };
       });
 

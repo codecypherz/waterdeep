@@ -39,6 +39,9 @@
               {css low-game-player-icon}">
           </div>
           {$player.name}
+          {if $player.isModerator}
+            {sp}(Moderator)
+          {/if}
         </div>
       {/foreach}
     </div>
