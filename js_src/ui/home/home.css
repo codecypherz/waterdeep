@@ -15,11 +15,23 @@
 	@mixin border_radius(30px);
 }
 
+/**
+ * Game join button
+ */
 .low-game {
 	display: block;
 	margin-bottom: 30px;
-	min-width: 500px;
+	min-width: 600px;
+	overflow: hidden;
+	position: relative;
 	text-align: left;
+	@mixin border_radius(10px);
+}
+
+.card-scatter {
+	position: absolute;
+	right: 0;
+	top: -15px;
 }
 
 .low-game,
@@ -29,10 +41,6 @@
 
 .low-game-title {
 	font-size: 23px;
-}
-
-.low-game-label {
-	text-align: right;
 }
 
 .low-game-player {
@@ -49,10 +57,20 @@
 	vertical-align: middle;
 }
 
+/**
+ * Game create button
+ */
 .low-game-create-button {
 	font-size: 23px;
 	min-width: 500px;
 	width: 100%;
+}
+
+/**
+ * Game create/join dialog.
+ */
+.low-game-label {
+  text-align: right;
 }
 
 .low-game-name-input-container {
@@ -66,6 +84,9 @@
 	@mixin box_sizing(border-box);
 }
 
+/**
+ * Player color picker.
+ */
 .low-color-picker {
 	margin-left: GAME_DIALOG_LEFT_COLUMN_SPACING;
 	margin-bottom: 20px;
