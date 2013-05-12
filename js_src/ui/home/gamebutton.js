@@ -1,7 +1,6 @@
 
 goog.provide('low.ui.home.GameButton');
 
-goog.require('goog.array');
 goog.require('goog.events.EventType');
 goog.require('goog.log');
 goog.require('goog.object');
@@ -50,20 +49,37 @@ low.ui.home.GameButton.COLOR_TO_CSS_MAP_ = goog.object.create(
     );
 
 
+/**
+ * @enum {string}
+ * @private
+ */
+low.ui.home.GameButton.Css_ = {
+  OPEN_ICON: goog.getCssName('holder-other-22')
+};
+
+
 /** @override */
 low.ui.home.GameButton.prototype.createDom = function() {
 
   // Create the template data.
-  var playerData = goog.array.map(
-      this.game_.getPlayers(),
-      function(player) {
-        return {
-          'name': player.getName(),
-          'iconClass': low.ui.home.GameButton.COLOR_TO_CSS_MAP_[
-              player.getColor()],
-          'isModerator': player.isModerator()
-        };
+  var playerData = [];
+  for (var i = 0; i < 5; i++) {
+    var player = this.game_.getPlayers()[i];
+    if (player) {
+      playerData.push({
+        'name': player.getName(),
+        'iconClass': low.ui.home.GameButton.COLOR_TO_CSS_MAP_[
+            player.getColor()],
+        'isModerator': player.isModerator()
       });
+    } else {
+      playerData.push({
+        'name': 'Open',
+        'iconClass': low.ui.home.GameButton.Css_.OPEN_ICON,
+        'isModerator': false
+      });
+    }
+  }
 
   // Render the template.
   this.setElementInternal(goog.soy.renderAsElement(
