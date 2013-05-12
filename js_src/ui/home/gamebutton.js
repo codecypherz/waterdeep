@@ -91,9 +91,7 @@ low.ui.home.GameButton.prototype.enterDocument = function() {
 low.ui.home.GameButton.prototype.promptToJoin_ = function() {
   goog.log.info(this.logger, 'Showing the game join dialog.');
 
-  // TODO Filter the colors to the remaining ones.
-
-  var gameDialog = new low.ui.home.GameDialog('Join game', 'Join');
+  var gameDialog = new low.ui.home.GameDialog('Join game', 'Join', this.game_);
   gameDialog.prompt().addCallback(function() {
     this.onConfirm_(gameDialog.getName(), gameDialog.getColor());
   }, this);

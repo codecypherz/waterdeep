@@ -23,16 +23,17 @@ goog.require('low.ui.home.soy');
  * @constructor
  * @param {string} titleText
  * @param {string} confirmText
+ * @param {low.model.Game=} opt_game The game by which to filter colors.
  * @extends {goog.ui.Dialog}
  */
-low.ui.home.GameDialog = function(titleText, confirmText) {
+low.ui.home.GameDialog = function(titleText, confirmText, opt_game) {
   goog.base(this);
 
   /** @protected {goog.log.Logger} */
   this.logger = goog.log.getLogger('low.ui.home.GameDialog');
 
   /** @private {!low.ui.home.ColorPicker} */
-  this.colorPicker_ = new low.ui.home.ColorPicker();
+  this.colorPicker_ = new low.ui.home.ColorPicker(opt_game);
   this.addChild(this.colorPicker_);
 
   /** @private {goog.async.Deferred} */

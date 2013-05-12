@@ -61,6 +61,7 @@
 }
 
 .low-game-name-input {
+	min-width: 340px;
 	width: 100%;
 	@mixin box_sizing(border-box);
 }
