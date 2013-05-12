@@ -1,5 +1,7 @@
 package low.service;
 
+import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,10 +30,16 @@ public class GameService {
 	 * @return The list of currently active games.
 	 */
 	public List<Game> findActiveGames() {
-
-		// TODO Filter out inactive games.
+		
+		// TODO Filter out games that have been started but not yet deleted.
+		
 		ObjectDatastore datastore = datastoreProvider.get();
-		Iterator<Game> iterator = datastore.find().type(Game.class).now();
+		Iterator<Game> iterator = datastore
+				.find()
+				.type(Game.class)
+				.addFilter("full", EQUAL, false)
+				.now();
+		
 		List<Game> games = Lists.newArrayList();
 		while (iterator.hasNext()) {
 			Game game = iterator.next();

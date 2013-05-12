@@ -9,14 +9,19 @@ import com.google.code.twig.annotation.Store;
 import com.google.common.collect.Lists;
 
 public class Game {
-
-	@Embed private List<Player> players;
+	
+	private static final int MAX_PLAYERS = 5;
 	
 	// This is just here so GSON can include this when sent to the client.
 	@Store(false) private String key;
 	
+	private boolean full;
+	
+	@Embed private List<Player> players;
+	
 	public Game() {
 		players = Lists.newArrayList();
+		full = false;
 	}
 	
 	public Game(String moderatorName, Color color) {
@@ -36,7 +41,15 @@ public class Game {
 		return players;
 	}
 	
+	public boolean isFull() {
+		return full;
+	}
+	
 	public void addPlayer(String name, Color color) {
+		assert(!full);
 		players.add(new Player(name, color, false));
+		if (players.size() == MAX_PLAYERS) {
+			full = true;
+		}
 	}
 }
