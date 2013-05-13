@@ -12,7 +12,7 @@ goog.require('goog.debug.ErrorHandler');
 goog.require('goog.events.EventWrapper');
 goog.require('goog.log');
 goog.require('low.Config');
-goog.require('low.ui.PageContainer');
+goog.require('low.model.PageContainer');
 
 
 
@@ -42,7 +42,7 @@ low.Main = function() {
   window.onbeforeunload = goog.bind(this.onUnload_, this);
 
   // Create and render the UI.
-  var pageContainer = new low.ui.PageContainer();
+  var pageContainer = new low.model.PageContainer();
   this.registerDisposable(pageContainer);
   pageContainer.render();
 };

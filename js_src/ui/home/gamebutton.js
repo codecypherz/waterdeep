@@ -6,10 +6,10 @@ goog.require('goog.log');
 goog.require('goog.object');
 goog.require('goog.soy');
 goog.require('goog.ui.Button');
-goog.require('low.controller.Page');
+goog.require('low.model.Page');
 goog.require('low.model.Player');
 goog.require('low.service.Game');
-goog.require('low.ui.Page');
+goog.require('low.service.Token');
 goog.require('low.ui.home.GameDialog');
 goog.require('low.ui.home.soy');
 
@@ -30,8 +30,8 @@ low.ui.home.GameButton = function(game) {
   /** @private {!low.model.Game} */
   this.game_ = game;
 
-  /** @private {!low.controller.Page} */
-  this.pageController_ = low.controller.Page.getInstance();
+  /** @private {!low.service.Token} */
+  this.tokenService_ = low.service.Token.getInstance();
 
   /** @private {!low.service.Game} */
   this.gameService_ = low.service.Game.getInstance();
@@ -131,8 +131,8 @@ low.ui.home.GameButton.prototype.onConfirm_ = function(name, color) {
       function() {
         // Go to the waiting room for the current game.
         var currentGame = this.gameService_.getCurrentGame();
-        this.pageController_.setCurrentToken(
-            low.ui.Page.WAITING_ROOM, currentGame.getKey());
+        this.tokenService_.setCurrentToken(
+            low.model.Page.WAITING_ROOM, currentGame.getKey());
       },
       function(error) {
         // TODO Show this error to the user.

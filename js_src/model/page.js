@@ -1,15 +1,12 @@
-/**
- * Defines the set of pages for the application.
- */
 
-goog.provide('low.ui.Page');
+goog.provide('low.model.Page');
 
 
 /**
  * The set of pages for the application.
  * @enum {string}
  */
-low.ui.Page = {
+low.model.Page = {
   HOME: 'home',
   WAITING_ROOM: 'waiting_room'
 };

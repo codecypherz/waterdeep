@@ -4,9 +4,9 @@ goog.provide('low.ui.home.GameCreateButton');
 goog.require('goog.log');
 goog.require('goog.ui.Button');
 goog.require('goog.ui.Component');
-goog.require('low.controller.Page');
+goog.require('low.model.Page');
 goog.require('low.service.Game');
-goog.require('low.ui.Page');
+goog.require('low.service.Token');
 goog.require('low.ui.home.GameDialog');
 
 
@@ -22,8 +22,8 @@ low.ui.home.GameCreateButton = function() {
   /** @protected {goog.log.Logger} */
   this.logger = goog.log.getLogger('low.ui.home.GameCreateButton');
 
-  /** @private {!low.controller.Page} */
-  this.pageController_ = low.controller.Page.getInstance();
+  /** @private {!low.service.Token} */
+  this.tokenService_ = low.service.Token.getInstance();
 
   /** @private {!low.service.Game} */
   this.gameService_ = low.service.Game.getInstance();
@@ -70,8 +70,8 @@ low.ui.home.GameCreateButton.prototype.onConfirm_ = function(name, color) {
   this.gameService_.createGame(name, color).addCallbacks(
       function() {
         var currentGame = this.gameService_.getCurrentGame();
-        this.pageController_.setCurrentToken(
-            low.ui.Page.WAITING_ROOM, currentGame.getKey());
+        this.tokenService_.setCurrentToken(
+            low.model.Page.WAITING_ROOM, currentGame.getKey());
       },
       function() {
         goog.log.info(this.logger, 'Failed to create the game.');

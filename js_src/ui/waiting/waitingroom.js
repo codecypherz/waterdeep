@@ -10,8 +10,8 @@ goog.require('goog.log');
 goog.require('goog.soy');
 goog.require('goog.ui.Component');
 goog.require('low');
-goog.require('low.controller.Page');
-goog.require('low.ui.Page');
+goog.require('low.model.Page');
+goog.require('low.service.Token');
 goog.require('low.ui.waiting.soy');
 
 
@@ -26,8 +26,8 @@ low.ui.waiting.WaitingRoom = function() {
   /** @protected {goog.log.Logger} */
   this.logger = goog.log.getLogger('low.ui.waiting.WaitingRoom');
 
-  /** @private {!low.controller.Page} */
-  this.pageController_ = low.controller.Page.getInstance();
+  /** @private {!low.service.Token} */
+  this.tokenService_ = low.service.Token.getInstance();
 };
 goog.inherits(low.ui.waiting.WaitingRoom, goog.ui.Component);
 
@@ -69,5 +69,5 @@ low.ui.waiting.WaitingRoom.prototype.enterDocument = function() {
 low.ui.waiting.WaitingRoom.prototype.leave_ = function() {
   goog.log.info(this.logger, 'Leaving the waiting room.');
 
-  this.pageController_.setCurrentToken(low.ui.Page.HOME);
+  this.tokenService_.setCurrentToken(low.model.Page.HOME);
 };
