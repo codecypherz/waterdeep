@@ -10,8 +10,6 @@ goog.require('goog.events.EventTarget');
 goog.require('goog.history.EventType');
 goog.require('goog.history.Html5History');
 goog.require('goog.log');
-goog.require('goog.object');
-goog.require('goog.string');
 goog.require('low');
 goog.require('low.ui.Page');
 
@@ -30,15 +28,16 @@ low.controller.Page = function() {
   /** @private {!goog.History|!goog.history.Html5History} */
   this.history_ = this.newHistory_();
 
-  /** @private {!low.ui.Page} */
-  this.currentPage_ = this.getPageForCurrentToken_();
-
-  // No harm in setting the token here since not listening yet.
-  if (this.currentPage_ != this.history_.getToken()) {
-    goog.log.info(this.logger,
-        'Initializing the token to be ' + this.currentPage_);
-    this.history_.setToken(this.currentPage_);
+  /** @private {!low.controller.Page.Token} */
+  this.currentToken_ = new low.controller.Page.Token(low.ui.Page.HOME, '');
+  if (this.history_.getToken()) {
+    this.currentToken_ = this.parseToken_(this.history_.getToken());
+  } else {
+    this.history_.setToken(this.currentToken_.toString());
   }
+
+  goog.log.info(this.logger,
+      'Initializing the token to be ' + this.currentToken_);
 
   // Start dispatching events.
   this.history_.setEnabled(true);
@@ -63,25 +62,28 @@ low.controller.Page.EventType = {
 
 
 /**
- * @return {!low.ui.Page} The current page.
+ * @return {!low.controller.Page.Token} The current token.
  */
-low.controller.Page.prototype.getCurrentPage = function() {
-  return this.currentPage_;
+low.controller.Page.prototype.getCurrentToken = function() {
+  return this.currentToken_;
 };
 
 
 /**
- * @param {!low.ui.Page} page The page to visit.
+ * Sets the current token to be the page/gameKey.
+ * @param {!low.ui.Page} page
+ * @param {string=} opt_gameKey
  */
-low.controller.Page.prototype.setCurrentPage = function(page) {
-  if (this.currentPage_ == page) {
-    goog.log.info(this.logger, 'Ignoring setting page to ' + page +
-        ' because it\'s the current page');
+low.controller.Page.prototype.setCurrentToken = function(page, opt_gameKey) {
+  var token = new low.controller.Page.Token(page, opt_gameKey);
+  if (this.currentToken_.equals(token)) {
+    goog.log.info(this.logger, 'Ignoring setting token to ' + token +
+        ' because it\'s the current token');
     return;
   }
   // This will trigger a NAVIGATE event which will trigger a PAGE_CHANGED event.
-  goog.log.info(this.logger, 'Setting current page to ' + page);
-  this.history_.setToken(page);
+  goog.log.info(this.logger, 'Setting current token to ' + token);
+  this.history_.setToken(token.toString());
 };
 
 
@@ -102,42 +104,92 @@ low.controller.Page.prototype.newHistory_ = function() {
 
 
 /**
- * Updates the current page based on the hash tag.
+ * Updates the based on the hash tag.
  * @param {!goog.history.Event} e
  * @private
  */
 low.controller.Page.prototype.onNavigate_ = function(e) {
   goog.log.info(this.logger, 'History event fired: ' + e.token +
       ', browser navigated ' + e.isNavigation);
-  this.update_();
-};
 
-
-/**
- * Updates the current page based on the hash tag.
- * @private
- */
-low.controller.Page.prototype.update_ = function() {
-  var page = this.getPageForCurrentToken_();
-  if (this.currentPage_ == page) {
+  var token = this.parseToken_(e.token);
+  if (this.currentToken_.equals(token)) {
+    goog.log.info(this.logger,
+        'History fired token event, but token is unchanged');
     return;
   }
-  this.currentPage_ = page;
+
+  goog.log.info(this.logger, 'Setting current token to ' + token);
+  this.currentToken_ = token;
   this.dispatchEvent(low.controller.Page.EventType.PAGE_CHANGED);
 };
 
 
 /**
- * Maps the current history token back to a page.
- * @return {!low.ui.Page} The page for the token.
+ * Parses the token given token.
+ * @param {string} rawHistoryToken The raw history token.
+ * @return {!low.controller.Page.Token} The parsed data.
  * @private
  */
-low.controller.Page.prototype.getPageForCurrentToken_ = function() {
-  var token = this.history_.getToken();
-  var foundPage = /** @type {low.ui.Page} */ (goog.object.findValue(
-      low.ui.Page,
-      function(value, key, object) {
-        return goog.string.caseInsensitiveCompare(value, token) == 0;
-      }));
-  return foundPage || low.ui.Page.HOME;
+low.controller.Page.prototype.parseToken_ = function(rawHistoryToken) {
+
+  // Split the token into its parts (e.g. waiting_room/1234).
+  var parts = rawHistoryToken.split('/');
+  var pagePart = parts[0];
+  var gameKey = '';
+  if (parts.length > 1) {
+    gameKey = parts[1];
+  }
+
+  var page = /** @type {low.ui.Page} */ (
+      low.stringToEnum(pagePart, low.ui.Page));
+  if (!page) {
+    goog.log.warning(this.logger,
+        'No page found for this token: ' + rawHistoryToken);
+    page = low.ui.Page.HOME;
+  }
+
+  return new low.controller.Page.Token(page, gameKey);
+};
+
+
+
+/**
+ * Represents the parsed data things following the hash tag.
+ * @param {!low.ui.Page} page
+ * @param {string=} opt_gameKey
+ * @constructor
+ */
+low.controller.Page.Token = function(page, opt_gameKey) {
+
+  /** @type {!low.ui.Page} */
+  this.page = page;
+
+  /** @type {string} */
+  this.gameKey = opt_gameKey || '';
+};
+
+
+/**
+ * @return {string} The string representation of the token.
+ */
+low.controller.Page.Token.prototype.toString = function() {
+  if (this.gameKey) {
+    return this.page + '/' + this.gameKey;
+  }
+  return this.page;
+};
+
+
+/**
+ * Checks if the given token is equal to this one.
+ * @param {low.controller.Page.Token} other The to token to compare.
+ * @return {boolean} True if the other token equals this one.
+ */
+low.controller.Page.Token.prototype.equals = function(other) {
+  if (goog.isDefAndNotNull(other)) {
+    return this.page == other.page && this.gameKey == other.gameKey;
+  } else {
+    return false;
+  }
 };

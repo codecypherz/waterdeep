@@ -35,9 +35,6 @@ low.ui.PageContainer = function() {
    */
   this.pageToCtorMap_ = {};
 
-  // TODO Do NOT refer to the constructors.  Refer instead to something that
-  // will ultimately late-load the JS responsible for rendering the page.
-
   // Map the pages.
   this.pageToCtorMap_[low.ui.Page.HOME] = low.ui.home.Home;
   this.pageToCtorMap_[low.ui.Page.WAITING_ROOM] = low.ui.waiting.WaitingRoom;
@@ -67,7 +64,7 @@ low.ui.PageContainer.prototype.renderPage_ = function() {
     child.dispose();
   });
 
-  var page = this.pageController_.getCurrentPage();
+  var page = this.pageController_.getCurrentToken().page;
   goog.log.info(this.logger, 'Rendering page: ' + page);
 
   var pageCtor = this.pageToCtorMap_[page];

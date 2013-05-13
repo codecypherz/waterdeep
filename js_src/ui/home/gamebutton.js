@@ -129,7 +129,10 @@ low.ui.home.GameButton.prototype.onConfirm_ = function(name, color) {
   goog.log.info(this.logger, 'joining game with ' + name + ' and ' + color);
   this.gameService_.joinGame(this.game_, name, color).addCallbacks(
       function() {
-        this.pageController_.setCurrentPage(low.ui.Page.WAITING_ROOM);
+        // Go to the waiting room for the current game.
+        var currentGame = this.gameService_.getCurrentGame();
+        this.pageController_.setCurrentToken(
+            low.ui.Page.WAITING_ROOM, currentGame.getKey());
       },
       function(error) {
         // TODO Show this error to the user.

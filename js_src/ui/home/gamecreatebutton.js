@@ -69,7 +69,9 @@ low.ui.home.GameCreateButton.prototype.onConfirm_ = function(name, color) {
   // Create the game and go to the waiting room once complete.
   this.gameService_.createGame(name, color).addCallbacks(
       function() {
-        this.pageController_.setCurrentPage(low.ui.Page.WAITING_ROOM);
+        var currentGame = this.gameService_.getCurrentGame();
+        this.pageController_.setCurrentToken(
+            low.ui.Page.WAITING_ROOM, currentGame.getKey());
       },
       function() {
         goog.log.info(this.logger, 'Failed to create the game.');

@@ -69,5 +69,5 @@ low.ui.waiting.WaitingRoom.prototype.enterDocument = function() {
 low.ui.waiting.WaitingRoom.prototype.leave_ = function() {
   goog.log.info(this.logger, 'Leaving the waiting room.');
 
-  this.pageController_.setCurrentPage(low.ui.Page.HOME);
+  this.pageController_.setCurrentToken(low.ui.Page.HOME);
 };
