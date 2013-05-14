@@ -16,7 +16,7 @@ echo ___________________________________________
 echo Running Lords of Waterdeep locally...
 echo.
 
-"C:\Program Files\eclipse\plugins\com.google.appengine.eclipse.sdkbundle_1.7.7\appengine-java-sdk-1.7.7\bin\dev_appserver.cmd" ^
+"C:\Program Files\eclipse\plugins\com.google.appengine.eclipse.sdkbundle_1.8.0\appengine-java-sdk-1.8.0\bin\dev_appserver.cmd" ^
    --port=8888 ..\war\
 
 echo ___________________________________________
