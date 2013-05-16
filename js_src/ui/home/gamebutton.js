@@ -67,16 +67,16 @@ low.ui.home.GameButton.prototype.createDom = function() {
     var player = this.game_.getPlayers()[i];
     if (player) {
       playerData.push({
-        'name': player.getName(),
-        'iconClass': low.ui.home.GameButton.COLOR_TO_CSS_MAP_[
+        name: player.getName(),
+        iconClass: low.ui.home.GameButton.COLOR_TO_CSS_MAP_[
             player.getColor()],
-        'isModerator': player.isModerator()
+        isModerator: player.isModerator()
       });
     } else {
       playerData.push({
-        'name': 'Open',
-        'iconClass': low.ui.home.GameButton.Css_.OPEN_ICON,
-        'isModerator': false
+        name: 'Open',
+        iconClass: low.ui.home.GameButton.Css_.OPEN_ICON,
+        isModerator: false
       });
     }
   }

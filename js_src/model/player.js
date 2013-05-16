@@ -25,6 +25,9 @@ low.model.Player = function(name, color, moderator) {
 
   /** @private {boolean} */
   this.moderator_ = moderator;
+
+  /** @private {boolean} */
+  this.isSelf_ = false;
 };
 
 
@@ -55,6 +58,20 @@ low.model.Player.prototype.getColor = function() {
 /** @return {boolean} */
 low.model.Player.prototype.isModerator = function() {
   return this.moderator_;
+};
+
+
+/**
+ * @param {boolean} isSelf
+ */
+low.model.Player.prototype.setSelf = function(isSelf) {
+  this.isSelf_ = isSelf;
+};
+
+
+/** @return {boolean} */
+low.model.Player.prototype.isSelf = function() {
+  return this.isSelf_;
 };
 
 

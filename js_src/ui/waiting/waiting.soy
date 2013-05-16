@@ -19,9 +19,38 @@
         <span id="{$ids.LEAVE_BUTTON|id}" class="{css low-waiting-leave-button}">
           [X] Leave
         </span>
-        <div>
+        <div id="{$ids.PLAYERS|id}" class="{css low-waiting-player-container}">
         </div>
       </div>
+    </div>
+  </div>
+{/template}
+
+
+/**
+ * HTML for a player in the waiting room.
+ * @param ids
+ * @param name
+ * @param isModerator
+ * @param iconClass
+ */
+{template .PLAYER}
+  <div class="{css low-waiting-player}">
+    <div class="{css sprite}{sp}{$iconClass}{sp}
+        {css low-waiting-player-icon}">
+    </div>
+    <div class="{css low-waiting-player-name-container}">
+      <div class="{css low-waiting-player-name}">
+        {$name}
+      </div>
+      {if $isModerator}
+        <div class="{css low-waiting-player-moderator}">
+          Moderator
+        </div>
+      {/if}
+    </div>
+    <div id="{$ids.BUTTON_CONTAINER|id}"
+        class="{css low-waiting-button-container}">
     </div>
   </div>
 {/template}

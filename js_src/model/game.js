@@ -5,6 +5,7 @@
 goog.provide('low.model.Game');
 
 goog.require('goog.array');
+goog.require('goog.asserts');
 goog.require('low.model.Player');
 
 
@@ -46,6 +47,17 @@ low.model.Game.prototype.getPlayers = function() {
  */
 low.model.Game.prototype.addPlayer = function(player) {
   this.players_.push(player);
+};
+
+
+/**
+ * @return {!low.model.Player} The player this client represents.
+ */
+low.model.Game.prototype.getSelf = function() {
+  var self = goog.array.find(this.players_, function(player) {
+    return player.isSelf();
+  });
+  return goog.asserts.assert(self);
 };
 
 

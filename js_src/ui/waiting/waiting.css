@@ -34,3 +34,31 @@
   right: 0;
   top: 0;
 }
+
+.low-waiting-player-container {
+	text-align: left;
+}
+
+.low-waiting-player {
+	line-height: 75px;
+	margin-top: 20px;
+}
+
+.low-waiting-player-icon,
+.low-waiting-player-name-container,
+.low-waiting-button-container {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.low-waiting-player-name-container {
+	font-size: 25px;
+	line-height: 25px;
+	margin-left: 15px;
+}
+
+.low-waiting-player-moderator {
+	font-size: 13px;
+	line-height: 13px;
+	margin-top: 3px;
+}

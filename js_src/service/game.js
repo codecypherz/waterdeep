@@ -91,6 +91,7 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
     goog.log.info(this.logger, 'Game created.');
     this.isBusy_ = false;
     this.currentGame_ = low.model.Game.fromJson(json);
+    this.currentGame_.getPlayers()[0].setSelf(true);
     return this.currentGame_;
   }, this);
 
@@ -131,6 +132,7 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
     var joinResult = response.getResult();
     if (joinResult == low.message.JoinGameResponse.Result.SUCCESS) {
       var player = new low.model.Player(name, color, false);
+      player.setSelf(true);
       game.addPlayer(player);
       this.currentGame_ = game;
       return;
