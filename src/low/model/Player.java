@@ -10,6 +10,7 @@ public class Player {
 		YELLOW
 	}
 	
+	private String clientId;
 	private String name;
 	private boolean moderator;
 	private Color color;
@@ -17,10 +18,15 @@ public class Player {
 	public Player() {
 	}
 	
-	public Player(String name, Color color, boolean moderator) {
+	public Player(String clientId, String name, Color color, boolean moderator) {
+		this.clientId = clientId;
 		this.name = name;
 		this.color = color;
 		this.moderator = moderator;
+	}
+	
+	public String getClientId() {
+		return clientId;
 	}
 	
 	public String getName() {

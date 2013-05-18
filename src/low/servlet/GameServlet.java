@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import low.annotation.GameKey;
 import low.message.JoinGameRequest;
 import low.message.JoinGameResponse;
-import low.message.JoinGameResponse.Result;
 import low.model.Game;
 import low.model.Player.Color;
 import low.service.GameService;
+import low.util.CookieUtil;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.gson.Gson;
@@ -33,13 +33,16 @@ public class GameServlet extends HttpServlet {
 	
 	private final GameService gameService;
 	private final @GameKey Provider<Key> gameKeyProvider;
+	private final CookieUtil cookieUtil;
 	
 	@Inject
 	public GameServlet(
 			GameService gameService,
-			@GameKey Provider<Key> gameKeyProvider) {
+			@GameKey Provider<Key> gameKeyProvider,
+			CookieUtil cookieUtil) {
 		this.gameService = gameService;
 		this.gameKeyProvider = gameKeyProvider;
+		this.cookieUtil = cookieUtil;
 	}
 	
 	/**
@@ -49,8 +52,13 @@ public class GameServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		
-		logger.info("\n\n" + gameKeyProvider.get() + "\n\n");
+		logger.info("Fetching game for this key: " + gameKeyProvider.get());
 		Game game = gameService.getGame(gameKeyProvider.get());
+		if (game == null) {
+			res.sendError(HttpResponseCode.NOT_FOUND.getCode());
+			return;
+		}
+
 		res.getWriter().write(new Gson().toJson(game));
 	}
 	
@@ -81,9 +89,9 @@ public class GameServlet extends HttpServlet {
 		Color color = Color.valueOf(colorString.toUpperCase());
 		
 		// Try to join the game and send the result.
-		boolean success = gameService.joinGame(
+		JoinGameResponse response = gameService.joinGame(
 				gameKeyProvider.get(), name, color);
-		Result result = success ? Result.SUCCESS : Result.COLOR_TAKEN;
-		res.getWriter().write(gson.toJson(new JoinGameResponse(result)));
+		cookieUtil.setClientId();
+		res.getWriter().write(gson.toJson(response));
 	}
 }

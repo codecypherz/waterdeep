@@ -1,6 +1,3 @@
-/**
- * The model for a player in a game.
- */
 
 goog.provide('low.model.Player');
 
@@ -10,12 +7,17 @@ goog.require('low');
 
 
 /**
+ * The model for a player in a game.
+ * @param {string} clientId
  * @param {string} name
  * @param {!low.model.Player.Color} color
  * @param {boolean} moderator
  * @constructor
  */
-low.model.Player = function(name, color, moderator) {
+low.model.Player = function(clientId, name, color, moderator) {
+
+  /** @private {string} */
+  this.clientId_ = clientId;
 
   /** @private {string} */
   this.name_ = name;
@@ -40,6 +42,12 @@ low.model.Player.Color = {
   GREEN: 'green',
   RED: 'red',
   YELLOW: 'yellow'
+};
+
+
+/** @return {string} */
+low.model.Player.prototype.getClientId = function() {
+  return this.clientId_;
 };
 
 
@@ -80,10 +88,11 @@ low.model.Player.prototype.isSelf = function() {
  * @return {!low.model.Player} The parsed player model.
  */
 low.model.Player.fromJson = function(json) {
+  var clientId = json['clientId'] || '';
   var name = json['name'] || '';
   var moderator = json['moderator'] || false;
   var color = /** @type {low.model.Player.Color} */ (
       low.stringToEnum(json['color'] || '', low.model.Player.Color));
   color = goog.asserts.assert(color);
-  return new low.model.Player(name, color, moderator);
+  return new low.model.Player(clientId, name, color, moderator);
 };

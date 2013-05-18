@@ -13,6 +13,7 @@ goog.require('goog.log');
 goog.require('low');
 goog.require('low.model.Page');
 goog.require('low.model.Token');
+goog.require('low.service.Game');
 
 
 
@@ -26,16 +27,26 @@ low.service.Token = function() {
   /** @protected {goog.log.Logger} */
   this.logger = goog.log.getLogger('low.service.Token');
 
+  /** @private {!low.service.Game} */
+  this.gameService_ = low.service.Game.getInstance();
+
   /** @private {!goog.History|!goog.history.Html5History} */
   this.history_ = this.newHistory_();
 
   /** @private {!low.model.Token} */
-  this.currentToken_ = new low.model.Token(low.model.Page.HOME, '');
+  this.currentToken_ = new low.model.Token(low.model.Page.HOME);
+
+  // Validate the token if one was already set.  This can happen with a simple
+  // bookmark of the homepage or something more complicated like the user
+  // refreshing in the waiting room or during a game.
   if (this.history_.getToken()) {
-    this.currentToken_ = this.parseToken_(this.history_.getToken());
-  } else {
-    this.history_.setToken(this.currentToken_.toString());
+    this.currentToken_ = this.validateAndInit_(this.history_.getToken());
   }
+
+  // Make sure the history token agrees with the current token in case the
+  // initialization changed something.  For example, going from the waiting room
+  // to the home screen because there was no game key.
+  this.history_.setToken(this.currentToken_.toString());
 
   goog.log.info(this.logger,
       'Initializing the token to be ' + this.currentToken_);
@@ -102,6 +113,46 @@ low.service.Token.prototype.newHistory_ = function() {
     goog.log.info(this.logger, 'Using closure history.');
     return new goog.History();
   }
+};
+
+
+/**
+ * Validates the token, and initializes anything needed.
+ * @param {string} tokenString The token with which to initialize.
+ * @return {!low.model.Token} The token to use initially.
+ * @private
+ */
+low.service.Token.prototype.validateAndInit_ = function(tokenString) {
+  var parsedToken = this.parseToken_(tokenString);
+
+  if (parsedToken.page == low.model.Page.WAITING_ROOM) {
+    if (parsedToken.gameKey) {
+
+      // Start reloading the game.
+      this.gameService_.reloadGame(parsedToken.gameKey).addCallbacks(
+          function() { // callback
+            // The game loaded, so now it's okay to load the waiting room.
+            var currentGame = this.gameService_.getCurrentGame();
+            this.setCurrentToken(
+                low.model.Page.WAITING_ROOM, currentGame.getKey());
+          },
+          function(e) { // errback
+            goog.log.error(this.logger, 'Failed to reload the game: ' + e);
+            this.setCurrentToken(low.model.Page.HOME);
+          }, this);
+
+      // Need to download game information, so start with a loading screen.
+      return new low.model.Token(low.model.Page.LOADING, parsedToken.gameKey);
+
+    } else {
+      goog.log.error(this.logger,
+          'Tried to enter the waiting room without a game key.');
+      return new low.model.Token(low.model.Page.HOME);
+    }
+  }
+
+  // Return the parsed token by default.
+  return parsedToken;
 };
 
 

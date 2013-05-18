@@ -4,7 +4,13 @@ import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+
+import low.annotation.ClientId;
+import low.message.JoinGameResponse;
+import low.message.JoinGameResponse.Result;
 import low.model.Game;
 import low.model.Player;
 import low.model.Player.Color;
@@ -17,13 +23,18 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class GameService {
-
+	
+	private static final Logger logger = Logger.getLogger(GameService.class.getName());
+	
 	private final Provider<ObjectDatastore> datastoreProvider;
+	private final Provider<String> clientIdProvider;
 	
 	@Inject
 	public GameService(
-			Provider<ObjectDatastore> datastoreProvider) {
+			Provider<ObjectDatastore> datastoreProvider,
+			@ClientId Provider<String> clientIdProvider) {
 		this.datastoreProvider = datastoreProvider;
+		this.clientIdProvider = clientIdProvider;
 	}
 	
 	/**
@@ -58,7 +69,11 @@ public class GameService {
 	 */
 	public Game newGame(String moderatorName, Color color) {
 		ObjectDatastore datastore = datastoreProvider.get();
-		Game game = new Game(moderatorName, color);
+		String clientId = clientIdProvider.get();
+		
+		Game game = new Game();
+		game.addPlayer(new Player(clientId, moderatorName, color, true));
+		
 		datastore.store().instance(game).now();
 		Key key = datastore.associatedKey(game);
 		game.setKey(KeyFactory.keyToString(key));
@@ -70,10 +85,13 @@ public class GameService {
 	 * @param key The game's key.
 	 * @return The game, if found.
 	 */
+	@Nullable
 	public Game getGame(Key key) {
 		ObjectDatastore datastore = datastoreProvider.get();
 		Game game = datastore.load(key);
-		game.setKey(KeyFactory.keyToString(key));
+		if (game != null) {
+			game.setKey(KeyFactory.keyToString(key));			
+		}
 		return game;
 	}
 	
@@ -82,21 +100,33 @@ public class GameService {
 	 * @param key The key of the game.
 	 * @param name The name of the player.
 	 * @param color Their color.
-	 * @return True if successful, false if the color has been chosen.
+	 * @return The result of the join game attempt.
 	 */
-	public boolean joinGame(Key key, String name, Color color) {
-		ObjectDatastore datastore = datastoreProvider.get();
-		Game game = datastore.load(key);
+	public JoinGameResponse joinGame(Key key, String name, Color color) {
+		logger.info(name + " is joining this game: " + key);
+		Game game = getGame(key);
+		if (game == null) {
+			return new JoinGameResponse(Result.NOT_FOUND);
+		}
+		
+		// Make sure the game isn't full.
+		if (game.isFull()) {
+			return new JoinGameResponse(Result.GAME_FULL);
+		}
 		
 		// Make sure the color isn't taken.
 		for (Player player : game.getPlayers()) {
 			if (player.getColor() == color) {
-				return false;
+				return new JoinGameResponse(Result.COLOR_TAKEN);
 			}
 		}
 		
-		game.addPlayer(name, color);
+		// Update the game.
+		String clientId = clientIdProvider.get();
+		game.addPlayer(new Player(clientId, name, color, false));
+		ObjectDatastore datastore = datastoreProvider.get();
 		datastore.update(game);
-		return true;
+		
+		return new JoinGameResponse(Result.SUCCESS, game);
 	}
 }

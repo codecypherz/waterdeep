@@ -2,8 +2,6 @@ package low.model;
 
 import java.util.List;
 
-import low.model.Player.Color;
-
 import com.google.code.twig.annotation.Embed;
 import com.google.code.twig.annotation.Store;
 import com.google.common.collect.Lists;
@@ -24,12 +22,6 @@ public class Game {
 		full = false;
 	}
 	
-	public Game(String moderatorName, Color color) {
-		this();
-		Player moderator = new Player(moderatorName, color, true);
-		players.add(moderator);
-	}
-	
 	public String getKey() {
 		return key;
 	}
@@ -45,9 +37,9 @@ public class Game {
 		return full;
 	}
 	
-	public void addPlayer(String name, Color color) {
+	public void addPlayer(Player player) {
 		assert(!full);
-		players.add(new Player(name, color, false));
+		players.add(player);
 		if (players.size() == MAX_PLAYERS) {
 			full = true;
 		}

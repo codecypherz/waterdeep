@@ -57,7 +57,7 @@ low.model.Game.prototype.getSelf = function() {
   var self = goog.array.find(this.players_, function(player) {
     return player.isSelf();
   });
-  return goog.asserts.assert(self);
+  return goog.asserts.assert(self, 'The self player could not be found.');
 };
 
 

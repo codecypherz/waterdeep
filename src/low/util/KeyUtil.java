@@ -5,7 +5,9 @@ import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.inject.Singleton;
 
+@Singleton
 public class KeyUtil {
 
 	private static final Logger logger = Logger.getLogger(KeyUtil.class.getName());

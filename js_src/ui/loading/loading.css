@@ -1,0 +1,16 @@
+/**
+ * CSS for the loading page.
+ */
+
+.low-loading {
+  padding-bottom: 50px;
+  text-align: center;
+}
+
+.low-loading-container {
+  background-color: rgba(0, 0, 0, 0.8);
+  display: inline-block;
+  font-size: 60px;
+  padding: 30px 60px;
+  @mixin border_radius(30px);
+}

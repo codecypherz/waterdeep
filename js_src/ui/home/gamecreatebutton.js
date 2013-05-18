@@ -73,8 +73,8 @@ low.ui.home.GameCreateButton.prototype.onConfirm_ = function(name, color) {
         this.tokenService_.setCurrentToken(
             low.model.Page.WAITING_ROOM, currentGame.getKey());
       },
-      function() {
-        goog.log.info(this.logger, 'Failed to create the game.');
+      function(e) {
+        goog.log.error(this.logger, 'Failed to create the game: ' + e);
       },
       this);
 };

@@ -8,5 +8,6 @@ goog.provide('low.model.Page');
  */
 low.model.Page = {
   HOME: 'home',
+  LOADING: 'loading',
   WAITING_ROOM: 'waiting_room'
 };

@@ -12,6 +12,7 @@ goog.require('goog.ui.Component');
 goog.require('low.model.Page');
 goog.require('low.service.Token');
 goog.require('low.ui.home.Home');
+goog.require('low.ui.loading.Loading');
 goog.require('low.ui.waiting.WaitingRoom');
 
 
@@ -37,6 +38,7 @@ low.model.PageContainer = function() {
 
   // Map the pages.
   this.pageToCtorMap_[low.model.Page.HOME] = low.ui.home.Home;
+  this.pageToCtorMap_[low.model.Page.LOADING] = low.ui.loading.Loading;
   this.pageToCtorMap_[low.model.Page.WAITING_ROOM] = low.ui.waiting.WaitingRoom;
 };
 goog.inherits(low.model.PageContainer, goog.ui.Component);
@@ -68,7 +70,7 @@ low.model.PageContainer.prototype.renderPage_ = function() {
   goog.log.info(this.logger, 'Rendering page: ' + page);
 
   var pageCtor = this.pageToCtorMap_[page];
-  goog.asserts.assert(pageCtor);
+  goog.asserts.assert(pageCtor, 'No constructor for ' + page);
   var pageComponent = new pageCtor();
   this.addChild(pageComponent, true);
 };

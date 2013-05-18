@@ -5,6 +5,7 @@
 goog.provide('low.service.Game');
 
 goog.require('goog.Uri');
+goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.events.EventTarget');
 goog.require('goog.log');
@@ -13,7 +14,7 @@ goog.require('low.message.CreateGameRequest');
 goog.require('low.message.JoinGameRequest');
 goog.require('low.message.JoinGameResponse');
 goog.require('low.model.Game');
-goog.require('low.model.Player');
+goog.require('low.service.Cookie');
 goog.require('low.service.Xhr');
 
 
@@ -30,6 +31,9 @@ low.service.Game = function() {
 
   /** @private {!low.service.Xhr} */
   this.xhrService_ = low.service.Xhr.getInstance();
+
+  /** @private {!low.service.Cookie} */
+  this.cookieService_ = low.service.Cookie.getInstance();
 
   /**
    * True if currently trying to create or join a game.
@@ -91,7 +95,7 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
     goog.log.info(this.logger, 'Game created.');
     this.isBusy_ = false;
     this.currentGame_ = low.model.Game.fromJson(json);
-    this.currentGame_.getPlayers()[0].setSelf(true);
+    this.markSelf_(this.currentGame_);
     return this.currentGame_;
   }, this);
 
@@ -131,10 +135,9 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
     var response = low.message.JoinGameResponse.fromJson(json);
     var joinResult = response.getResult();
     if (joinResult == low.message.JoinGameResponse.Result.SUCCESS) {
-      var player = new low.model.Player(name, color, false);
-      player.setSelf(true);
-      game.addPlayer(player);
-      this.currentGame_ = game;
+      this.currentGame_ = goog.asserts.assert(
+          response.getGame(), 'Join success, but no game!');
+      this.markSelf_(this.currentGame_);
       return;
     } else {
       throw Error(joinResult);
@@ -143,4 +146,55 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
   }, this);
 
   return deferred;
+};
+
+
+/**
+ * Loads the game that this client claims to have previously joined.
+ * @param {string} gameKey The game's key.
+ * @return {!goog.async.Deferred}
+ */
+low.service.Game.prototype.reloadGame = function(gameKey) {
+  goog.asserts.assert(!this.currentGame_,
+      'Cannot reload - client already has a game going.');
+  goog.asserts.assert(!this.isBusy_,
+      'Cannot reload - currently busy.');
+  goog.log.info(this.logger, 'Reloading a game with this key: ' + gameKey);
+  this.isBusy_ = true;
+
+  // Create the request URL.
+  var uri = new goog.Uri();
+  uri.setPath(low.Config.ServletPath.GAME + '/' + gameKey);
+
+  // Send the request.
+  var deferred = this.xhrService_.get(uri, true);
+
+  // Handle the response.
+  deferred.addCallback(function(json) {
+    goog.log.info(this.logger, 'Received reload response.');
+    this.isBusy_ = false;
+    this.currentGame_ = low.model.Game.fromJson(json);
+    this.markSelf_(this.currentGame_);
+  }, this);
+
+  return deferred;
+};
+
+
+/**
+ * Finds and marks the player representing this client.
+ * @param {!low.model.Game} game
+ * @private
+ */
+low.service.Game.prototype.markSelf_ = function(game) {
+  var clientId = this.cookieService_.get(low.service.Cookie.Name.CLIENT_ID);
+  var success = goog.array.some(game.getPlayers(), function(player) {
+    if (player.getClientId() == clientId) {
+      player.setSelf(true);
+      goog.log.info(this.logger, 'Marking ' + player.getName() + ' as self.');
+      return true; // Quit early.
+    }
+    return false; // Keep going.
+  }, this);
+  goog.asserts.assert(success, 'Failed to mark a player as self.');
 };
