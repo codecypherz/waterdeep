@@ -8,8 +8,11 @@ import low.service.GameService;
 import low.util.CookieUtil;
 import low.util.KeyUtil;
 
+import com.google.appengine.api.channel.ChannelService;
+import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 
 public class WaterdeepGuiceModule extends AbstractModule {
 
@@ -23,10 +26,16 @@ public class WaterdeepGuiceModule extends AbstractModule {
 			.toProvider(GameKeyProvider.class);
 		
 		// Services
+		// ChannelService is bound by provider method below.
 		bind(GameService.class);
 		
 		// Utilities
 		bind(CookieUtil.class);
 		bind(KeyUtil.class);
+	}
+	
+	@Provides
+	private ChannelService getChannelService() {
+		return ChannelServiceFactory.getChannelService();
 	}
 }

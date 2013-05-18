@@ -19,8 +19,10 @@ import com.google.inject.Singleton;
 
 /**
  * Servlet offering interaction with games.
- * POST here will result in a new game.
- * GET here will result in a list of games.
+ *
+ *  - POST: Creates a new game.
+ *  -  GET: Lists all active games.
+ *
  */
 @Singleton
 public class GamesServlet extends HttpServlet {

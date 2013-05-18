@@ -7,6 +7,7 @@ goog.provide('low.service.Game');
 goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.asserts');
+goog.require('goog.async.DeferredList');
 goog.require('goog.events.EventTarget');
 goog.require('goog.log');
 goog.require('low.Config');
@@ -14,6 +15,7 @@ goog.require('low.message.CreateGameRequest');
 goog.require('low.message.JoinGameRequest');
 goog.require('low.message.JoinGameResponse');
 goog.require('low.model.Game');
+goog.require('low.service.Channel');
 goog.require('low.service.Cookie');
 goog.require('low.service.Xhr');
 
@@ -34,6 +36,9 @@ low.service.Game = function() {
 
   /** @private {!low.service.Cookie} */
   this.cookieService_ = low.service.Cookie.getInstance();
+
+  /** @private {!low.service.Channel} */
+  this.channelService_ = low.service.Channel.getInstance();
 
   /**
    * True if currently trying to create or join a game.
@@ -85,19 +90,28 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
   uri.setPath(low.Config.ServletPath.GAMES);
 
   // Send the request.
-  var deferred = this.xhrService_.post(
+  var createGameDeferred = this.xhrService_.post(
       uri,
       new low.message.CreateGameRequest(moderatorName, color),
       true);
 
   // Handle the response.
-  deferred.addCallback(function(json) {
+  createGameDeferred.addCallback(function(json) {
     goog.log.info(this.logger, 'Game created.');
     this.isBusy_ = false;
     this.currentGame_ = low.model.Game.fromJson(json);
     this.markSelf_(this.currentGame_);
     return this.currentGame_;
   }, this);
+
+  // Create the channel if it doesn't already exist.
+  var initChannelDeferred = this.channelService_.init();
+
+  // Wait for both async operations to finish.
+  var deferred = goog.async.DeferredList.gatherResults([
+    createGameDeferred,
+    initChannelDeferred
+  ]);
 
   return deferred;
 };
@@ -122,12 +136,12 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
   var uri = new goog.Uri();
   uri.setPath(low.Config.ServletPath.GAME + '/' + game.getKey());
 
-  // Send the request.
-  var deferred = this.xhrService_.post(
+  // Send the request to join the game.
+  var joinGameDeferred = this.xhrService_.post(
       uri, new low.message.JoinGameRequest(name, color), true);
 
-  // Handle the response.
-  deferred.addCallback(function(json) {
+  // Handle the join game response.
+  joinGameDeferred.addCallback(function(json) {
     goog.log.info(this.logger, 'Received join game response.');
     this.isBusy_ = false;
 
@@ -144,6 +158,15 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
     }
 
   }, this);
+
+  // Create the channel if it doesn't already exist.
+  var initChannelDeferred = this.channelService_.init();
+
+  // Wait for both async operations to finish.
+  var deferred = goog.async.DeferredList.gatherResults([
+    joinGameDeferred,
+    initChannelDeferred
+  ]);
 
   return deferred;
 };
@@ -167,15 +190,24 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
   uri.setPath(low.Config.ServletPath.GAME + '/' + gameKey);
 
   // Send the request.
-  var deferred = this.xhrService_.get(uri, true);
+  var fetchGameDeferred = this.xhrService_.get(uri, true);
 
   // Handle the response.
-  deferred.addCallback(function(json) {
+  fetchGameDeferred.addCallback(function(json) {
     goog.log.info(this.logger, 'Received reload response.');
     this.isBusy_ = false;
     this.currentGame_ = low.model.Game.fromJson(json);
     this.markSelf_(this.currentGame_);
   }, this);
+
+  // Create the channel if it doesn't already exist.
+  var initChannelDeferred = this.channelService_.init();
+
+  // Wait for both async operations to finish.
+  var deferred = goog.async.DeferredList.gatherResults([
+    fetchGameDeferred,
+    initChannelDeferred
+  ]);
 
   return deferred;
 };

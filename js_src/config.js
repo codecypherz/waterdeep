@@ -44,6 +44,7 @@ goog.addSingletonGetter(low.Config);
  * @enum {string}
  */
 low.Config.ServletPath = {
+  CHANNELS: '/channels',
   GAME: '/game',
   GAMES: '/games'
 };

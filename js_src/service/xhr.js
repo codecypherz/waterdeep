@@ -82,7 +82,7 @@ low.service.Xhr.prototype.get = function(uri, opt_processJsonResponse) {
 /**
  * Sends a POST request to the given URI.
  * @param {!goog.Uri} uri The URI to which to make the request.
- * @param {!low.message.Message} message The message to post.
+ * @param {low.message.Message=} opt_message The message to post.
  * @param {boolean=} opt_processJsonResponse True if a JSON response is expected
  *     and should be processed.  If so, then the value passed in the callback
  *     will be the validated JSON.
@@ -91,11 +91,13 @@ low.service.Xhr.prototype.get = function(uri, opt_processJsonResponse) {
  *     an error occurs.
  */
 low.service.Xhr.prototype.post = function(
-    uri, message, opt_processJsonResponse) {
+    uri, opt_message, opt_processJsonResponse) {
   var deferred = new goog.async.Deferred();
 
   var requestId = this.idGenerator_.getNextUniqueId();
-  var json = goog.json.serialize(message.toJson());
+
+  var json = opt_message ?
+      goog.json.serialize(opt_message.toJson()) : undefined;
   this.xhrManager_.send(requestId, uri.toString(), 'POST', json);
   this.pendingMap_[requestId] = deferred;
 
