@@ -1,5 +1,5 @@
 
-goog.provide('low.ui.home.GameButton');
+goog.provide('low.ui.home.GameJoinButton');
 
 goog.require('goog.events.EventType');
 goog.require('goog.log');
@@ -16,16 +16,16 @@ goog.require('low.ui.home.soy');
 
 
 /**
- * The component representing a single game.
+ * The component representing a single game and allows the user to join it.
  * @constructor
  * @param {!low.model.Game} game
  * @extends {goog.ui.Button}
  */
-low.ui.home.GameButton = function(game) {
+low.ui.home.GameJoinButton = function(game) {
   goog.base(this, null);
 
   /** @protected {goog.log.Logger} */
-  this.logger = goog.log.getLogger('low.ui.home.GameButton');
+  this.logger = goog.log.getLogger('low.ui.home.GameJoinButton');
 
   /** @private {!low.model.Game} */
   this.game_ = game;
@@ -36,11 +36,11 @@ low.ui.home.GameButton = function(game) {
   /** @private {!low.service.Game} */
   this.gameService_ = low.service.Game.getInstance();
 };
-goog.inherits(low.ui.home.GameButton, goog.ui.Button);
+goog.inherits(low.ui.home.GameJoinButton, goog.ui.Button);
 
 
 /** @private {!Object} */
-low.ui.home.GameButton.COLOR_TO_CSS_MAP_ = goog.object.create(
+low.ui.home.GameJoinButton.COLOR_TO_CSS_MAP_ = goog.object.create(
     low.model.Player.Color.BLACK, goog.getCssName('holder-black-22'),
     low.model.Player.Color.BLUE, goog.getCssName('holder-blue-22'),
     low.model.Player.Color.GREEN, goog.getCssName('holder-green-22'),
@@ -53,13 +53,13 @@ low.ui.home.GameButton.COLOR_TO_CSS_MAP_ = goog.object.create(
  * @enum {string}
  * @private
  */
-low.ui.home.GameButton.Css_ = {
+low.ui.home.GameJoinButton.Css_ = {
   OPEN_ICON: goog.getCssName('holder-other-22')
 };
 
 
 /** @override */
-low.ui.home.GameButton.prototype.createDom = function() {
+low.ui.home.GameJoinButton.prototype.createDom = function() {
 
   // Create the template data.
   var playerData = [];
@@ -68,14 +68,14 @@ low.ui.home.GameButton.prototype.createDom = function() {
     if (player) {
       playerData.push({
         name: player.getName(),
-        iconClass: low.ui.home.GameButton.COLOR_TO_CSS_MAP_[
+        iconClass: low.ui.home.GameJoinButton.COLOR_TO_CSS_MAP_[
             player.getColor()],
         isModerator: player.isModerator()
       });
     } else {
       playerData.push({
         name: 'Open',
-        iconClass: low.ui.home.GameButton.Css_.OPEN_ICON,
+        iconClass: low.ui.home.GameJoinButton.Css_.OPEN_ICON,
         isModerator: false
       });
     }
@@ -90,7 +90,7 @@ low.ui.home.GameButton.prototype.createDom = function() {
 
 
 /** @override */
-low.ui.home.GameButton.prototype.enterDocument = function() {
+low.ui.home.GameJoinButton.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
 
   // Don't using goog.ui.Component.EventType.ACTION because it's fired twice
@@ -105,7 +105,7 @@ low.ui.home.GameButton.prototype.enterDocument = function() {
  * Prompts the user to join a new game.
  * @private
  */
-low.ui.home.GameButton.prototype.promptToJoin_ = function() {
+low.ui.home.GameJoinButton.prototype.promptToJoin_ = function() {
   if (this.gameService_.isBusy()) {
     alert('Busy either joining or creating a game.');
     return;
@@ -125,7 +125,7 @@ low.ui.home.GameButton.prototype.promptToJoin_ = function() {
  * @param {!low.model.Player.Color} color The color they chose.
  * @private
  */
-low.ui.home.GameButton.prototype.onConfirm_ = function(name, color) {
+low.ui.home.GameJoinButton.prototype.onConfirm_ = function(name, color) {
   goog.log.info(this.logger, 'joining game with ' + name + ' and ' + color);
   this.gameService_.joinGame(this.game_, name, color).addCallbacks(
       function() {
@@ -135,8 +135,8 @@ low.ui.home.GameButton.prototype.onConfirm_ = function(name, color) {
             low.model.Page.WAITING_ROOM, currentGame.getKey());
       },
       function(error) {
-        // TODO Show this error to the user.
         goog.log.error(this.logger, 'Failed to join the game: ' + error);
+        // TODO Show the error in a message bar.
       },
       this);
 };

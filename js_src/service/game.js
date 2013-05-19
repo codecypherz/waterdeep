@@ -97,8 +97,7 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
 
   // Handle the response.
   createGameDeferred.addCallback(function(json) {
-    goog.log.info(this.logger, 'Game created.');
-    this.isBusy_ = false;
+    goog.log.info(this.logger, 'Received create game response.');
     this.currentGame_ = low.model.Game.fromJson(json);
     this.markSelf_(this.currentGame_);
     return this.currentGame_;
@@ -112,6 +111,10 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
     createGameDeferred,
     initChannelDeferred
   ]);
+  deferred.addCallback(function() {
+    goog.log.info(this.logger, 'Finished creating the game.');
+    this.isBusy_ = false;
+  }, this);
 
   return deferred;
 };
@@ -167,6 +170,10 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
     joinGameDeferred,
     initChannelDeferred
   ]);
+  deferred.addCallback(function() {
+    goog.log.info(this.logger, 'Finished joining the game.');
+    this.isBusy_ = false;
+  }, this);
 
   return deferred;
 };
@@ -195,7 +202,6 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
   // Handle the response.
   fetchGameDeferred.addCallback(function(json) {
     goog.log.info(this.logger, 'Received reload response.');
-    this.isBusy_ = false;
     this.currentGame_ = low.model.Game.fromJson(json);
     this.markSelf_(this.currentGame_);
   }, this);
@@ -208,6 +214,10 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
     fetchGameDeferred,
     initChannelDeferred
   ]);
+  deferred.addCallback(function() {
+    goog.log.info(this.logger, 'Finished reloading the game.');
+    this.isBusy_ = false;
+  }, this);
 
   return deferred;
 };

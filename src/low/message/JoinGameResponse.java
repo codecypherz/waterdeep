@@ -10,6 +10,7 @@ public class JoinGameResponse {
 	private Game game;
 
 	public enum Result {
+		ALREADY_JOINED,
 		COLOR_TAKEN,
 		GAME_FULL,
 		NOT_FOUND,

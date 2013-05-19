@@ -29,6 +29,7 @@ low.message.JoinGameResponse = function(result, game) {
  * @enum {string}
  */
 low.message.JoinGameResponse.Result = {
+  ALREADY_JOINED: 'already_joined',
   COLOR_TAKEN: 'color_taken',
   GAME_FULL: 'game_full',
   NOT_FOUND: 'not_found',
@@ -70,6 +71,7 @@ low.message.JoinGameResponse.fromJson = function(json) {
           json['result'] || '',
           low.message.JoinGameResponse.Result));
   result = goog.asserts.assert(result);
-  var game = low.model.Game.fromJson(json['game']);
+
+  var game = json['game'] ? low.model.Game.fromJson(json['game']) : null;
   return new low.message.JoinGameResponse(result, game);
 };

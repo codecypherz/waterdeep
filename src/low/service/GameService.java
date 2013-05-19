@@ -107,10 +107,18 @@ public class GameService {
 	 * @return The result of the join game attempt.
 	 */
 	public JoinGameResponse joinGame(Key key, String name, Color color) {
-		logger.info(name + " is joining this game: " + key);
+		logger.info(name + " is attempting to join this game: " + key);
 		Game game = getGame(key);
 		if (game == null) {
 			return new JoinGameResponse(Result.NOT_FOUND);
+		}
+		
+		// Make sure this client isn't already in this game.
+		String clientId = clientIdProvider.get();
+		for (Player player : game.getPlayers()) {
+			if (clientId.equals(player.getClientId())) {
+				return new JoinGameResponse(Result.ALREADY_JOINED);
+			}
 		}
 		
 		// Make sure the game isn't full.
@@ -126,7 +134,6 @@ public class GameService {
 		}
 		
 		// Update the game.
-		String clientId = clientIdProvider.get();
 		Player player = new Player(clientId, name, color, false);
 		game.addPlayer(player);
 		ObjectDatastore datastore = datastoreProvider.get();
