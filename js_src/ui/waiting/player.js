@@ -9,7 +9,6 @@ goog.require('low');
 goog.require('low.model.Player');
 goog.require('low.service.Game');
 goog.require('low.ui');
-goog.require('low.ui.waiting.KickButton');
 goog.require('low.ui.waiting.StartGameButton');
 goog.require('low.ui.waiting.soy');
 
@@ -39,10 +38,9 @@ low.ui.waiting.Player = function(player) {
   if (game.getSelf().isModerator()) {
     if (this.player_.isModerator()) {
       this.actionButton_ = new low.ui.waiting.StartGameButton();
-    } else {
-      this.actionButton_ = new low.ui.waiting.KickButton(player);
+      this.addChild(this.actionButton_);
     }
-    this.addChild(this.actionButton_);
+    // TODO Else create the kick button.
   }
 };
 goog.inherits(low.ui.waiting.Player, goog.ui.Component);

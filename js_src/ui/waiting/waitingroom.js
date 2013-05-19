@@ -17,6 +17,7 @@ goog.require('low.model.Page');
 goog.require('low.service.Game');
 goog.require('low.service.Token');
 goog.require('low.ui.waiting.Player');
+goog.require('low.ui.waiting.Slot');
 goog.require('low.ui.waiting.soy');
 
 
@@ -109,6 +110,13 @@ low.ui.waiting.WaitingRoom.prototype.renderPlayers_ = function() {
       playerComponent.render(playersContainer);
     }
   }, this);
+
+  // Render empty slots for the rest.
+  for (var i = 0; i < 5 - this.game_.getPlayers().length; i++) {
+    var slot = new low.ui.waiting.Slot();
+    this.addChild(slot);
+    slot.render(playersContainer);
+  }
 };
 
 
