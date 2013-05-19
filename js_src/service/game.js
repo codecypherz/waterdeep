@@ -214,6 +214,15 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
 
 
 /**
+ * Starts the current game.
+ */
+low.service.Game.prototype.startCurrentGame = function() {
+  goog.log.info(this.logger, 'Starting the current game.');
+  // TODO Implement.
+};
+
+
+/**
  * Finds and marks the player representing this client.
  * @param {!low.model.Game} game
  * @private

@@ -9,6 +9,7 @@ goog.require('low');
 goog.require('low.model.Player');
 goog.require('low.service.Game');
 goog.require('low.ui');
+goog.require('low.ui.waiting.StartGameButton');
 goog.require('low.ui.waiting.soy');
 
 
@@ -36,11 +37,11 @@ low.ui.waiting.Player = function(player) {
   this.actionButton_ = null;
   if (game.getSelf().isModerator()) {
     if (this.player_.isModerator()) {
-      // TODO Create the start button.
+      this.actionButton_ = new low.ui.waiting.StartGameButton();
+      this.addChild(this.actionButton_);
     } else {
       // TODO Create the kick button.
     }
-    //this.addChild(this.actionButton_);
   }
 };
 goog.inherits(low.ui.waiting.Player, goog.ui.Component);

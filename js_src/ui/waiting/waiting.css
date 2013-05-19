@@ -62,3 +62,15 @@
 	line-height: 13px;
 	margin-top: 3px;
 }
+
+.low-waiting-outer-button-container {
+	float: right;
+}
+
+.low-waiting-button-container {
+	line-height: initial;
+}
+
+.low-waiting-button-container button {
+	font-size: 18px;
+}
