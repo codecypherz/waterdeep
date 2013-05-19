@@ -2,8 +2,11 @@ package low.module;
 
 import low.annotation.ClientId;
 import low.annotation.GameKey;
+import low.annotation.RequestMessage;
+import low.message.Message;
 import low.provider.ClientIdProvider;
 import low.provider.GameKeyProvider;
+import low.provider.RequestMessageProvider;
 import low.service.GameService;
 import low.service.MessageService;
 import low.util.CookieUtil;
@@ -25,6 +28,8 @@ public class WaterdeepGuiceModule extends AbstractModule {
 			.toProvider(ClientIdProvider.class);
 		bind(Key.class).annotatedWith(GameKey.class)
 			.toProvider(GameKeyProvider.class);
+		bind(Message.class).annotatedWith(RequestMessage.class)
+			.toProvider(RequestMessageProvider.class);
 		
 		// Services
 		// ChannelService is bound by provider method below.

@@ -9,8 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import low.annotation.GameKey;
+import low.annotation.RequestMessage;
 import low.message.JoinGameRequest;
 import low.message.JoinGameResponse;
+import low.message.Message;
 import low.model.Game;
 import low.model.Player.Color;
 import low.service.GameService;
@@ -33,15 +35,18 @@ public class GameServlet extends HttpServlet {
 	
 	private final GameService gameService;
 	private final @GameKey Provider<Key> gameKeyProvider;
+	private final @RequestMessage Provider<Message> requestMessageProvider;
 	private final CookieUtil cookieUtil;
 	
 	@Inject
 	public GameServlet(
 			GameService gameService,
 			@GameKey Provider<Key> gameKeyProvider,
+			@RequestMessage Provider<Message> requestMessageProvider,
 			CookieUtil cookieUtil) {
 		this.gameService = gameService;
 		this.gameKeyProvider = gameKeyProvider;
+		this.requestMessageProvider = requestMessageProvider;
 		this.cookieUtil = cookieUtil;
 	}
 	
@@ -69,9 +74,13 @@ public class GameServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		
-		Gson gson = new Gson();
-		JoinGameRequest joinGameRequest = gson.fromJson(
-				req.getReader(), JoinGameRequest.class);
+		Message message = requestMessageProvider.get();
+		if (message == null) {
+			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
+			return;
+		}
+		
+		JoinGameRequest joinGameRequest = (JoinGameRequest) message;
 		
 		// Validate the moderator name.
 		String name = joinGameRequest.getName();
@@ -92,6 +101,6 @@ public class GameServlet extends HttpServlet {
 		JoinGameResponse response = gameService.joinGame(
 				gameKeyProvider.get(), name, color);
 		cookieUtil.setClientId();
-		res.getWriter().write(gson.toJson(response));
+		res.getWriter().write(new Gson().toJson(response));
 	}
 }

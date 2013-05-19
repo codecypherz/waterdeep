@@ -5,6 +5,7 @@
 goog.provide('low.message.CreateGameRequest');
 
 goog.require('low.message.Message');
+goog.require('low.message.Type');
 
 
 
@@ -12,9 +13,10 @@ goog.require('low.message.Message');
  * @param {string} moderatorName The name of the moderator creating the game.
  * @param {!low.model.Player.Color} color The player color.
  * @constructor
- * @implements {low.message.Message}
+ * @extends {low.message.Message}
  */
 low.message.CreateGameRequest = function(moderatorName, color) {
+  goog.base(this, low.message.Type.CREATE_GAME_REQUEST);
 
   /** @private {string} */
   this.moderatorName_ = moderatorName;
@@ -22,12 +24,13 @@ low.message.CreateGameRequest = function(moderatorName, color) {
   /** @private {!low.model.Player.Color} */
   this.color_ = color;
 };
+goog.inherits(low.message.CreateGameRequest, low.message.Message);
 
 
 /** @override */
 low.message.CreateGameRequest.prototype.toJson = function() {
-  return {
-    'color': this.color_,
-    'moderatorName': this.moderatorName_
-  };
+  var json = goog.base(this, 'toJson');
+  json['color'] = this.color_;
+  json['moderatorName'] = this.moderatorName_;
+  return json;
 };

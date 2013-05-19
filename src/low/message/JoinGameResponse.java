@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 
 import low.model.Game;
 
-public class JoinGameResponse {
+public class JoinGameResponse extends Message {
 
 	private Result result;
 	private Game game;
@@ -17,13 +17,14 @@ public class JoinGameResponse {
 		SUCCESS;
 	}
 	
-	public JoinGameResponse(Result result) {
-		this(result, null);
-	}
-	
 	public JoinGameResponse(Result result, @Nullable Game game) {
+		super(Type.JOIN_GAME_RESPONSE);
 		this.result = result;
 		this.game = game;
+	}
+	
+	public JoinGameResponse(Result result) {
+		this(result, null);
 	}
 	
 	public Result getResult() {

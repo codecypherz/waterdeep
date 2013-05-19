@@ -3,19 +3,22 @@ goog.provide('low.message.CreateChannelResponse');
 
 goog.require('goog.asserts');
 goog.require('low.message.Message');
+goog.require('low.message.Type');
 
 
 
 /**
  * @param {string} token
  * @constructor
- * @implements {low.message.Message}
+ * @extends {low.message.Message}
  */
 low.message.CreateChannelResponse = function(token) {
+  goog.base(this, low.message.Type.CREATE_CHANNEL_RESPONSE);
 
   /** @private {string} */
   this.token_ = token;
 };
+goog.inherits(low.message.CreateChannelResponse, low.message.Message);
 
 
 /**
@@ -28,9 +31,9 @@ low.message.CreateChannelResponse.prototype.getToken = function() {
 
 /** @override */
 low.message.CreateChannelResponse.prototype.toJson = function() {
-  return {
-    'token': this.token_
-  };
+  var json = goog.base(this, 'toJson');
+  json['token'] = this.token_;
+  return json;
 };
 
 

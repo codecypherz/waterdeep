@@ -2,6 +2,7 @@
 goog.provide('low.message.PlayerJoined');
 
 goog.require('low.message.Message');
+goog.require('low.message.Type');
 goog.require('low.model.Player');
 
 
@@ -9,13 +10,15 @@ goog.require('low.model.Player');
 /**
  * @param {!low.model.Player} player
  * @constructor
- * @implements {low.message.Message}
+ * @extends {low.message.Message}
  */
 low.message.PlayerJoined = function(player) {
+  goog.base(this, low.message.Type.PLAYER_JOINED);
 
   /** @private {!low.model.Player} */
   this.player_ = player;
 };
+goog.inherits(low.message.PlayerJoined, low.message.Message);
 
 
 /**
@@ -28,9 +31,9 @@ low.message.PlayerJoined.prototype.getPlayer = function() {
 
 /** @override */
 low.message.PlayerJoined.prototype.toJson = function() {
-  return {
-    'player': this.player_
-  };
+  var json = goog.base(this, 'toJson');
+  json['player'] = this.player_;
+  return json;
 };
 
 

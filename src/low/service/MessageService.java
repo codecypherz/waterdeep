@@ -12,7 +12,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
- * Responsible for sending messages to players.
+ * Responsible for sending/receiving messages to players.
  */
 public class MessageService {
 

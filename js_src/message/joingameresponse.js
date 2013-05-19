@@ -4,6 +4,7 @@ goog.provide('low.message.JoinGameResponse');
 goog.require('goog.asserts');
 goog.require('low');
 goog.require('low.message.Message');
+goog.require('low.message.Type');
 goog.require('low.model.Game');
 
 
@@ -12,9 +13,10 @@ goog.require('low.model.Game');
  * @param {!low.message.JoinGameResponse.Result} result
  * @param {low.model.Game} game
  * @constructor
- * @implements {low.message.Message}
+ * @extends {low.message.Message}
  */
 low.message.JoinGameResponse = function(result, game) {
+  goog.base(this, low.message.Type.JOIN_GAME_RESPONSE);
 
   /** @private {!low.message.JoinGameResponse.Result} */
   this.result_ = result;
@@ -22,6 +24,7 @@ low.message.JoinGameResponse = function(result, game) {
   /** @private {low.model.Game} */
   this.game_ = game;
 };
+goog.inherits(low.message.JoinGameResponse, low.message.Message);
 
 
 /**
@@ -55,9 +58,9 @@ low.message.JoinGameResponse.prototype.getGame = function() {
 
 /** @override */
 low.message.JoinGameResponse.prototype.toJson = function() {
-  return {
-    'result': this.result_
-  };
+  var json = goog.base(this, 'toJson');
+  json['result'] = this.result_;
+  return json;
 };
 
 
