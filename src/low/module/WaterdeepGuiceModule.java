@@ -5,6 +5,7 @@ import low.annotation.GameKey;
 import low.provider.ClientIdProvider;
 import low.provider.GameKeyProvider;
 import low.service.GameService;
+import low.service.MessageService;
 import low.util.CookieUtil;
 import low.util.KeyUtil;
 
@@ -28,6 +29,7 @@ public class WaterdeepGuiceModule extends AbstractModule {
 		// Services
 		// ChannelService is bound by provider method below.
 		bind(GameService.class);
+		bind(MessageService.class);
 		
 		// Utilities
 		bind(CookieUtil.class);

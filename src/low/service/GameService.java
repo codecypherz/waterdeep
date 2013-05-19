@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import low.annotation.ClientId;
 import low.message.JoinGameResponse;
 import low.message.JoinGameResponse.Result;
+import low.message.PlayerJoinedMessage;
 import low.model.Game;
 import low.model.Player;
 import low.model.Player.Color;
@@ -28,13 +29,16 @@ public class GameService {
 	
 	private final Provider<ObjectDatastore> datastoreProvider;
 	private final Provider<String> clientIdProvider;
+	private final MessageService messageService;
 	
 	@Inject
 	public GameService(
 			Provider<ObjectDatastore> datastoreProvider,
-			@ClientId Provider<String> clientIdProvider) {
+			@ClientId Provider<String> clientIdProvider,
+			MessageService messageService) {
 		this.datastoreProvider = datastoreProvider;
 		this.clientIdProvider = clientIdProvider;
+		this.messageService = messageService;
 	}
 	
 	/**
@@ -123,9 +127,13 @@ public class GameService {
 		
 		// Update the game.
 		String clientId = clientIdProvider.get();
-		game.addPlayer(new Player(clientId, name, color, false));
+		Player player = new Player(clientId, name, color, false);
+		game.addPlayer(player);
 		ObjectDatastore datastore = datastoreProvider.get();
 		datastore.update(game);
+		
+		// Notify all other players.
+		messageService.broadcast(game, new PlayerJoinedMessage(player));
 		
 		return new JoinGameResponse(Result.SUCCESS, game);
 	}
