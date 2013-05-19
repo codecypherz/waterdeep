@@ -11,7 +11,7 @@ goog.require('goog.debug.ErrorHandler');
 /** @suppress {extraRequire} Needed for compilation warnings within closure. */
 goog.require('goog.events.EventWrapper');
 goog.require('goog.log');
-goog.require('low.Config');
+goog.require('low.handler.PlayerJoined');
 goog.require('low.model.PageContainer');
 
 
@@ -27,9 +27,6 @@ low.Main = function() {
   /** @protected {goog.log.Logger} */
   this.logger = goog.log.getLogger('low.Main');
 
-  /** @private {!low.Config} */
-  this.config_ = low.Config.getInstance();
-
   // Set up logging for the entire application.
   if (!goog.debug.Console.instance) {
     goog.debug.Console.instance = new goog.debug.Console();
@@ -40,6 +37,9 @@ low.Main = function() {
 
   // Register an unload event to properly clean up resources.
   window.onbeforeunload = goog.bind(this.onUnload_, this);
+
+  // Create message handlers.
+  this.registerDisposable(new low.handler.PlayerJoined());
 
   // Create and render the UI.
   var pageContainer = new low.model.PageContainer();

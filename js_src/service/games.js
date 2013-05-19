@@ -8,7 +8,7 @@ goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.events.EventTarget');
 goog.require('goog.log');
-goog.require('low.Config');
+goog.require('low.ServletPath');
 goog.require('low.model.Game');
 goog.require('low.service.Xhr');
 
@@ -48,7 +48,7 @@ low.service.Games.prototype.loadGames = function() {
 
   // Create the request URL.
   var uri = new goog.Uri();
-  uri.setPath(low.Config.ServletPath.GAMES);
+  uri.setPath(low.ServletPath.GAMES);
 
   // Send the request.
   var deferred = this.xhrService_.get(uri, true);

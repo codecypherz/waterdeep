@@ -10,7 +10,7 @@ goog.require('goog.asserts');
 goog.require('goog.async.DeferredList');
 goog.require('goog.events.EventTarget');
 goog.require('goog.log');
-goog.require('low.Config');
+goog.require('low.ServletPath');
 goog.require('low.message.CreateGameRequest');
 goog.require('low.message.JoinGameRequest');
 goog.require('low.message.JoinGameResponse');
@@ -87,7 +87,7 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
 
   // Create the request URL.
   var uri = new goog.Uri();
-  uri.setPath(low.Config.ServletPath.GAMES);
+  uri.setPath(low.ServletPath.GAMES);
 
   // Send the request.
   var createGameDeferred = this.xhrService_.post(
@@ -134,7 +134,7 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
 
   // Create the request URL.
   var uri = new goog.Uri();
-  uri.setPath(low.Config.ServletPath.GAME + '/' + game.getKey());
+  uri.setPath(low.ServletPath.GAME + '/' + game.getKey());
 
   // Send the request to join the game.
   var joinGameDeferred = this.xhrService_.post(
@@ -187,7 +187,7 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
 
   // Create the request URL.
   var uri = new goog.Uri();
-  uri.setPath(low.Config.ServletPath.GAME + '/' + gameKey);
+  uri.setPath(low.ServletPath.GAME + '/' + gameKey);
 
   // Send the request.
   var fetchGameDeferred = this.xhrService_.get(uri, true);

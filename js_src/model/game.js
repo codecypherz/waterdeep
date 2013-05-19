@@ -6,6 +6,8 @@ goog.provide('low.model.Game');
 
 goog.require('goog.array');
 goog.require('goog.asserts');
+goog.require('goog.events.EventTarget');
+goog.require('low');
 goog.require('low.model.Player');
 
 
@@ -14,14 +16,23 @@ goog.require('low.model.Player');
  * @param {string} key
  * @param {!Array.<!low.model.Player>} players
  * @constructor
+ * @extends {goog.events.EventTarget}
  */
 low.model.Game = function(key, players) {
+  goog.base(this);
 
   /** @private {string} */
   this.key_ = key;
 
   /** @private {!Array.<!low.model.Player>} */
   this.players_ = players;
+};
+goog.inherits(low.model.Game, goog.events.EventTarget);
+
+
+/** @enum {string} */
+low.model.Game.EventType = {
+  PLAYER_JOINED: low.getUniqueId('player-joined')
 };
 
 
@@ -47,6 +58,7 @@ low.model.Game.prototype.getPlayers = function() {
  */
 low.model.Game.prototype.addPlayer = function(player) {
   this.players_.push(player);
+  this.dispatchEvent(low.model.Game.EventType.PLAYER_JOINED);
 };
 
 

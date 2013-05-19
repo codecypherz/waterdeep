@@ -6,15 +6,16 @@
 goog.provide('low.ui.waiting.WaitingRoom');
 
 goog.require('goog.array');
+goog.require('goog.asserts');
 goog.require('goog.events.EventType');
 goog.require('goog.log');
 goog.require('goog.soy');
 goog.require('goog.ui.Component');
 goog.require('low');
+goog.require('low.model.Game');
 goog.require('low.model.Page');
 goog.require('low.service.Game');
 goog.require('low.service.Token');
-goog.require('low.ui');
 goog.require('low.ui.waiting.Player');
 goog.require('low.ui.waiting.soy');
 
@@ -36,8 +37,10 @@ low.ui.waiting.WaitingRoom = function() {
   /** @private {!low.service.Game} */
   this.gameService_ = low.service.Game.getInstance();
 
-  /** @private {low.model.Game} */
-  this.game_ = this.gameService_.getCurrentGame();
+  /** @private {!low.model.Game} */
+  this.game_ = goog.asserts.assert(
+      this.gameService_.getCurrentGame(),
+      'Cannot create the waiting room without an active game.');
 };
 goog.inherits(low.ui.waiting.WaitingRoom, goog.ui.Component);
 
@@ -58,9 +61,39 @@ low.ui.waiting.WaitingRoom.prototype.createDom = function() {
       low.ui.waiting.soy.WAITING_ROOM, {
         ids: this.makeIds(low.ui.waiting.WaitingRoom.Id_)
       }));
+};
 
-  var playersContainer = low.ui.getElementByFragment(
-      this, low.ui.waiting.WaitingRoom.Id_.PLAYERS);
+
+/** @override */
+low.ui.waiting.WaitingRoom.prototype.enterDocument = function() {
+  goog.base(this, 'enterDocument');
+
+  this.getHandler().listen(
+      this.getElementByFragment(
+          low.ui.waiting.WaitingRoom.Id_.LEAVE_BUTTON),
+      goog.events.EventType.CLICK,
+      this.leave_);
+
+  this.getHandler().listen(this.game_,
+      low.model.Game.EventType.PLAYER_JOINED,
+      this.renderPlayers_);
+
+  this.renderPlayers_();
+};
+
+
+/**
+ * Renders the players based on the state of the current game.
+ * @private
+ */
+low.ui.waiting.WaitingRoom.prototype.renderPlayers_ = function() {
+  goog.log.info(this.logger, 'Rendering players.');
+  goog.array.forEach(this.removeChildren(true), function(child) {
+    child.dispose();
+  });
+
+  var playersContainer = this.getElementByFragment(
+      low.ui.waiting.WaitingRoom.Id_.PLAYERS);
 
   // Render self first.
   var self = this.game_.getSelf();
@@ -76,18 +109,6 @@ low.ui.waiting.WaitingRoom.prototype.createDom = function() {
       playerComponent.render(playersContainer);
     }
   }, this);
-};
-
-
-/** @override */
-low.ui.waiting.WaitingRoom.prototype.enterDocument = function() {
-  goog.base(this, 'enterDocument');
-
-  this.getHandler().listen(
-      this.getElementByFragment(
-          low.ui.waiting.WaitingRoom.Id_.LEAVE_BUTTON),
-      goog.events.EventType.CLICK,
-      this.leave_);
 };
 
 

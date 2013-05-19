@@ -19,25 +19,17 @@ low.message.PlayerJoined = function(player) {
 
 
 /**
- * @return {!low.message.PlayerJoined.Result}
+ * @return {!low.model.Player} The player that joined.
  */
-low.message.PlayerJoined.prototype.getResult = function() {
-  return this.result_;
-};
-
-
-/**
- * @return {low.model.Game} The game, if the join was successful.
- */
-low.message.PlayerJoined.prototype.getGame = function() {
-  return this.game_;
+low.message.PlayerJoined.prototype.getPlayer = function() {
+  return this.player_;
 };
 
 
 /** @override */
 low.message.PlayerJoined.prototype.toJson = function() {
   return {
-    'result': this.result_
+    'player': this.player_
   };
 };
 

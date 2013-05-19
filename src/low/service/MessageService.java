@@ -1,6 +1,7 @@
 package low.service;
 
 import low.annotation.ClientId;
+import low.message.Message;
 import low.model.Game;
 import low.model.Player;
 
@@ -31,7 +32,7 @@ public class MessageService {
 	 * @param game The game to which to broadcast.
 	 * @param message The message to send to all but the self player.
 	 */
-	public void broadcast(Game game, Object message) {
+	public void broadcast(Game game, Message message) {
 		String clientId = clientIdProvider.get();
 		for (Player player : game.getPlayers()) {
 			if (!clientId.equals(player.getClientId())) {
@@ -45,7 +46,7 @@ public class MessageService {
 	 * @param player
 	 * @param message
 	 */
-	private void send(Player player, Object message) {
+	private void send(Player player, Message message) {
 		String clientId = player.getClientId();
 		Gson gson = new Gson();
 		String messageString = gson.toJson(message);

@@ -2,10 +2,16 @@
 goog.provide('low.service.Channel');
 
 goog.require('goog.Uri');
+goog.require('goog.asserts');
+goog.require('goog.events.Event');
+goog.require('goog.events.EventTarget');
 goog.require('goog.json');
 goog.require('goog.log');
-goog.require('low.Config');
+goog.require('low');
+goog.require('low.ServletPath');
 goog.require('low.message.CreateChannelResponse');
+goog.require('low.message.Map');
+goog.require('low.message.Type');
 goog.require('low.service.Xhr');
 
 
@@ -13,8 +19,10 @@ goog.require('low.service.Xhr');
 /**
  * Service for creating the bidirectional channel.
  * @constructor
+ * @extends {goog.events.EventTarget}
  */
 low.service.Channel = function() {
+  goog.base(this);
 
   /** @protected {goog.log.Logger} */
   this.logger = goog.log.getLogger('low.service.Channel');
@@ -27,10 +35,8 @@ low.service.Channel = function() {
    * @private {appengine.Channel}
    */
   this.channel_ = null;
-
-  /** @private {appengine.Socket} */
-  this.socket_ = null;
 };
+goog.inherits(low.service.Channel, goog.events.EventTarget);
 goog.addSingletonGetter(low.service.Channel);
 
 
@@ -46,7 +52,7 @@ low.service.Channel.prototype.init = function() {
 
   // Create the request URL.
   var uri = new goog.Uri();
-  uri.setPath(low.Config.ServletPath.CHANNELS);
+  uri.setPath(low.ServletPath.CHANNELS);
 
   // Send the request.
   var deferred = this.xhrService_.post(uri, undefined, true);
@@ -59,7 +65,8 @@ low.service.Channel.prototype.init = function() {
     /** @suppress {missingRequire} */
     this.channel_ = new appengine.Channel(token);
 
-    this.socket_ = this.channel_.open({
+    // This returns an {appengine.Socket}.
+    this.channel_.open({
       'onopen': goog.bind(this.onOpen_, this),
       'onmessage': goog.bind(this.onMessage_, this),
       'onerror': goog.bind(this.onError_, this),
@@ -94,28 +101,26 @@ low.service.Channel.prototype.onMessage_ = function(channelMessage) {
   if (!rawData) {
     throw Error('Received an empy message from the server.');
   }
-  // TODO Turn this down to fine.
-  goog.log.info(this.logger, 'Received this raw data: ' + rawData);
+  goog.log.fine(this.logger, 'Received this raw data: ' + rawData);
 
-  // Try to parse the data as JSON.
-  var json = null;
-
-  try {
-
-    // Parse the JSON object and make sure it succeeded.
-    json = goog.json.parse(rawData);
-    if (!json) {
-      throw Error('Parsing resulted in a null object');
-    }
-
-    // TODO Get the type for deserialization.
-
-  } catch (e) {
-    this.logger.severe('Failed to parse the message into JSON.', e);
-    return;
+  // Parse the JSON object and make sure it succeeded.
+  var json = goog.json.parse(rawData);
+  if (!json) {
+    throw Error('Parsing resulted in a null object');
   }
 
-  // TODO Handle the message.
+  // Extract the type of message.
+  var type = /** @type {low.message.Type} */ (
+      low.stringToEnum(json['type'] || '', low.message.Type));
+  type = goog.asserts.assert(type, 'No type found in the message');
+
+  // Construct the message.
+  var fromJsonFn = goog.asserts.assert(
+      low.message.Map[type], 'No fromJson function mapped for ' + type);
+  var message = fromJsonFn(json);
+
+  // Tell everyone about the newly arrived message.
+  this.dispatchEvent(new low.service.Channel.MessageEvent(type, message));
 };
 
 
@@ -137,3 +142,22 @@ low.service.Channel.prototype.onError_ = function(e) {
   goog.log.error(this.logger,
       'The channel had an error: ' + e.code + ', ' + e.description);
 };
+
+
+
+/**
+ * Dispatched when a new message arrives on the channel.
+ * @param {!low.message.Type} type The type of message just received.
+ * @param {!low.message.Message} message The message just received.
+ * @extends {goog.events.Event}
+ * @constructor
+ */
+low.service.Channel.MessageEvent = function(type, message) {
+  goog.base(this, type);
+
+  /**
+   * @type {!low.message.Message}
+   */
+  this.message = message;
+};
+goog.inherits(low.service.Channel.MessageEvent, goog.events.Event);
