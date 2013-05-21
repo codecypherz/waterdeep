@@ -40,4 +40,8 @@ public class Player {
 	public boolean isModerator() {
 		return moderator;
 	}
+	
+	public void setModerator(boolean moderator) {
+		this.moderator = moderator;
+	}
 }

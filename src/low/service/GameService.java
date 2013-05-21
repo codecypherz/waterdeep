@@ -174,9 +174,17 @@ public class GameService {
 			logger.info("Deleting the now empty game.");
 			datastore.delete(game);
 		} else {
-			// Still have players, so just update and notify everyone.
+			
+			// If the moderator left, pass the buck to a random player.
+			Player moderator = game.getModerator();
+			if (player.isModerator()) {
+				moderator = game.getPlayers().get(0);
+				moderator.setModerator(true);
+			}
+			
+			// Update and notify everyone.
 			datastore.update(game);
-			messageService.broadcast(game, new PlayerLeftMessage(player));
+			messageService.broadcast(game, new PlayerLeftMessage(player, moderator));
 		}
 	}
 }

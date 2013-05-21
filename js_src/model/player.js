@@ -63,6 +63,14 @@ low.model.Player.prototype.getColor = function() {
 };
 
 
+/**
+ * @param {boolean} moderator
+ */
+low.model.Player.prototype.setModerator = function(moderator) {
+  this.moderator_ = moderator;
+};
+
+
 /** @return {boolean} */
 low.model.Player.prototype.isModerator = function() {
   return this.moderator_;

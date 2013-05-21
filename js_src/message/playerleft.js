@@ -9,14 +9,18 @@ goog.require('low.model.Player');
 
 /**
  * @param {!low.model.Player} player
+ * @param {!low.model.Player} moderator
  * @constructor
  * @extends {low.message.Message}
  */
-low.message.PlayerLeft = function(player) {
+low.message.PlayerLeft = function(player, moderator) {
   goog.base(this, low.message.Type.PLAYER_LEFT);
 
   /** @private {!low.model.Player} */
   this.player_ = player;
+
+  /** @private {!low.model.Player} */
+  this.moderator_ = moderator;
 };
 goog.inherits(low.message.PlayerLeft, low.message.Message);
 
@@ -29,10 +33,19 @@ low.message.PlayerLeft.prototype.getPlayer = function() {
 };
 
 
+/**
+ * @return {!low.model.Player} The new moderator.
+ */
+low.message.PlayerLeft.prototype.getModerator = function() {
+  return this.moderator_;
+};
+
+
 /** @override */
 low.message.PlayerLeft.prototype.toJson = function() {
   var json = goog.base(this, 'toJson');
   json['player'] = this.player_;
+  json['moderator'] = this.moderator_;
   return json;
 };
 
@@ -43,5 +56,6 @@ low.message.PlayerLeft.prototype.toJson = function() {
  */
 low.message.PlayerLeft.fromJson = function(json) {
   var player = low.model.Player.fromJson(json['player']);
-  return new low.message.PlayerLeft(player);
+  var moderator = low.model.Player.fromJson(json['moderator']);
+  return new low.message.PlayerLeft(player, moderator);
 };

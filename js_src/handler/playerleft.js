@@ -2,6 +2,7 @@
 goog.provide('low.handler.PlayerLeft');
 
 goog.require('goog.Disposable');
+goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.events.EventHandler');
 goog.require('goog.log');
@@ -46,7 +47,20 @@ goog.inherits(low.handler.PlayerLeft, goog.Disposable);
 low.handler.PlayerLeft.prototype.onPlayerLeft_ = function(e) {
   var message = /** @type {!low.message.PlayerLeft} */ (e.message);
   goog.log.info(this.logger, 'Received player left message.');
+
   var game = this.gameService_.getCurrentGame();
   game = goog.asserts.assert(game, 'Notified of player left with no game.');
+
+  // Update the moderator in case the player that left was the moderator.
+  var updatedModerator = goog.array.some(game.getPlayers(), function(player) {
+    if (player.getClientId() == message.getModerator().getClientId()) {
+      player.setModerator(true);
+      return true;
+    }
+    return false;
+  });
+  goog.asserts.assert(updatedModerator, 'Failed to update the new moderator.');
+
+  // Remove the player from the game.
   game.removePlayer(message.getPlayer());
 };
