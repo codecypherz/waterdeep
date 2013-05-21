@@ -79,8 +79,8 @@ low.ui.home.ColorPicker.prototype.createDom = function() {
       this.colorMap_,
       function(cssClass, color, map) {
         colors.push({
-          'id': this.makeId(color),
-          'iconClass': cssClass
+          id: this.makeId(color),
+          iconClass: cssClass
         });
       }, this);
 
