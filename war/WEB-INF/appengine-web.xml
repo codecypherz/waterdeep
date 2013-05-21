@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-  <application></application>
-  <version>1</version>
+  <application>lordsofwaterdeep</application>
+  <version>alpha</version>
 
   <!--
     Allows App Engine to send multiple requests to one instance in parallel:
@@ -36,8 +36,8 @@
   </inbound-services>
 
   <static-error-handlers>
-    <handler file="default-error.html"/>
-    <handler file="over-quota.html" error-code="over_quota"/>
+    <handler file="/error-default.html"/>
+    <handler file="/error-over-quota.html" error-code="over_quota"/>
   </static-error-handlers>
 
 </appengine-web-app>
