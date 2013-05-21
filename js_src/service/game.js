@@ -214,11 +214,17 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
     fetchGameDeferred,
     initChannelDeferred
   ]);
-  deferred.addBoth(
+  deferred.addCallbacks(
       function() {
-        goog.log.info(this.logger, 'Finished reload game attempt.');
+        goog.log.info(this.logger, 'Reloaded game successfully.');
         this.isBusy_ = false;
-      }, this);
+      },
+      function() {
+        goog.log.info(this.logger, 'Reload attempt failed.');
+        this.isBusy_ = false;
+        this.currentGame_ = null;
+      },
+      this);
 
   return deferred;
 };

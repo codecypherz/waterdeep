@@ -30,11 +30,8 @@ low.service.Channel = function() {
   /** @private {!low.service.Xhr} */
   this.xhrService_ = low.service.Xhr.getInstance();
 
-  /**
-   * Used for receiving messages from the server.
-   * @private {appengine.Channel}
-   */
-  this.channel_ = null;
+  /** @private {goog.async.Deferred} */
+  this.deferredInit_ = null;
 };
 goog.inherits(low.service.Channel, goog.events.EventTarget);
 goog.addSingletonGetter(low.service.Channel);
@@ -46,7 +43,11 @@ goog.addSingletonGetter(low.service.Channel);
  */
 low.service.Channel.prototype.init = function() {
 
-  // TODO Return a deferred that has fired if the channel exists.
+  // If currently opening, the callback will fire once ready.
+  // If open, the callback will be called immediately.
+  if (this.deferredInit_) {
+    return this.deferredInit_.branch();
+  }
 
   goog.log.info(this.logger, 'Creating a new channel.');
 
@@ -55,28 +56,35 @@ low.service.Channel.prototype.init = function() {
   uri.setPath(low.ServletPath.CHANNELS);
 
   // Send the request.
-  var deferred = this.xhrService_.post(uri, undefined, true);
+  this.deferredInit_ = this.xhrService_.post(uri, undefined, true);
 
   // Handle the response.
-  deferred.addCallback(function(json) {
-    var response = low.message.CreateChannelResponse.fromJson(json);
-    var token = response.getToken();
+  this.deferredInit_.addCallbacks(
+      function(json) {
+        var response = low.message.CreateChannelResponse.fromJson(json);
+        var token = response.getToken();
 
-    /** @suppress {missingRequire} */
-    this.channel_ = new appengine.Channel(token);
+        /** @suppress {missingRequire} */
+        var channel = new appengine.Channel(token);
 
-    // This returns an {appengine.Socket}.
-    this.channel_.open({
-      'onopen': goog.bind(this.onOpen_, this),
-      'onmessage': goog.bind(this.onMessage_, this),
-      'onerror': goog.bind(this.onError_, this),
-      'onclose': goog.bind(this.onClose_, this)
-    });
+        // This returns an {appengine.Socket}.
+        channel.open({
+          'onopen': goog.bind(this.onOpen_, this),
+          'onmessage': goog.bind(this.onMessage_, this),
+          'onerror': goog.bind(this.onError_, this),
+          'onclose': goog.bind(this.onClose_, this)
+        });
 
-    goog.log.info(this.logger, 'Channel created with this token: ' + token);
-  }, this);
+        goog.log.info(this.logger, 'Channel created with this token: ' + token);
+      },
+      function(e) {
+        // Clear the deferred on error so new init calls can be attempted.
+        goog.log.error(this.logger, 'Failed to open the channel: ' + e);
+        this.deferredInit_ = null;
+      },
+      this);
 
-  return deferred;
+  return this.deferredInit_.branch();
 };
 
 
