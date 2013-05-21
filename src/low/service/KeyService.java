@@ -1,4 +1,4 @@
-package low.util;
+package low.service;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -8,9 +8,9 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.inject.Singleton;
 
 @Singleton
-public class KeyUtil {
+public class KeyService {
 
-	private static final Logger logger = Logger.getLogger(KeyUtil.class.getName());
+	private static final Logger logger = Logger.getLogger(KeyService.class.getName());
 	
 	/**
 	 * Gets a Key object from the string representation but does so without

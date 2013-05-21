@@ -12,9 +12,9 @@ import low.annotation.GameKey;
 import low.annotation.RequestMessage;
 import low.message.Message;
 import low.model.Game;
+import low.service.CookieService;
 import low.service.GameService;
 import low.service.MessageHandlerService;
-import low.util.CookieUtil;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.gson.Gson;
@@ -34,7 +34,7 @@ public class GameServlet extends HttpServlet {
 	private final GameService gameService;
 	private final @GameKey Provider<Key> gameKeyProvider;
 	private final @RequestMessage Provider<Message> requestMessageProvider;
-	private final CookieUtil cookieUtil;
+	private final CookieService cookieService;
 	private final MessageHandlerService messageHandlerService;
 	
 	@Inject
@@ -42,12 +42,12 @@ public class GameServlet extends HttpServlet {
 			GameService gameService,
 			@GameKey Provider<Key> gameKeyProvider,
 			@RequestMessage Provider<Message> requestMessageProvider,
-			CookieUtil cookieUtil,
+			CookieService cookieService,
 			MessageHandlerService messageHandlerService) {
 		this.gameService = gameService;
 		this.gameKeyProvider = gameKeyProvider;
 		this.requestMessageProvider = requestMessageProvider;
-		this.cookieUtil = cookieUtil;
+		this.cookieService = cookieService;
 		this.messageHandlerService = messageHandlerService;
 	}
 	
@@ -89,6 +89,6 @@ public class GameServlet extends HttpServlet {
 
 		// TODO Cut across all responses and do this there instead of each servlet.
 		// Always include the client ID.
-		cookieUtil.setClientId();
+		cookieService.setClientId();
 	}
 }

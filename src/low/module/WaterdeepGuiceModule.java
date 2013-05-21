@@ -9,11 +9,11 @@ import low.message.Message;
 import low.provider.ClientIdProvider;
 import low.provider.GameKeyProvider;
 import low.provider.RequestMessageProvider;
+import low.service.CookieService;
 import low.service.GameService;
+import low.service.KeyService;
 import low.service.MessageHandlerService;
 import low.service.MessageService;
-import low.util.CookieUtil;
-import low.util.KeyUtil;
 
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
@@ -36,13 +36,11 @@ public class WaterdeepGuiceModule extends AbstractModule {
 		
 		// Services
 		// ChannelService is bound by provider method below.
+		bind(CookieService.class);
 		bind(GameService.class);
+		bind(KeyService.class);
 		bind(MessageService.class);
 		bind(MessageHandlerService.class);
-		
-		// Utilities
-		bind(CookieUtil.class);
-		bind(KeyUtil.class);
 		
 		// Message handlers.
 		bind(JoinGameHandler.class);

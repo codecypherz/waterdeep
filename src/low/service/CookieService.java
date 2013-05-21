@@ -1,4 +1,4 @@
-package low.util;
+package low.service;
 
 import java.util.logging.Logger;
 
@@ -11,10 +11,13 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
+/**
+ * Service for interacting with cookies.
+ */
 @Singleton
-public class CookieUtil {
+public class CookieService {
 	
-	private static final Logger logger = Logger.getLogger(CookieUtil.class.getName());
+	private static final Logger logger = Logger.getLogger(CookieService.class.getName());
 	
 	public enum CookieName {
 		CLIENT_ID
@@ -24,7 +27,7 @@ public class CookieUtil {
 	private final Provider<String> clientIdProvider;
 	
 	@Inject
-	public CookieUtil(
+	public CookieService(
 			Provider<HttpServletResponse> responseProvider,
 			@ClientId Provider<String> clientIdProvider) {
 		this.responseProvider = responseProvider;

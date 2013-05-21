@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import low.util.KeyUtil;
+import low.service.KeyService;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.inject.Inject;
@@ -18,14 +18,14 @@ public class GameKeyProvider implements Provider<Key> {
 	private static final Logger logger = Logger.getLogger(GameKeyProvider.class.getName());
 	
 	private final Provider<HttpServletRequest> requestProvider;
-	private final KeyUtil keyUtil;
+	private final KeyService keyService;
 	
 	@Inject
 	public GameKeyProvider(
 			Provider<HttpServletRequest> requestProvider,
-			KeyUtil keyUtil) {
+			KeyService keyService) {
 		this.requestProvider = requestProvider;
-		this.keyUtil = keyUtil;
+		this.keyService = keyService;
 	}
 	
 	@Override
@@ -38,7 +38,7 @@ public class GameKeyProvider implements Provider<Key> {
 			String gameKey = pathParts[2];
 			if (gameKey != null && !gameKey.isEmpty()) {
 				logger.info("Providing this game key for the request: " + gameKey);
-				return keyUtil.getKey(gameKey);
+				return keyService.getKey(gameKey);
 			}
 		}
 		return null;

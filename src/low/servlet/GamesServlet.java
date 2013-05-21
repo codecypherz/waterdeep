@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import low.message.CreateGameRequest;
 import low.model.Game;
 import low.model.Player.Color;
+import low.service.CookieService;
 import low.service.GameService;
-import low.util.CookieUtil;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -30,12 +30,12 @@ public class GamesServlet extends HttpServlet {
 	private static final long serialVersionUID = 3083753472298567149L;
 
 	private final GameService gameService;
-	private final CookieUtil cookieUtil;
+	private final CookieService cookieService;
 	
 	@Inject
-	public GamesServlet(GameService gameService, CookieUtil cookieUtil) {
+	public GamesServlet(GameService gameService, CookieService cookieService) {
 		this.gameService = gameService;
-		this.cookieUtil = cookieUtil;
+		this.cookieService = cookieService;
 	}
 	
 	/**
@@ -79,7 +79,7 @@ public class GamesServlet extends HttpServlet {
 		
 		// Send the resulting game back to the client.
 		Game game = gameService.newGame(moderatorName, color);
-		cookieUtil.setClientId();
+		cookieService.setClientId();
 		res.getWriter().write(gson.toJson(game));
 	}
 }
