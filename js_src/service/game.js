@@ -14,6 +14,7 @@ goog.require('low.ServletPath');
 goog.require('low.message.CreateGameRequest');
 goog.require('low.message.JoinGameRequest');
 goog.require('low.message.JoinGameResponse');
+goog.require('low.message.LeaveGameRequest');
 goog.require('low.model.Game');
 goog.require('low.service.Channel');
 goog.require('low.service.Cookie');
@@ -111,10 +112,11 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
     createGameDeferred,
     initChannelDeferred
   ]);
-  deferred.addCallback(function() {
-    goog.log.info(this.logger, 'Finished creating the game.');
-    this.isBusy_ = false;
-  }, this);
+  deferred.addBoth(
+      function() {
+        goog.log.info(this.logger, 'Finished create game attempt.');
+        this.isBusy_ = false;
+      }, this);
 
   return deferred;
 };
@@ -146,7 +148,6 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
   // Handle the join game response.
   joinGameDeferred.addCallback(function(json) {
     goog.log.info(this.logger, 'Received join game response.');
-    this.isBusy_ = false;
 
     // See if the request was a success or not.
     var response = low.message.JoinGameResponse.fromJson(json);
@@ -170,10 +171,11 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
     joinGameDeferred,
     initChannelDeferred
   ]);
-  deferred.addCallback(function() {
-    goog.log.info(this.logger, 'Finished joining the game.');
-    this.isBusy_ = false;
-  }, this);
+  deferred.addBoth(
+      function() {
+        goog.log.info(this.logger, 'Finished join game attempt.');
+        this.isBusy_ = false;
+      }, this);
 
   return deferred;
 };
@@ -214,10 +216,37 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
     fetchGameDeferred,
     initChannelDeferred
   ]);
-  deferred.addCallback(function() {
-    goog.log.info(this.logger, 'Finished reloading the game.');
-    this.isBusy_ = false;
-  }, this);
+  deferred.addBoth(
+      function() {
+        goog.log.info(this.logger, 'Finished reload game attempt.');
+        this.isBusy_ = false;
+      }, this);
+
+  return deferred;
+};
+
+
+/**
+ * Leaves the current game.
+ * @return {!goog.async.Deferred}
+ */
+low.service.Game.prototype.leaveCurrentGame = function() {
+  goog.asserts.assert(this.currentGame_, 'There is no current game to leave');
+  goog.asserts.assert(!this.isBusy_, 'Cannot leave - currently busy.');
+  goog.log.info(this.logger, 'Leaving the current game.');
+  this.isBusy_ = true;
+
+  // Create the request URL.
+  var uri = new goog.Uri();
+  uri.setPath(low.ServletPath.GAME + '/' + this.currentGame_.getKey());
+
+  // Send the request.
+  var deferred = this.xhrService_.post(uri, new low.message.LeaveGameRequest());
+  deferred.addBoth(
+      function() {
+        goog.log.info(this.logger, 'Finished leave game attempt.');
+        this.isBusy_ = false;
+      }, this);
 
   return deferred;
 };

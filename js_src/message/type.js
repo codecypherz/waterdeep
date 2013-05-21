@@ -4,13 +4,16 @@ goog.provide('low.message.Type');
 
 /**
  * Lists all the message types which are required for deserialization.
+ * Note that this must match the enum declared in src/low/message/Type.java
+ * and is case sensitive.
  * @enum {string}
  */
 low.message.Type = {
-  CREATE_CHANNEL_RESPONSE: 'create_channel_response',
-  CREATE_GAME_REQUEST: 'create_game_request',
-  JOIN_GAME_REQUEST: 'join_game_request',
-  JOIN_GAME_RESPONSE: 'join_game_response',
-  PLAYER_JOINED: 'player_joined',
-  UNKNOWN: 'unknown'
+  CREATE_CHANNEL_RESPONSE: 'CREATE_CHANNEL_RESPONSE',
+  CREATE_GAME_REQUEST: 'CREATE_GAME_REQUEST',
+  JOIN_GAME_REQUEST: 'JOIN_GAME_REQUEST',
+  JOIN_GAME_RESPONSE: 'JOIN_GAME_RESPONSE',
+  LEAVE_GAME_REQUEST: 'LEAVE_GAME_REQUEST',
+  PLAYER_JOINED: 'PLAYER_JOINED',
+  UNKNOWN: 'UNKNOWN'
 };

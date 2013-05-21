@@ -13,6 +13,7 @@ import low.message.CreateChannelResponse;
 import low.message.CreateGameRequest;
 import low.message.JoinGameRequest;
 import low.message.JoinGameResponse;
+import low.message.LeaveGameRequest;
 import low.message.Message;
 import low.message.PlayerJoinedMessage;
 import low.message.RawMessage;
@@ -36,6 +37,7 @@ public class RequestMessageProvider implements Provider<Message> {
 		TYPE_TO_CLASS.put(Type.CREATE_GAME_REQUEST, CreateGameRequest.class);
 		TYPE_TO_CLASS.put(Type.JOIN_GAME_REQUEST, JoinGameRequest.class);
 		TYPE_TO_CLASS.put(Type.JOIN_GAME_RESPONSE, JoinGameResponse.class);
+		TYPE_TO_CLASS.put(Type.LEAVE_GAME_REQUEST, LeaveGameRequest.class);
 		TYPE_TO_CLASS.put(Type.PLAYER_JOINED, PlayerJoinedMessage.class);
 	}
 	

@@ -10,12 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import low.annotation.GameKey;
 import low.annotation.RequestMessage;
-import low.message.JoinGameRequest;
-import low.message.JoinGameResponse;
 import low.message.Message;
 import low.model.Game;
-import low.model.Player.Color;
 import low.service.GameService;
+import low.service.MessageHandlerService;
 import low.util.CookieUtil;
 
 import com.google.appengine.api.datastore.Key;
@@ -37,17 +35,20 @@ public class GameServlet extends HttpServlet {
 	private final @GameKey Provider<Key> gameKeyProvider;
 	private final @RequestMessage Provider<Message> requestMessageProvider;
 	private final CookieUtil cookieUtil;
+	private final MessageHandlerService messageHandlerService;
 	
 	@Inject
 	public GameServlet(
 			GameService gameService,
 			@GameKey Provider<Key> gameKeyProvider,
 			@RequestMessage Provider<Message> requestMessageProvider,
-			CookieUtil cookieUtil) {
+			CookieUtil cookieUtil,
+			MessageHandlerService messageHandlerService) {
 		this.gameService = gameService;
 		this.gameKeyProvider = gameKeyProvider;
 		this.requestMessageProvider = requestMessageProvider;
 		this.cookieUtil = cookieUtil;
+		this.messageHandlerService = messageHandlerService;
 	}
 	
 	/**
@@ -80,27 +81,14 @@ public class GameServlet extends HttpServlet {
 			return;
 		}
 		
-		JoinGameRequest joinGameRequest = (JoinGameRequest) message;
-		
-		// Validate the moderator name.
-		String name = joinGameRequest.getName();
-		if (name == null || name.trim().isEmpty()) {
-			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
-			return;
+		// Handle the message.
+		Message response = messageHandlerService.handle(message, res);
+		if (response != null) {
+			res.getWriter().write(new Gson().toJson(response));			
 		}
-		
-		// Validate the color.
-		String colorString = joinGameRequest.getColor();
-		if (colorString == null || colorString.trim().isEmpty()) {
-			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
-			return;
-		}
-		Color color = Color.valueOf(colorString.toUpperCase());
-		
-		// Try to join the game and send the result.
-		JoinGameResponse response = gameService.joinGame(
-				gameKeyProvider.get(), name, color);
+
+		// TODO Cut across all responses and do this there instead of each servlet.
+		// Always include the client ID.
 		cookieUtil.setClientId();
-		res.getWriter().write(new Gson().toJson(response));
 	}
 }

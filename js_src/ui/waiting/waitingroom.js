@@ -1,7 +1,3 @@
-/**
- * The waiting page component.  This is where players wait to find other players
- * before starting a game.
- */
 
 goog.provide('low.ui.waiting.WaitingRoom');
 
@@ -23,6 +19,8 @@ goog.require('low.ui.waiting.soy');
 
 
 /**
+ * The waiting page component.  This is where players wait to find other players
+ * before starting a game.
  * @constructor
  * @extends {goog.ui.Component}
  */
@@ -126,8 +124,7 @@ low.ui.waiting.WaitingRoom.prototype.renderPlayers_ = function() {
  */
 low.ui.waiting.WaitingRoom.prototype.leave_ = function() {
   goog.log.info(this.logger, 'Leaving the waiting room.');
-
-  // TODO Actually leave the game.  Delete the game if moderator.
-
-  this.tokenService_.setCurrentToken(low.model.Page.HOME);
+  this.gameService_.leaveCurrentGame().addBoth(function() {
+    this.tokenService_.setCurrentToken(low.model.Page.HOME);
+  }, this);
 };
