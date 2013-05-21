@@ -32,6 +32,13 @@ button:active {
   @mixin linear_gradient(BUTTON_GRADIENT_ACTIVE, BUTTON_BACKGROUND_COLOR_DARK);
 }
 
+button:disabled {
+	cursor: initial;
+	opacity: .7;
+	padding: 4px 12px;
+	@mixin linear_gradient(BUTTON_GRADIENT, BUTTON_BACKGROUND_COLOR_MID);
+}
+
 button.low-action {
 	font-weight: bold;
 }
