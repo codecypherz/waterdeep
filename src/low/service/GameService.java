@@ -12,6 +12,7 @@ import low.annotation.ClientId;
 import low.message.JoinGameResponse;
 import low.message.JoinGameResponse.Result;
 import low.message.PlayerJoinedMessage;
+import low.message.PlayerLeftMessage;
 import low.model.Game;
 import low.model.Player;
 import low.model.Player.Color;
@@ -116,7 +117,7 @@ public class GameService {
 		// Make sure this client isn't already in this game.
 		String clientId = clientIdProvider.get();
 		for (Player player : game.getPlayers()) {
-			if (clientId.equals(player.getClientId())) {
+			if (player.getClientId().equals(clientId)) {
 				return new JoinGameResponse(Result.ALREADY_JOINED);
 			}
 		}
@@ -143,5 +144,39 @@ public class GameService {
 		messageService.broadcast(game, new PlayerJoinedMessage(player));
 		
 		return new JoinGameResponse(Result.SUCCESS, game);
+	}
+	
+	/**
+	 * Leaves the game identified by the key.
+	 * @param key
+	 */
+	public void leaveGame(Key key) {
+		
+		// Make sure the game exists.
+		Game game = getGame(key);
+		if (game == null) {
+			logger.severe("No game found.");
+			return;
+		}
+		
+		// Remove the player from the game.
+		String clientId = clientIdProvider.get();
+		Player player = game.removePlayer(clientId);
+		if (player == null) {
+			logger.severe(clientId + " was not in the game.");
+			return;
+		}
+		logger.info(clientId + " left the game.");
+		
+		// The game needs to be deleted if there are no more players.
+		ObjectDatastore datastore = datastoreProvider.get();
+		if (game.getPlayers().size() == 0) {
+			logger.info("Deleting the now empty game.");
+			datastore.delete(game);
+		} else {
+			// Still have players, so just update and notify everyone.
+			datastore.update(game);
+			messageService.broadcast(game, new PlayerLeftMessage(player));
+		}
 	}
 }

@@ -1,5 +1,5 @@
 
-goog.provide('low.handler.PlayerJoined');
+goog.provide('low.handler.PlayerLeft');
 
 goog.require('goog.Disposable');
 goog.require('goog.asserts');
@@ -12,15 +12,15 @@ goog.require('low.service.Game');
 
 
 /**
- * Handles the player joined message.
+ * Handles the player left message.
  * @constructor
  * @extends {goog.Disposable}
  */
-low.handler.PlayerJoined = function() {
+low.handler.PlayerLeft = function() {
   goog.base(this);
 
   /** @protected {goog.log.Logger} */
-  this.logger = goog.log.getLogger('low.service.Game');
+  this.logger = goog.log.getLogger('low.handler.PlayerLeft');
 
   /** @private {!low.service.Game} */
   this.gameService_ = low.service.Game.getInstance();
@@ -32,21 +32,21 @@ low.handler.PlayerJoined = function() {
   this.registerDisposable(handler);
 
   handler.listen(this.channelService_,
-      low.message.Type.PLAYER_JOINED,
-      this.onPlayerJoined_);
+      low.message.Type.PLAYER_LEFT,
+      this.onPlayerLeft_);
 };
-goog.inherits(low.handler.PlayerJoined, goog.Disposable);
+goog.inherits(low.handler.PlayerLeft, goog.Disposable);
 
 
 /**
- * Adds the player to this client's game object.
+ * Removes the player from the current game.
  * @param {!low.service.Channel.MessageEvent} e
  * @private
  */
-low.handler.PlayerJoined.prototype.onPlayerJoined_ = function(e) {
-  var message = /** @type {!low.message.PlayerJoined} */ (e.message);
-  goog.log.info(this.logger, 'Received player joined message.');
+low.handler.PlayerLeft.prototype.onPlayerLeft_ = function(e) {
+  var message = /** @type {!low.message.PlayerLeft} */ (e.message);
+  goog.log.info(this.logger, 'Received player left message.');
   var game = this.gameService_.getCurrentGame();
-  game = goog.asserts.assert(game, 'Notified of player join with no game.');
-  game.addPlayer(message.getPlayer());
+  game = goog.asserts.assert(game, 'Notified of player left with no game.');
+  game.removePlayer(message.getPlayer());
 };

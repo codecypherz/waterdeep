@@ -44,4 +44,20 @@ public class Game {
 			full = true;
 		}
 	}
+	
+	/**
+	 * Removes the player with the client ID.
+	 * @param clientId The client ID of the player to remove.
+	 * @return The removed player or null if not found.
+	 */
+	public Player removePlayer(String clientId) {
+		for (int i = 0; i < players.size(); i++) {
+			Player player = players.get(i);
+			if (player != null && player.getClientId().equals(clientId)) {
+				players.remove(i);
+				return player;
+			}
+		}
+		return null;
+	}
 }

@@ -5,6 +5,7 @@
 goog.provide('low.Main');
 
 goog.require('goog.Disposable');
+goog.require('goog.array');
 goog.require('goog.debug.Console');
 /** @suppress {extraRequire} Needed for compilation warnings within closure. */
 goog.require('goog.debug.ErrorHandler');
@@ -12,6 +13,7 @@ goog.require('goog.debug.ErrorHandler');
 goog.require('goog.events.EventWrapper');
 goog.require('goog.log');
 goog.require('low.handler.PlayerJoined');
+goog.require('low.handler.PlayerLeft');
 goog.require('low.model.PageContainer');
 
 
@@ -39,7 +41,11 @@ low.Main = function() {
   window.onbeforeunload = goog.bind(this.onUnload_, this);
 
   // Create message handlers.
-  this.registerDisposable(new low.handler.PlayerJoined());
+  var handlers = [
+    new low.handler.PlayerJoined(),
+    new low.handler.PlayerLeft()
+  ];
+  goog.array.forEach(handlers, this.registerDisposable, this);
 
   // Create and render the UI.
   var pageContainer = new low.model.PageContainer();

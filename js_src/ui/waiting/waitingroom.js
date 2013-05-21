@@ -74,7 +74,8 @@ low.ui.waiting.WaitingRoom.prototype.enterDocument = function() {
       this.leave_);
 
   this.getHandler().listen(this.game_,
-      low.model.Game.EventType.PLAYER_JOINED,
+      [low.model.Game.EventType.PLAYER_JOINED,
+       low.model.Game.EventType.PLAYER_LEFT],
       this.renderPlayers_);
 
   this.renderPlayers_();

@@ -1,6 +1,3 @@
-/**
- * Service for creating and joining games.
- */
 
 goog.provide('low.service.Game');
 
@@ -23,6 +20,7 @@ goog.require('low.service.Xhr');
 
 
 /**
+ * Service for creating and joining games.
  * @constructor
  * @extends {goog.events.EventTarget}
  */
@@ -246,6 +244,7 @@ low.service.Game.prototype.leaveCurrentGame = function() {
       function() {
         goog.log.info(this.logger, 'Finished leave game attempt.');
         this.isBusy_ = false;
+        this.currentGame_ = null;
       }, this);
 
   return deferred;
