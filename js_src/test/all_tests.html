@@ -4,10 +4,11 @@
 <title>All Tests for Waterdeep</title>
 <link rel="icon" type="image/png" href="/images/link.png"></link>
 <script src="/closure/goog/base.js"></script>
-<script src="/js_src/alltests.js"></script>
+<script src="/js_src/test/alltests.js"></script>
 
 <script>
 goog.require('goog.Uri');
+goog.require('goog.array');
 goog.require('goog.events');
 goog.require('goog.testing.MultiTestRunner');
 goog.require('goog.userAgent.product');
@@ -51,11 +52,11 @@ a:hover {
   if (goog.userAgent.product.CHROME &&
       window.location.toString().indexOf('file:') == 0) {
     document.write(
-        '<div class="warning">' +
+        '' +
         'WARNING: Due to Chrome\'s security restrictions ' +
         'this test will not be able to load files off your local disk ' +
-        'unless you start Chrome with:<br>' +
-        '<code>--allow-file-access-from-files</code></div><br>');
+        'unless you start Chrome with:' +
+        '--allow-file-access-from-files');
   }
 </script>
 
@@ -87,6 +88,13 @@ a:hover {
     });
   }
 
+  // Fix up the relative path since this file is in the test/ directory and
+  // _allTests are relative to js_src/.
+  var tests = [];
+  goog.array.forEach(_allTests, function(test) {
+    tests.push('../' + test);
+  });
+
   // Create a test runner and render it.
   var testRunner = new goog.testing.MultiTestRunner()
       .setName(document.title)
@@ -95,7 +103,7 @@ a:hover {
       .setStatsBucketSizes(10, 500)
       .setHidePasses(hidePassesInput.checked)
       //.setVerbosePasses(true)
-      .addTests(_allTests);
+      .addTests(tests);
   testRunner.render(document.getElementById('runner'));
 
   goog.events.listen(hidePassesInput, 'click', function(e) {

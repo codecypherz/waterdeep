@@ -8,6 +8,9 @@
 goog.require('goog.async.Deferred');
 goog.require('goog.testing.MockControl');
 goog.require('low.message.CreateGameRequest');
+goog.require('low.message.JoinGameRequest');
+goog.require('low.message.JoinGameResponse');
+goog.require('low.message.LeaveGameRequest');
 goog.require('low.model.Game');
 goog.require('low.model.Player');
 goog.require('low.service.Channel');
@@ -148,6 +151,367 @@ function testCreateGame_postToGamesFail() {
   low.test.verify(mc, postDeferred.errback, postDeferred);
 
   // Make sure the errback happened and state was reset.
+  monitor.assertErrback();
+  assertNull(gameService.getCurrentGame());
+}
+
+function testJoinGame_success() {
+  var initChannelDeferred = new goog.async.Deferred();
+  mockChannelService.init().$returns(initChannelDeferred);
+
+  // Set up the game to be joined.
+  var moderator = new low.model.Player(
+      'moderator-id', 'fake-moderator', low.model.Player.Color.GREEN, true);
+  var game = new low.model.Game('fake-key', [moderator]);
+
+  // Start joining the game.
+  var name = 'fake-joiner';
+  var color = low.model.Player.Color.GREEN;
+
+  var joinGameDeferred = null;
+  low.test.verify(mc, function() {
+    joinGameDeferred = gameService.joinGame(game, name, color);
+  });
+  var monitor = new low.test.DeferredMonitor(joinGameDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Expect the game to be requested after channel initialization.
+  var postDeferred = new goog.async.Deferred();
+  mockXhrService.post(
+      new low.test.PathMatcher('/game/fake-key'),
+      new low.message.JoinGameRequest(name, color),
+      true)
+      .$returns(postDeferred);
+
+  // Simulate the channel initializing successfully.
+  low.test.verify(mc, initChannelDeferred.callback, initChannelDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Simulate the server responding with a successful join game response.
+  var clientId = 'fake-id';
+  mockCookieService.get('CLIENT_ID').$returns(clientId);
+  var selfPlayer = new low.model.Player(clientId, name, color, false);
+  game.addPlayer(selfPlayer);
+  var joinGameResponse = new low.message.JoinGameResponse(
+      low.message.JoinGameResponse.Result.SUCCESS, game);
+  low.message.JoinGameResponse.fromJson = function(fakeJson) {
+    return joinGameResponse;
+  };
+  low.test.verify(mc, function() {
+    postDeferred.callback('');
+  });
+
+  // Make sure everything is complete.
+  monitor.assertCallback();
+  assertNotNull(gameService.getCurrentGame());
+  assertNotNull(game.getSelf());
+}
+
+function testJoinGame_channelFail() {
+  var initChannelDeferred = new goog.async.Deferred();
+  mockChannelService.init().$returns(initChannelDeferred);
+
+  // Set up the game to be joined.
+  var moderator = new low.model.Player(
+      'moderator-id', 'fake-moderator', low.model.Player.Color.GREEN, true);
+  var game = new low.model.Game('fake-key', [moderator]);
+
+  // Start joining the game.
+  var name = 'fake-joiner';
+  var color = low.model.Player.Color.GREEN;
+
+  var joinGameDeferred = null;
+  low.test.verify(mc, function() {
+    joinGameDeferred = gameService.joinGame(game, name, color);
+  });
+  var monitor = new low.test.DeferredMonitor(joinGameDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Simulate the channel failing to initialize.
+  low.test.verify(mc, initChannelDeferred.errback, initChannelDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertErrback();
+  assertNull(gameService.getCurrentGame());
+}
+
+function testJoinGame_postToGameFail() {
+  var initChannelDeferred = new goog.async.Deferred();
+  mockChannelService.init().$returns(initChannelDeferred);
+
+  // Set up the game to be joined.
+  var moderator = new low.model.Player(
+      'moderator-id', 'fake-moderator', low.model.Player.Color.GREEN, true);
+  var game = new low.model.Game('fake-key', [moderator]);
+
+  // Start joining the game.
+  var name = 'fake-joiner';
+  var color = low.model.Player.Color.GREEN;
+
+  var joinGameDeferred = null;
+  low.test.verify(mc, function() {
+    joinGameDeferred = gameService.joinGame(game, name, color);
+  });
+  var monitor = new low.test.DeferredMonitor(joinGameDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Expect the game to be requested after channel initialization.
+  var postDeferred = new goog.async.Deferred();
+  mockXhrService.post(
+      new low.test.PathMatcher('/game/fake-key'),
+      new low.message.JoinGameRequest(name, color),
+      true)
+      .$returns(postDeferred);
+
+  // Simulate the channel initializing successfully.
+  low.test.verify(mc, initChannelDeferred.callback, initChannelDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Simulate an error with posting to the game servlet.
+  low.test.verify(mc, postDeferred.errback, postDeferred);
+
+  // Make sure everything is cleaned up.
+  monitor.assertErrback();
+  assertNull(gameService.getCurrentGame());
+}
+
+function testJoinGame_nonSuccessResultInResponse() {
+  var initChannelDeferred = new goog.async.Deferred();
+  mockChannelService.init().$returns(initChannelDeferred);
+
+  // Set up the game to be joined.
+  var moderator = new low.model.Player(
+      'moderator-id', 'fake-moderator', low.model.Player.Color.GREEN, true);
+  var game = new low.model.Game('fake-key', [moderator]);
+
+  // Start joining the game.
+  var name = 'fake-joiner';
+  var color = low.model.Player.Color.GREEN;
+
+  var joinGameDeferred = null;
+  low.test.verify(mc, function() {
+    joinGameDeferred = gameService.joinGame(game, name, color);
+  });
+  var monitor = new low.test.DeferredMonitor(joinGameDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Expect the game to be requested after channel initialization.
+  var postDeferred = new goog.async.Deferred();
+  mockXhrService.post(
+      new low.test.PathMatcher('/game/fake-key'),
+      new low.message.JoinGameRequest(name, color),
+      true)
+      .$returns(postDeferred);
+
+  // Simulate the channel initializing successfully.
+  low.test.verify(mc, initChannelDeferred.callback, initChannelDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Simulate the server responding with an error in the join game response.
+  var joinGameResponse = new low.message.JoinGameResponse(
+      low.message.JoinGameResponse.Result.NOT_FOUND, game);
+  low.message.JoinGameResponse.fromJson = function(fakeJson) {
+    return joinGameResponse;
+  };
+  low.test.verify(mc, function() {
+    postDeferred.callback('');
+  });
+
+  // Make sure everything is cleaned up.
+  monitor.assertErrback();
+  assertNull(gameService.getCurrentGame());
+}
+
+function testReloadGame_success() {
+  var initChannelDeferred = new goog.async.Deferred();
+  mockChannelService.init().$returns(initChannelDeferred);
+
+  var reloadGameDeferred = null;
+  low.test.verify(mc, function() {
+    reloadGameDeferred = gameService.reloadGame('fake-key');
+  });
+  var monitor = new low.test.DeferredMonitor(reloadGameDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Expect the game to be requested after channel initialization.
+  var getDeferred = new goog.async.Deferred();
+  mockXhrService.get(
+      new low.test.PathMatcher('/game/fake-key'),
+      true)
+      .$returns(getDeferred);
+
+  // Simulate the channel initializing successfully.
+  low.test.verify(mc, initChannelDeferred.callback, initChannelDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Simulate the server responding with the game.
+  var clientId = 'fake-id';
+  mockCookieService.get('CLIENT_ID').$returns(clientId);
+  var selfPlayer = new low.model.Player(
+      clientId, 'fake-name', low.model.Player.Color.GREEN, false);
+  var game = new low.model.Game('fake-key', [selfPlayer]);
+  low.model.Game.fromJson = function(fakeJson) { return game; };
+  low.test.verify(mc, function() {
+    getDeferred.callback('');
+  });
+
+  // Make sure everything is complete.
+  monitor.assertCallback();
+  assertNotNull(gameService.getCurrentGame());
+  assertNotNull(game.getSelf());
+}
+
+function testReloadGame_channelFail() {
+  var initChannelDeferred = new goog.async.Deferred();
+  mockChannelService.init().$returns(initChannelDeferred);
+
+  var reloadGameDeferred = null;
+  low.test.verify(mc, function() {
+    reloadGameDeferred = gameService.reloadGame('fake-key');
+  });
+  var monitor = new low.test.DeferredMonitor(reloadGameDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Simulate the channel failed to initialize.
+  low.test.verify(mc, initChannelDeferred.errback, initChannelDeferred);
+
+  // Make sure things get reset.
+  monitor.assertErrback();
+  assertNull(gameService.getCurrentGame());
+}
+
+function testJoinGame_getGameFail() {
+  var initChannelDeferred = new goog.async.Deferred();
+  mockChannelService.init().$returns(initChannelDeferred);
+
+  var reloadGameDeferred = null;
+  low.test.verify(mc, function() {
+    reloadGameDeferred = gameService.reloadGame('fake-key');
+  });
+  var monitor = new low.test.DeferredMonitor(reloadGameDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Expect the game to be requested after channel initialization.
+  var getDeferred = new goog.async.Deferred();
+  mockXhrService.get(
+      new low.test.PathMatcher('/game/fake-key'),
+      true)
+      .$returns(getDeferred);
+
+  // Simulate the channel initializing successfully.
+  low.test.verify(mc, initChannelDeferred.callback, initChannelDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNull(gameService.getCurrentGame());
+
+  // Simulate the server request failure.
+  low.test.verify(mc, getDeferred.errback, getDeferred);
+
+  // Make sure everything is complete.
+  monitor.assertErrback();
+  assertNull(gameService.getCurrentGame());
+}
+
+function testLeaveGame_success() {
+
+  // Set it up like the player already joined/created/reloaded the game.
+  var moderator = new low.model.Player(
+      'moderator-id', 'fake-moderator', low.model.Player.Color.GREEN, true);
+  var game = new low.model.Game('fake-key', [moderator]);
+  gameService.currentGame_ = game;
+  assertNotNull(gameService.getCurrentGame());
+
+  // Expect the request to leave the game.
+  var postDeferred = new goog.async.Deferred();
+  mockXhrService.post(
+      new low.test.PathMatcher('/game/fake-key'),
+      new low.message.LeaveGameRequest())
+      .$returns(postDeferred);
+
+  // Leave the game.
+  var leaveGameDeferred = null;
+  low.test.verify(mc, function() {
+    leaveGameDeferred = gameService.leaveCurrentGame();
+  });
+  var monitor = new low.test.DeferredMonitor(leaveGameDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNotNull(gameService.getCurrentGame());
+
+  // Simulate success.
+  low.test.verify(mc, postDeferred.callback, postDeferred);
+
+  // Make sure everything is cleaned up.
+  monitor.assertCallback();
+  assertNull(gameService.getCurrentGame());
+}
+
+function testLeaveGame_failure() {
+
+  // Set it up like the player already joined/created/reloaded the game.
+  var moderator = new low.model.Player(
+      'moderator-id', 'fake-moderator', low.model.Player.Color.GREEN, true);
+  var game = new low.model.Game('fake-key', [moderator]);
+  gameService.currentGame_ = game;
+  assertNotNull(gameService.getCurrentGame());
+
+  // Expect the request to leave the game.
+  var postDeferred = new goog.async.Deferred();
+  mockXhrService.post(
+      new low.test.PathMatcher('/game/fake-key'),
+      new low.message.LeaveGameRequest())
+      .$returns(postDeferred);
+
+  // Leave the game.
+  var leaveGameDeferred = null;
+  low.test.verify(mc, function() {
+    leaveGameDeferred = gameService.leaveCurrentGame();
+  });
+  var monitor = new low.test.DeferredMonitor(leaveGameDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertNotNull(gameService.getCurrentGame());
+
+  // Simulate failure.
+  low.test.verify(mc, postDeferred.errback, postDeferred);
+
+  // Make sure everything is cleaned up.
   monitor.assertErrback();
   assertNull(gameService.getCurrentGame());
 }
