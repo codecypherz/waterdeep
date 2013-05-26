@@ -40,12 +40,6 @@ low.service.Game = function() {
   this.channelService_ = low.service.Channel.getInstance();
 
   /**
-   * True if currently trying to create or join a game.
-   * @private {boolean}
-   */
-  this.isBusy_ = false;
-
-  /**
    * The currently active game.
    * @private {low.model.Game}
    */
@@ -64,14 +58,7 @@ low.service.Game.prototype.getCurrentGame = function() {
 
 
 /**
- * @return {boolean} True if currently trying to create a join a game.
- */
-low.service.Game.prototype.isBusy = function() {
-  return this.isBusy_;
-};
-
-
-/**
+ * Creates the game by first setting up the channel, then creating the game.
  * @param {string} moderatorName The name of the moderator creating the game.
  * @param {!low.model.Player.Color} color The player color.
  * @return {!goog.async.Deferred}
@@ -79,42 +66,50 @@ low.service.Game.prototype.isBusy = function() {
 low.service.Game.prototype.createGame = function(moderatorName, color) {
   goog.asserts.assert(!this.currentGame_,
       'Cannot create - client already has a game going.');
-  goog.asserts.assert(!this.isBusy_,
-      'Cannot create - currently busy.');
   goog.log.info(this.logger, moderatorName + ' is creating a new game.');
-  this.isBusy_ = true;
 
-  // Create the request URL.
-  var uri = new goog.Uri();
-  uri.setPath(low.ServletPath.GAMES);
+  // Create the channel if it doesn't already exist.
+  var deferred = this.channelService_.init();
+
+  // First, create the channel, then create the game.  This is to ensure other
+  // join messages are not missed which could happen if you created the game
+  // first, then created the channel.
+  deferred.addCallback(
+
+      // Channel successfully initialized.
+      function() {
+        // Returning a deferred here will block the execution sequence in the
+        // deferred that is returned here fires its callback/errback.
+        return this.createGame_(moderatorName, color);
+      },
+      this);
+
+  return deferred;
+};
+
+
+/**
+ * Actually creates the game by making a post request to /games.
+ * @param {string} moderatorName The name of the moderator creating the game.
+ * @param {!low.model.Player.Color} color The player color.
+ * @return {!goog.async.Deferred}
+ * @private
+ */
+low.service.Game.prototype.createGame_ = function(moderatorName, color) {
 
   // Send the request.
-  var createGameDeferred = this.xhrService_.post(
-      uri,
+  var deferred = this.xhrService_.post(
+      new goog.Uri().setPath(low.ServletPath.GAMES),
       new low.message.CreateGameRequest(moderatorName, color),
       true);
 
   // Handle the response.
-  createGameDeferred.addCallback(function(json) {
+  deferred.addCallback(function(json) {
     goog.log.info(this.logger, 'Received create game response.');
     this.currentGame_ = low.model.Game.fromJson(json);
     this.markSelf_(this.currentGame_);
     return this.currentGame_;
   }, this);
-
-  // Create the channel if it doesn't already exist.
-  var initChannelDeferred = this.channelService_.init();
-
-  // Wait for both async operations to finish.
-  var deferred = goog.async.DeferredList.gatherResults([
-    createGameDeferred,
-    initChannelDeferred
-  ]);
-  deferred.addBoth(
-      function() {
-        goog.log.info(this.logger, 'Finished create game attempt.');
-        this.isBusy_ = false;
-      }, this);
 
   return deferred;
 };
@@ -129,11 +124,8 @@ low.service.Game.prototype.createGame = function(moderatorName, color) {
 low.service.Game.prototype.joinGame = function(game, name, color) {
   goog.asserts.assert(!this.currentGame_,
       'Cannot join - client already has a game going.');
-  goog.asserts.assert(!this.isBusy_,
-      'Cannot join - currently busy.');
   goog.log.info(
       this.logger, name + ' is joining a game with this key: ' + game.getKey());
-  this.isBusy_ = true;
 
   // Create the request URL.
   var uri = new goog.Uri();
@@ -169,11 +161,6 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
     joinGameDeferred,
     initChannelDeferred
   ]);
-  deferred.addBoth(
-      function() {
-        goog.log.info(this.logger, 'Finished join game attempt.');
-        this.isBusy_ = false;
-      }, this);
 
   return deferred;
 };
@@ -187,10 +174,7 @@ low.service.Game.prototype.joinGame = function(game, name, color) {
 low.service.Game.prototype.reloadGame = function(gameKey) {
   goog.asserts.assert(!this.currentGame_,
       'Cannot reload - client already has a game going.');
-  goog.asserts.assert(!this.isBusy_,
-      'Cannot reload - currently busy.');
   goog.log.info(this.logger, 'Reloading a game with this key: ' + gameKey);
-  this.isBusy_ = true;
 
   // Create the request URL.
   var uri = new goog.Uri();
@@ -214,14 +198,9 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
     fetchGameDeferred,
     initChannelDeferred
   ]);
-  deferred.addCallbacks(
-      function() {
-        goog.log.info(this.logger, 'Reloaded game successfully.');
-        this.isBusy_ = false;
-      },
+  deferred.addErrback(
       function() {
         goog.log.info(this.logger, 'Reload attempt failed.');
-        this.isBusy_ = false;
         this.currentGame_ = null;
       },
       this);
@@ -236,9 +215,7 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
  */
 low.service.Game.prototype.leaveCurrentGame = function() {
   goog.asserts.assert(this.currentGame_, 'There is no current game to leave');
-  goog.asserts.assert(!this.isBusy_, 'Cannot leave - currently busy.');
   goog.log.info(this.logger, 'Leaving the current game.');
-  this.isBusy_ = true;
 
   // Create the request URL.
   var uri = new goog.Uri();
@@ -249,7 +226,6 @@ low.service.Game.prototype.leaveCurrentGame = function() {
   deferred.addBoth(
       function() {
         goog.log.info(this.logger, 'Finished leave game attempt.');
-        this.isBusy_ = false;
         this.currentGame_ = null;
       }, this);
 

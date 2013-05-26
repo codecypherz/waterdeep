@@ -3,4 +3,6 @@
 fixjsstyle ^
   -r ../js_src ^
   --closurized_namespaces="goog,low" ^
-  --strict
+  --strict ^
+  --jslint_error=all ^
+  --additional_extension=html

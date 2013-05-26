@@ -94,6 +94,10 @@ low.service.Channel.prototype.init = function() {
  */
 low.service.Channel.prototype.onOpen_ = function() {
   goog.log.info(this.logger, 'Channel is now open.');
+  if (!this.deferredInit_) {
+    goog.log.error(this.logger, 'Notified of channel open with no deferred');
+  }
+  this.deferredInit_.callback();
 };
 
 
