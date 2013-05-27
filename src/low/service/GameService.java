@@ -1,9 +1,5 @@
 package low.service;
 
-import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
-
-import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -21,7 +17,6 @@ import low.model.Player.Color;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.code.twig.ObjectDatastore;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -41,31 +36,6 @@ public class GameService {
 		this.datastoreProvider = datastoreProvider;
 		this.clientIdProvider = clientIdProvider;
 		this.messageService = messageService;
-	}
-	
-	// TODO Move this to a GamesService to match the FE abstraction.
-	/**
-	 * @return The list of currently active games.
-	 */
-	public List<Game> findActiveGames() {
-		
-		// TODO Filter out games that have been started but not yet deleted.
-		
-		ObjectDatastore datastore = datastoreProvider.get();
-		Iterator<Game> iterator = datastore
-				.find()
-				.type(Game.class)
-				.addFilter("full", EQUAL, false)
-				.now();
-		
-		List<Game> games = Lists.newArrayList();
-		while (iterator.hasNext()) {
-			Game game = iterator.next();
-			Key key = datastore.associatedKey(game);
-			game.setKey(KeyFactory.keyToString(key));
-			games.add(game);
-		}
-		return games;
 	}
 	
 	/**

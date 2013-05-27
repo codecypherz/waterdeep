@@ -12,6 +12,7 @@ import low.model.Game;
 import low.model.Player.Color;
 import low.service.CookieService;
 import low.service.GameService;
+import low.service.GamesService;
 
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -30,11 +31,16 @@ public class GamesServlet extends HttpServlet {
 	private static final long serialVersionUID = 3083753472298567149L;
 
 	private final GameService gameService;
+	private final GamesService gamesService;
 	private final CookieService cookieService;
 	
 	@Inject
-	public GamesServlet(GameService gameService, CookieService cookieService) {
+	public GamesServlet(
+			GameService gameService,
+			GamesService gamesService,
+			CookieService cookieService) {
 		this.gameService = gameService;
+		this.gamesService = gamesService;
 		this.cookieService = cookieService;
 	}
 	
@@ -45,7 +51,7 @@ public class GamesServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 
-		List<Game> games = gameService.findActiveGames();
+		List<Game> games = gamesService.findActiveGames();
 		
 		Gson gson = new Gson();
 		res.getWriter().write(gson.toJson(games));
