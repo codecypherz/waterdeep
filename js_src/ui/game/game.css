@@ -2,5 +2,8 @@
  * CSS for the game page.
  */
 
-.low-game {
+.low-game-page {
+	background-color: rgba(0, 0, 0, 0.8);
+	min-width: 800px;
+	padding: 30px;
 }

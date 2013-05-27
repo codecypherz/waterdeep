@@ -125,16 +125,16 @@ low.service.Token.prototype.newHistory_ = function() {
 low.service.Token.prototype.validateAndInit_ = function(tokenString) {
   var parsedToken = this.parseToken_(tokenString);
 
-  if (parsedToken.page == low.model.Page.WAITING_ROOM) {
+  if (parsedToken.page == low.model.Page.WAITING_ROOM ||
+      parsedToken.page == low.model.Page.GAME) {
     if (parsedToken.gameKey) {
 
       // Start reloading the game.
       this.gameService_.reloadGame(parsedToken.gameKey).addCallbacks(
           function() { // callback
-            // The game loaded, so now it's okay to load the waiting room.
+            // The game loaded, so now it's okay to load the original page.
             var currentGame = this.gameService_.getCurrentGame();
-            this.setCurrentToken(
-                low.model.Page.WAITING_ROOM, currentGame.getKey());
+            this.setCurrentToken(parsedToken.page, currentGame.getKey());
           },
           function(e) { // errback
             goog.log.error(this.logger, 'Failed to reload the game: ' + e);
@@ -146,7 +146,7 @@ low.service.Token.prototype.validateAndInit_ = function(tokenString) {
 
     } else {
       goog.log.error(this.logger,
-          'Tried to enter the waiting room without a game key.');
+          'Tried to load a game-specific page without a game key.');
       return new low.model.Token(low.model.Page.HOME);
     }
   }
