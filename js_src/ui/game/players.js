@@ -6,10 +6,12 @@ goog.require('goog.dom.classlist');
 goog.require('goog.events.EventType');
 goog.require('goog.log');
 goog.require('goog.soy');
+goog.require('goog.style');
 goog.require('goog.ui.Component');
 goog.require('low');
 goog.require('low.service.Game');
 goog.require('low.ui');
+goog.require('low.ui.game.Player');
 goog.require('low.ui.game.PlayerTab');
 goog.require('low.ui.game.soy');
 
@@ -29,15 +31,24 @@ low.ui.game.Players = function() {
   var gameService = low.service.Game.getInstance();
   var game = gameService.getCurrentGame();
 
-  /**
-   * @private {!Array.<!low.ui.game.PlayerTab>}
-   */
+  /** @private {!Array.<!low.ui.game.PlayerTab>} */
   this.tabs_ = [];
 
+  /** @private {!Object.<!low.ui.game.Player>} */
+  this.tabIdToPlayer_ = {};
+
   goog.array.forEach(game.getPlayers(), function(player) {
+
+    // Create the tab and component for the player.
     var playerTab = new low.ui.game.PlayerTab(player);
     this.addChild(playerTab);
+    var playerComponent = new low.ui.game.Player(player);
+    this.addChild(playerTab);
+
+    // Keep track of the tab and player components.
     this.tabs_.push(playerTab);
+    this.tabIdToPlayer_[goog.getUid(playerTab)] = playerComponent;
+
   }, this);
 };
 goog.inherits(low.ui.game.Players, goog.ui.Component);
@@ -69,11 +80,16 @@ low.ui.game.Players.prototype.createDom = function() {
         ids: this.makeIds(low.ui.game.Players.Id_)
       }));
 
-  // TODO Render players in turn order.
   var tabContainer = low.ui.getElementByFragment(
       this, low.ui.game.Players.Id_.TAB_CONTAINER);
+  var playerContainer = low.ui.getElementByFragment(
+      this, low.ui.game.Players.Id_.PLAYER_CONTAINER);
+
+  // TODO Render players in turn order.
   goog.array.forEach(this.tabs_, function(tab) {
     tab.render(tabContainer);
+    var playerComponent = this.tabIdToPlayer_[goog.getUid(tab)];
+    playerComponent.render(playerContainer);
   }, this);
 };
 
@@ -103,11 +119,17 @@ low.ui.game.Players.prototype.select_ = function(tabToSelect) {
   goog.log.info(this.logger, 'Selecting ' + selectedPlayer.getName());
 
   goog.array.forEach(this.tabs_, function(tab) {
+
+    // Update the tab CSS.
+    var selected = tab == tabToSelect;
     goog.dom.classlist.enable(
         tab.getElement(),
         low.ui.game.Players.Css_.SELECTED,
-        tab == tabToSelect);
-  }, this);
+        selected);
 
-  // TODO Render the selected player.
+    // Update the player component visibility.
+    var playerComponent = this.tabIdToPlayer_[goog.getUid(tab)];
+    goog.style.setElementShown(playerComponent.getElement(), selected);
+
+  }, this);
 };
