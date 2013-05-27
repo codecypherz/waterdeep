@@ -24,8 +24,26 @@
 
 /**
  * HTML for the component showing all player information.
+ * @param ids
  */
 {template .PLAYERS}
   <div class="{css low-players}">
+    <div id="{$ids.TAB_CONTAINER|id}" class="{css low-player-tab-container}">
+    </div>
+    <div id="{$ids.PLAYER_CONTAINER|id}" class="{css low-player-container}">
+    </div>
+  </div>
+{/template}
+
+
+/**
+ * HTML for the tab representing the player.
+ * @param name
+ */
+{template .PLAYER_TAB}
+  <div class="{css low-player-tab}">
+    {$name}
+    <div class="{css low-player-tab-blur-cover}">
+    </div>
   </div>
 {/template}

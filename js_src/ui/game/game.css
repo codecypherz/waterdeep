@@ -5,31 +5,103 @@
 @def BOARD_WIDTH             640px;
 @def BOARD_HEIGHT            834px;
 
+@def PLAYER_BACKGROUND_COLOR #e9e9e9;
+@def PLAYER_BORDER           1px solid #909090;
+@def PLAYER_TAB_HEIGHT       30px;
+
 .low-game-page {
-	min-width: 800px;
+	min-width: 1310px; /* 640x2 + 30 between board and players. */
 	padding: 30px;
 	text-align: center;
 }
 
 .low-game-background {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.5);
   bottom: 0;
   left: 0;
   position: fixed;
   right: 0;
   top: 0;
-  z-index: -1;
+  z-index: 0;
 }
 
 .low-board {
 	background: url(/images/board.jpg) no-repeat;
 	display: inline-block;
 	height: BOARD_HEIGHT;
+	position: relative;
+	vertical-align: top;
 	width: BOARD_WIDTH;
 }
 
 .low-players {
   display: inline-block;
   height: BOARD_HEIGHT;
+  margin-left: 30px;
+  position: relative;
+  vertical-align: top;
   width: BOARD_WIDTH;
+}
+
+.low-player-tab-container {
+	height: PLAYER_TAB_HEIGHT;
+	left: 0;
+	line-height: PLAYER_TAB_HEIGHT;
+	position: absolute;
+	right: 0;
+	text-align: left;
+	top: 0;
+}
+
+.low-player-tab {
+	background-color: PLAYER_BACKGROUND_COLOR;
+	border: PLAYER_BORDER;
+	color: #333;
+	cursor: pointer;
+	display: inline-block;
+	margin-left: 0;
+	padding: 0 10px;
+	position: relative;
+}
+
+.low-player-tab-blur-cover {
+	background-color: PLAYER_BACKGROUND_COLOR;
+	bottom: -9px;
+	display: none;
+	height: 10px;
+	left: -1px; /* cover the sliver peeks below tabs on the right */
+	position: absolute;
+	right: -10px;
+}
+
+/* Don't cover the left if left-most tab. */
+.low-player-tab:first-child .low-player-tab-blur-cover {
+  left: 0;
+}
+
+/* Show the blur cover when selected to hide the blur of the shadow. */
+.player-selected .low-player-tab-blur-cover {
+	display: block;
+}
+
+.low-player-tab:first-child {
+  margin-left: 0;
+  z-index: 1;
+}
+
+.low-player-tab.player-selected {
+	top: 1px;
+	z-index: 2;
+	@mixin box_shadow(5px 0px 10px rgba(0, 0, 0, .5));
+}
+
+.low-player-container {
+	background-color: PLAYER_BACKGROUND_COLOR;
+	border: PLAYER_BORDER;
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: PLAYER_TAB_HEIGHT;
+	z-index: 1;
 }
