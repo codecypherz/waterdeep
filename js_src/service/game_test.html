@@ -10,7 +10,8 @@ goog.require('goog.testing.MockControl');
 goog.require('low.message.CreateGameRequest');
 goog.require('low.message.JoinGameRequest');
 goog.require('low.message.JoinGameResponse');
-goog.require('low.message.LeaveGameRequest');
+goog.require('low.message.Message');
+goog.require('low.message.Type');
 goog.require('low.model.Game');
 goog.require('low.model.Player');
 goog.require('low.service.Channel');
@@ -463,7 +464,7 @@ function testLeaveGame_success() {
   var postDeferred = new goog.async.Deferred();
   mockXhrService.post(
       new low.test.PathMatcher('/game/fake-key'),
-      new low.message.LeaveGameRequest())
+      new low.message.Message(low.message.Type.LEAVE_GAME_REQUEST))
       .$returns(postDeferred);
 
   // Leave the game.
@@ -498,7 +499,7 @@ function testLeaveGame_failure() {
   var postDeferred = new goog.async.Deferred();
   mockXhrService.post(
       new low.test.PathMatcher('/game/fake-key'),
-      new low.message.LeaveGameRequest())
+      new low.message.Message(low.message.Type.LEAVE_GAME_REQUEST))
       .$returns(postDeferred);
 
   // Leave the game.

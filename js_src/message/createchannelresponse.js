@@ -29,14 +29,6 @@ low.message.CreateChannelResponse.prototype.getToken = function() {
 };
 
 
-/** @override */
-low.message.CreateChannelResponse.prototype.toJson = function() {
-  var json = goog.base(this, 'toJson');
-  json['token'] = this.token_;
-  return json;
-};
-
-
 /**
  * @param {!Object} json
  * @return {!low.message.CreateChannelResponse}

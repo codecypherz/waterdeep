@@ -9,6 +9,7 @@ java -jar ..\closure\gss\closure-stylesheets-20111230.jar ^
   ..\js_src\ui\css\button.css ^
   ..\js_src\ui\css\input.css ^
   ..\js_src\ui\css\dialog.css ^
+  ..\js_src\ui\game\game.css ^
   ..\js_src\ui\home\home.css ^
   ..\js_src\ui\loading\loading.css ^
   ..\js_src\ui\waiting\waiting.css ^

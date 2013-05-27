@@ -11,6 +11,7 @@ goog.require('goog.log');
 goog.require('goog.ui.Component');
 goog.require('low.model.Page');
 goog.require('low.service.Token');
+goog.require('low.ui.game.Game');
 goog.require('low.ui.home.Home');
 goog.require('low.ui.loading.Loading');
 goog.require('low.ui.waiting.WaitingRoom');
@@ -37,6 +38,7 @@ low.model.PageContainer = function() {
   this.pageToCtorMap_ = {};
 
   // Map the pages.
+  this.pageToCtorMap_[low.model.Page.GAME] = low.ui.game.Game;
   this.pageToCtorMap_[low.model.Page.HOME] = low.ui.home.Home;
   this.pageToCtorMap_[low.model.Page.LOADING] = low.ui.loading.Loading;
   this.pageToCtorMap_[low.model.Page.WAITING_ROOM] = low.ui.waiting.WaitingRoom;

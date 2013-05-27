@@ -16,12 +16,14 @@ public class Game {
 	@Store(false) private String key;
 	
 	private boolean full;
+	private boolean started;
 	
 	@Embed private List<Player> players;
 	
 	public Game() {
 		players = Lists.newArrayList();
 		full = false;
+		started = false;
 	}
 	
 	public String getKey() {
@@ -33,6 +35,14 @@ public class Game {
 	
 	public boolean isFull() {
 		return full;
+	}
+	
+	public boolean isStarted() {
+		return started;
+	}
+	
+	public void setStarted(boolean started) {
+		this.started = started;
 	}
 	
 	public List<Player> getPlayers() {
@@ -51,6 +61,7 @@ public class Game {
 	
 	public void addPlayer(Player player) {
 		assert(!full);
+		assert(!started);
 		players.add(player);
 		if (players.size() == MAX_PLAYERS) {
 			full = true;
@@ -64,10 +75,12 @@ public class Game {
 	 */
 	@Nullable
 	public Player removePlayer(String clientId) {
+		assert(!started);
 		for (int i = 0; i < players.size(); i++) {
 			Player player = players.get(i);
 			if (player != null && player.getClientId().equals(clientId)) {
 				players.remove(i);
+				full = false;
 				return player;
 			}
 		}

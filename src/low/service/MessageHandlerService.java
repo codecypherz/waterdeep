@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import low.handler.JoinGameHandler;
 import low.handler.LeaveGameHandler;
 import low.handler.MessageHandler;
+import low.handler.StartGameHandler;
 import low.message.Message;
 import low.message.Type;
 
@@ -28,12 +29,14 @@ public class MessageHandlerService {
 	@Inject
 	public MessageHandlerService(
 			JoinGameHandler joinGameHandler,
-			LeaveGameHandler leaveGameHandler) {
+			LeaveGameHandler leaveGameHandler,
+			StartGameHandler startGameHandler) {
 		
 		// Register message handlers.
 		typeToHandlerMap = Maps.newHashMap();
 		typeToHandlerMap.put(Type.JOIN_GAME_REQUEST, joinGameHandler);
 		typeToHandlerMap.put(Type.LEAVE_GAME_REQUEST, leaveGameHandler);
+		typeToHandlerMap.put(Type.START_GAME_REQUEST, startGameHandler);
 	}
 	
 	/**

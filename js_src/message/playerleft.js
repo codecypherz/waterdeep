@@ -41,15 +41,6 @@ low.message.PlayerLeft.prototype.getModerator = function() {
 };
 
 
-/** @override */
-low.message.PlayerLeft.prototype.toJson = function() {
-  var json = goog.base(this, 'toJson');
-  json['player'] = this.player_;
-  json['moderator'] = this.moderator_;
-  return json;
-};
-
-
 /**
  * @param {!Object} json
  * @return {!low.message.PlayerLeft}

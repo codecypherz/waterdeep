@@ -33,9 +33,20 @@ public class MessageService {
 	 * @param message The message to send to all but the self player.
 	 */
 	public void broadcast(Game game, Message message) {
+		broadcast(game, message, false);
+	}
+	
+	/**
+	 * Broadcasts a message to all the players in the game.
+	 * @param game The game to which to broadcast.
+	 * @param message The message to send.
+	 * @param includeSelf True if the message should be sent to this client's player.
+	 */
+	public void broadcast(Game game, Message message, boolean includeSelf) {
 		String clientId = clientIdProvider.get();
 		for (Player player : game.getPlayers()) {
-			if (!clientId.equals(player.getClientId())) {
+			boolean isSelf = clientId.equals(player.getClientId());
+			if (!isSelf || includeSelf) {
 				send(player, message);
 			}
 		}

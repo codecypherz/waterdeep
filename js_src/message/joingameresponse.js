@@ -56,14 +56,6 @@ low.message.JoinGameResponse.prototype.getGame = function() {
 };
 
 
-/** @override */
-low.message.JoinGameResponse.prototype.toJson = function() {
-  var json = goog.base(this, 'toJson');
-  json['result'] = this.result_;
-  return json;
-};
-
-
 /**
  * @param {!Object} json
  * @return {!low.message.JoinGameResponse}

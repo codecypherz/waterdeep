@@ -10,7 +10,8 @@ goog.require('low.ServletPath');
 goog.require('low.message.CreateGameRequest');
 goog.require('low.message.JoinGameRequest');
 goog.require('low.message.JoinGameResponse');
-goog.require('low.message.LeaveGameRequest');
+goog.require('low.message.Message');
+goog.require('low.message.Type');
 goog.require('low.model.Game');
 goog.require('low.service.Channel');
 goog.require('low.service.Cookie');
@@ -156,14 +157,14 @@ low.service.Game.prototype.reloadGame = function(gameKey) {
  * @return {!goog.async.Deferred}
  */
 low.service.Game.prototype.leaveCurrentGame = function() {
-  goog.asserts.assert(this.currentGame_, 'There is no current game to leave');
+  goog.asserts.assert(this.currentGame_, 'There is no current game to leave.');
   goog.log.info(this.logger, 'Leaving the current game.');
 
   // Send the request.
   var deferred = this.xhrService_.post(
       new goog.Uri().setPath(
           low.ServletPath.GAME + '/' + this.currentGame_.getKey()),
-      new low.message.LeaveGameRequest());
+      new low.message.Message(low.message.Type.LEAVE_GAME_REQUEST));
 
   // Clean up no matter what.
   deferred.addBoth(
@@ -178,10 +179,28 @@ low.service.Game.prototype.leaveCurrentGame = function() {
 
 /**
  * Starts the current game.
+ * @return {!goog.async.Deferred} The deferred's callback will be called when
+ *     the request completes, but the game will not actually be started until
+ *     everyone receives the start game notification from the channel.
  */
 low.service.Game.prototype.startCurrentGame = function() {
+  goog.asserts.assert(this.currentGame_, 'There is no current game to start.');
   goog.log.info(this.logger, 'Starting the current game.');
-  // TODO Implement.
+
+  return this.xhrService_.post(
+      new goog.Uri().setPath(
+          low.ServletPath.GAME + '/' + this.currentGame_.getKey()),
+      new low.message.Message(low.message.Type.START_GAME_REQUEST));
+};
+
+
+/**
+ * Updates the current game with the given game data.
+ * @param {!low.model.Game} game The new game data.
+ */
+low.service.Game.prototype.updateCurrentGame = function(game) {
+  this.markSelf_(game);
+  this.currentGame_ = game;
 };
 
 

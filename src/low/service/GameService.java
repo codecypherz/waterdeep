@@ -13,6 +13,7 @@ import low.message.JoinGameResponse;
 import low.message.JoinGameResponse.Result;
 import low.message.PlayerJoinedMessage;
 import low.message.PlayerLeftMessage;
+import low.message.StartGameNotification;
 import low.model.Game;
 import low.model.Player;
 import low.model.Player.Color;
@@ -42,6 +43,7 @@ public class GameService {
 		this.messageService = messageService;
 	}
 	
+	// TODO Move this to a GamesService to match the FE abstraction.
 	/**
 	 * @return The list of currently active games.
 	 */
@@ -186,5 +188,40 @@ public class GameService {
 			datastore.update(game);
 			messageService.broadcast(game, new PlayerLeftMessage(player, moderator));
 		}
+	}
+	
+	/**
+	 * Starts the game and notifies everyone.
+	 * @param key
+	 */
+	public void startGame(Key key) {
+		
+		// Make sure the game exists.
+		Game game = getGame(key);
+		if (game == null) {
+			logger.severe("No game found.");
+			return;
+		}
+		
+		// Make sure the moderator is the one starting the game.
+		String clientId = clientIdProvider.get();
+		if (!clientId.equals(game.getModerator().getClientId())) {
+			logger.severe("Non moderator tried to start this game: " + key);
+			return;
+		}
+		
+		// Make sure there are at least two players.
+		if (game.getPlayers().size() < 2) {
+			logger.severe("Cannot start a game with less than 2 players.");
+			return;
+		}
+		
+		// Mark the game as started.
+		game.setStarted(true);
+		ObjectDatastore datastore = datastoreProvider.get();
+		datastore.update(game);
+		
+		// Notify everyone that the game started.
+		messageService.broadcast(game, new StartGameNotification(game), true);
 	}
 }

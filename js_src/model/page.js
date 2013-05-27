@@ -7,6 +7,7 @@ goog.provide('low.model.Page');
  * @enum {string}
  */
 low.model.Page = {
+  GAME: 'game',
   HOME: 'home',
   LOADING: 'loading',
   WAITING_ROOM: 'waiting_room'

@@ -5,6 +5,7 @@ import low.annotation.GameKey;
 import low.annotation.RequestMessage;
 import low.handler.JoinGameHandler;
 import low.handler.LeaveGameHandler;
+import low.handler.StartGameHandler;
 import low.message.Message;
 import low.provider.ClientIdProvider;
 import low.provider.GameKeyProvider;
@@ -45,6 +46,7 @@ public class WaterdeepGuiceModule extends AbstractModule {
 		// Message handlers.
 		bind(JoinGameHandler.class);
 		bind(LeaveGameHandler.class);
+		bind(StartGameHandler.class);
 	}
 	
 	@Provides

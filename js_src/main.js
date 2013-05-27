@@ -14,6 +14,7 @@ goog.require('goog.events.EventWrapper');
 goog.require('goog.log');
 goog.require('low.handler.PlayerJoined');
 goog.require('low.handler.PlayerLeft');
+goog.require('low.handler.StartGameNotification');
 goog.require('low.model.PageContainer');
 
 
@@ -43,7 +44,8 @@ low.Main = function() {
   // Create message handlers.
   var handlers = [
     new low.handler.PlayerJoined(),
-    new low.handler.PlayerLeft()
+    new low.handler.PlayerLeft(),
+    new low.handler.StartGameNotification()
   ];
   goog.array.forEach(handlers, this.registerDisposable, this);
 

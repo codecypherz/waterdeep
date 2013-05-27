@@ -70,7 +70,13 @@ public class RequestMessageProvider implements Provider<Message> {
 			Type type = Type.valueOf(rawMessage.getType().toUpperCase());
 			logger.info("Parsed this message type from the request: " + type);
 			
-			message = gson.fromJson(rawJson, TYPE_TO_CLASS.get(type));
+			// Deserialize using the map, but default to Message.class.
+			Class<? extends Message> messageClass = TYPE_TO_CLASS.get(type);
+			if (messageClass == null) {
+				messageClass = Message.class;
+			}
+			
+			message = gson.fromJson(rawJson, messageClass);
 		}
 		
 		parsed = true;

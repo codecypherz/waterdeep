@@ -29,14 +29,6 @@ low.message.PlayerJoined.prototype.getPlayer = function() {
 };
 
 
-/** @override */
-low.message.PlayerJoined.prototype.toJson = function() {
-  var json = goog.base(this, 'toJson');
-  json['player'] = this.player_;
-  return json;
-};
-
-
 /**
  * @param {!Object} json
  * @return {!low.message.PlayerJoined}
