@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import low.annotation.ClientId;
 import low.message.CreateChannelResponse;
-import low.service.CookieService;
 
 import com.google.appengine.api.channel.ChannelService;
 import com.google.gson.Gson;
@@ -33,16 +32,13 @@ public class ChannelsServlet extends HttpServlet {
 	
 	private final ChannelService channelService;
 	private final @ClientId Provider<String> clientIdProvider;
-	private final CookieService cookieService;
 	
 	@Inject
 	public ChannelsServlet(
 			ChannelService channelService,
-			@ClientId Provider<String> clientIdProvider,
-			CookieService cookieService) {
+			@ClientId Provider<String> clientIdProvider) {
 		this.channelService = channelService;
 		this.clientIdProvider = clientIdProvider;
-		this.cookieService = cookieService;
 	}
 	
 	@Override
@@ -59,7 +55,6 @@ public class ChannelsServlet extends HttpServlet {
 		// Write the response.
 		Gson gson = new Gson();
 		CreateChannelResponse response = new CreateChannelResponse(token);
-		cookieService.setClientId();
 		res.getWriter().write(gson.toJson(response));
 	}
 }

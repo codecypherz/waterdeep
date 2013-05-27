@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import low.service.CookieService.CookieName;
+import low.CookieName;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

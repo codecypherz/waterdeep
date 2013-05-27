@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import low.message.CreateGameRequest;
 import low.model.Game;
 import low.model.Player.Color;
-import low.service.CookieService;
 import low.service.GameService;
 import low.service.GamesService;
 
@@ -32,16 +31,13 @@ public class GamesServlet extends HttpServlet {
 
 	private final GameService gameService;
 	private final GamesService gamesService;
-	private final CookieService cookieService;
 	
 	@Inject
 	public GamesServlet(
 			GameService gameService,
-			GamesService gamesService,
-			CookieService cookieService) {
+			GamesService gamesService) {
 		this.gameService = gameService;
 		this.gamesService = gamesService;
-		this.cookieService = cookieService;
 	}
 	
 	/**
@@ -85,7 +81,6 @@ public class GamesServlet extends HttpServlet {
 		
 		// Send the resulting game back to the client.
 		Game game = gameService.newGame(moderatorName, color);
-		cookieService.setClientId();
 		res.getWriter().write(gson.toJson(game));
 	}
 }

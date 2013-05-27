@@ -12,7 +12,6 @@ import low.annotation.GameKey;
 import low.annotation.RequestMessage;
 import low.message.Message;
 import low.model.Game;
-import low.service.CookieService;
 import low.service.GameService;
 import low.service.MessageHandlerService;
 
@@ -34,7 +33,6 @@ public class GameServlet extends HttpServlet {
 	private final GameService gameService;
 	private final @GameKey Provider<Key> gameKeyProvider;
 	private final @RequestMessage Provider<Message> requestMessageProvider;
-	private final CookieService cookieService;
 	private final MessageHandlerService messageHandlerService;
 	
 	@Inject
@@ -42,12 +40,10 @@ public class GameServlet extends HttpServlet {
 			GameService gameService,
 			@GameKey Provider<Key> gameKeyProvider,
 			@RequestMessage Provider<Message> requestMessageProvider,
-			CookieService cookieService,
 			MessageHandlerService messageHandlerService) {
 		this.gameService = gameService;
 		this.gameKeyProvider = gameKeyProvider;
 		this.requestMessageProvider = requestMessageProvider;
-		this.cookieService = cookieService;
 		this.messageHandlerService = messageHandlerService;
 	}
 	
@@ -75,6 +71,7 @@ public class GameServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		
+		// Make sure there is a message posted to the servlet.
 		Message message = requestMessageProvider.get();
 		if (message == null) {
 			res.sendError(HttpResponseCode.BAD_REQUEST.getCode());
@@ -86,9 +83,5 @@ public class GameServlet extends HttpServlet {
 		if (response != null) {
 			res.getWriter().write(new Gson().toJson(response));			
 		}
-
-		// TODO Cut across all responses and do this there instead of each servlet.
-		// Always include the client ID.
-		cookieService.setClientId();
 	}
 }

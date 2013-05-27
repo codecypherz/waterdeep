@@ -1,5 +1,6 @@
 package low.module;
 
+import low.filter.ClientIdFilter;
 import low.filter.GameKeyFilter;
 import low.servlet.ChannelConnectedServlet;
 import low.servlet.ChannelDisconnectedServlet;
@@ -14,6 +15,10 @@ public class WaterdeepServletModule extends ServletModule {
 
 	@Override
 	protected void configureServlets() {
+		
+		// Makes all responses contain the client ID that was in the request or
+		// a generated one, if one didn't exist.
+		filter("*").through(ClientIdFilter.class);
 		
 		// Makes sure all /game requests have a game key.
 		filter("/game/*").through(GameKeyFilter.class);
