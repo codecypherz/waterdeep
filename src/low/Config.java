@@ -14,7 +14,7 @@ public class Config {
 	 * The version of the application which is used to bust the cache for the
 	 * JS/CSS bundles.
 	 */
-	public static final String VERSION = "0.0";
+	public static final String VERSION = "0.02";
 	
 	/**
 	 * The URL parameters to the application.
