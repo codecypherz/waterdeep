@@ -3,6 +3,8 @@
  * test.
  */
 
+goog.setTestOnly();
+
 // Add these goog.requires to the testbase.js as well.
 goog.require('goog.debug.Console');
 goog.require('goog.debug.LogManager');

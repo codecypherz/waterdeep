@@ -1,7 +1,8 @@
 /**
- * Utility class for tests in Yugioh.
+ * Utility class for tests in Lords of Waterdeep.
  */
 
+goog.setTestOnly();
 goog.provide('low.test');
 goog.provide('low.test.PathMatcher');
 goog.provide('yugi.test');

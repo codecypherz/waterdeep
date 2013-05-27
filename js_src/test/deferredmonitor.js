@@ -1,4 +1,5 @@
 
+goog.setTestOnly();
 goog.provide('low.test.DeferredMonitor');
 
 
