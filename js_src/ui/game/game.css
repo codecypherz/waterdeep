@@ -2,8 +2,34 @@
  * CSS for the game page.
  */
 
+@def BOARD_WIDTH             640px;
+@def BOARD_HEIGHT            834px;
+
 .low-game-page {
-	background-color: rgba(0, 0, 0, 0.8);
 	min-width: 800px;
 	padding: 30px;
+	text-align: center;
+}
+
+.low-game-background {
+  background-color: rgba(0, 0, 0, 0.8);
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: -1;
+}
+
+.low-board {
+	background: url(/images/board.jpg) no-repeat;
+	display: inline-block;
+	height: BOARD_HEIGHT;
+	width: BOARD_WIDTH;
+}
+
+.low-players {
+  display: inline-block;
+  height: BOARD_HEIGHT;
+  width: BOARD_WIDTH;
 }
