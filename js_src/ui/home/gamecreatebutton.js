@@ -46,16 +46,20 @@ low.ui.home.GameCreateButton.prototype.enterDocument = function() {
  * @private
  */
 low.ui.home.GameCreateButton.prototype.promptToCreate_ = function() {
-  if (this.gameService_.isBusy()) {
-    alert('Busy either joining or creating a game.');
-    return;
-  }
   goog.log.info(this.logger, 'Showing the game create dialog.');
 
+  // Disable the button, then show the dialog.
+  this.setEnabled(false);
+
   var gameDialog = new low.ui.home.GameDialog('Create game', 'Create');
-  gameDialog.prompt().addCallback(function() {
-    this.onConfirm_(gameDialog.getName(), gameDialog.getColor());
-  }, this);
+  gameDialog.prompt().addCallbacks(
+      function() {
+        this.onConfirm_(gameDialog.getName(), gameDialog.getColor());
+      },
+      function() {
+        this.setEnabled(true);
+      },
+      this);
 };
 
 

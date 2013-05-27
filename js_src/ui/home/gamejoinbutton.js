@@ -106,16 +106,20 @@ low.ui.home.GameJoinButton.prototype.enterDocument = function() {
  * @private
  */
 low.ui.home.GameJoinButton.prototype.promptToJoin_ = function() {
-  if (this.gameService_.isBusy()) {
-    alert('Busy either joining or creating a game.');
-    return;
-  }
   goog.log.info(this.logger, 'Showing the game join dialog.');
 
+  // Disable the button unless there is an error.
+  this.setEnabled(false);
+
   var gameDialog = new low.ui.home.GameDialog('Join game', 'Join', this.game_);
-  gameDialog.prompt().addCallback(function() {
-    this.onConfirm_(gameDialog.getName(), gameDialog.getColor());
-  }, this);
+  gameDialog.prompt().addCallbacks(
+      function() {
+        this.onConfirm_(gameDialog.getName(), gameDialog.getColor());
+      },
+      function() {
+        this.setEnabled(true);
+      },
+      this);
 };
 
 

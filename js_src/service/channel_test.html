@@ -1,0 +1,252 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>low.service.Game Tests</title>
+<link rel="icon" type="image/png" href="/images/link.png"></link>
+<script src="../test/testbase.js"></script>
+<script>
+goog.require('goog.async.Deferred');
+goog.require('goog.json');
+goog.require('goog.testing.MockControl');
+goog.require('low.message.CreateChannelResponse');
+goog.require('low.message.Message');
+goog.require('low.message.Type');
+goog.require('low.service.Channel');
+goog.require('low.service.Xhr');
+goog.require('low.test');
+goog.require('low.test.DeferredMonitor');
+goog.require('low.test.PathMatcher');
+</script>
+</head>
+<body>
+<script>
+
+var mc;
+var xhrService;
+var channelService;
+
+function setUp() {
+
+  // Mock dependencies.
+  mc = new goog.testing.MockControl();
+  mockXhrService = low.test.mock(mc, low.service.Xhr);
+
+  channelService = new low.service.Channel();
+}
+
+function tearDown() {
+  low.test.tearDown(mc, channelService);
+}
+
+function testInit_success() {
+
+  // Expect the channel to be requested.
+  var postDeferred = new goog.async.Deferred();
+  mockXhrService.post(
+      new low.test.PathMatcher('/channels'), undefined, true)
+      .$returns(postDeferred);
+
+  // Initialize the channel.
+  var initDeferred = null;
+  low.test.verify(mc, function() {
+    initDeferred = channelService.init();
+  });
+  var monitor = new low.test.DeferredMonitor(initDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertFalse(channelService.isOpen());
+
+  // Expect the channel to be created.
+  var fakeToken = '1234';
+  var mockChannel = mc.createLooseMock(appengine.Channel);
+  var mockChannelCtor = mc.createConstructorMock(
+      /** @suppress {missingRequire} */ appengine, 'Channel');
+  mockChannelCtor(fakeToken).$returns(mockChannel);
+  mockChannel.open(low.test.ignore);
+
+  // Simulate the server responding with the channel token.
+  var response = new low.message.CreateChannelResponse(fakeToken);
+  low.message.CreateChannelResponse.fromJson = function(fakeJson) {
+    return response;
+  };
+  low.test.verify(mc, function() {
+    postDeferred.callback('');
+  });
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertFalse(channelService.isOpen());
+
+  // Simulate the connected channel being received.
+  var message = new low.message.Message(low.message.Type.CONNECTED);
+  low.test.verify(mc, function() {
+    channelService.onMessage_({
+      'data': goog.json.serialize(message.toJson())
+    });
+  });
+
+  // Verify the channel is considered open.
+  monitor.assertCallback();
+  assertTrue(channelService.isOpen());
+
+  // Also test calls to init post init to make sure things are fired
+  // immediately.
+  var initDeferred2 = null;
+  low.test.verify(mc, function() {
+    initDeferred2 = channelService.init();
+  });
+  var monitor2 = new low.test.DeferredMonitor(initDeferred2);
+  monitor2.assertCallback();
+}
+
+function testInit_requestToServerFail() {
+
+  // Expect the channel to be requested.
+  var postDeferred = new goog.async.Deferred();
+  mockXhrService.post(
+      new low.test.PathMatcher('/channels'), undefined, true)
+      .$returns(postDeferred);
+
+  // Initialize the channel.
+  var initDeferred = null;
+  low.test.verify(mc, function() {
+    initDeferred = channelService.init();
+  });
+  var monitor = new low.test.DeferredMonitor(initDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertFalse(channelService.isOpen());
+
+  // Simulate request for token failure.
+  low.test.verify(mc, postDeferred.errback, postDeferred);
+
+  // Make sure things were cleaned up.
+  monitor.assertErrback();
+  assertFalse(channelService.isOpen());
+}
+
+function testInit_firstMessageNotConnected() {
+
+  // Expect the channel to be requested.
+  var postDeferred = new goog.async.Deferred();
+  mockXhrService.post(
+      new low.test.PathMatcher('/channels'), undefined, true)
+      .$returns(postDeferred);
+
+  // Initialize the channel.
+  var initDeferred = null;
+  low.test.verify(mc, function() {
+    initDeferred = channelService.init();
+  });
+  var monitor = new low.test.DeferredMonitor(initDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertFalse(channelService.isOpen());
+
+  // Expect the channel to be created.
+  var fakeToken = '1234';
+  var mockChannel = mc.createLooseMock(appengine.Channel);
+  var mockChannelCtor = mc.createConstructorMock(
+      /** @suppress {missingRequire} */ appengine, 'Channel');
+  mockChannelCtor(fakeToken).$returns(mockChannel);
+  mockChannel.open(low.test.ignore);
+
+  // Simulate the server responding with the channel token.
+  var response = new low.message.CreateChannelResponse(fakeToken);
+  low.message.CreateChannelResponse.fromJson = function(fakeJson) {
+    return response;
+  };
+  low.test.verify(mc, function() {
+    postDeferred.callback('');
+  });
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertFalse(channelService.isOpen());
+
+  // Simulate some other message being received.
+  var message = new low.message.Message(low.message.Type.UNKNOWN);
+  low.test.verify(mc, function() {
+    channelService.onMessage_({
+      'data': goog.json.serialize(message.toJson())
+    });
+  });
+
+  // Make sure things get cleaned up.
+  monitor.assertErrback();
+  assertFalse(channelService.isOpen());
+}
+
+function testInit_multipleCallsDuringInitialization() {
+
+  // Expect the channel to be requested.
+  var postDeferred = new goog.async.Deferred();
+  mockXhrService.post(
+      new low.test.PathMatcher('/channels'), undefined, true)
+      .$returns(postDeferred);
+
+  // Initialize the channel.
+  var initDeferred = null;
+  low.test.verify(mc, function() {
+    initDeferred = channelService.init();
+  });
+  var monitor = new low.test.DeferredMonitor(initDeferred);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  assertFalse(channelService.isOpen());
+
+  // Initialize the channel again.
+  var initDeferred2 = null;
+  low.test.verify(mc, function() {
+    initDeferred2 = channelService.init();
+  });
+  var monitor2 = new low.test.DeferredMonitor(initDeferred2);
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  monitor2.assertNoActivity();
+  assertFalse(channelService.isOpen());
+
+  // Expect the channel to be created.
+  var fakeToken = '1234';
+  var mockChannel = mc.createLooseMock(appengine.Channel);
+  var mockChannelCtor = mc.createConstructorMock(
+      /** @suppress {missingRequire} */ appengine, 'Channel');
+  mockChannelCtor(fakeToken).$returns(mockChannel);
+  mockChannel.open(low.test.ignore);
+
+  // Simulate the server responding with the channel token.
+  var response = new low.message.CreateChannelResponse(fakeToken);
+  low.message.CreateChannelResponse.fromJson = function(fakeJson) {
+    return response;
+  };
+  low.test.verify(mc, function() {
+    postDeferred.callback('');
+  });
+
+  // Make sure nothing has happened yet.
+  monitor.assertNoActivity();
+  monitor2.assertNoActivity();
+  assertFalse(channelService.isOpen());
+
+  // Simulate the connected channel being received.
+  var message = new low.message.Message(low.message.Type.CONNECTED);
+  low.test.verify(mc, function() {
+    channelService.onMessage_({
+      'data': goog.json.serialize(message.toJson())
+    });
+  });
+
+  // Make sure both deferred got their callback.
+  monitor.assertCallback();
+  monitor2.assertCallback();
+  assertTrue(channelService.isOpen());
+}
+
+</script>
+</body>
+</html>

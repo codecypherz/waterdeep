@@ -46,8 +46,16 @@ public class MessageService {
 	 * @param player
 	 * @param message
 	 */
-	private void send(Player player, Message message) {
-		String clientId = player.getClientId();
+	public void send(Player player, Message message) {
+		send(player.getClientId(), message);
+	}
+
+	/**
+	 * Sends a message to the client identified by the client ID.
+	 * @param clientId
+	 * @param message
+	 */
+	public void send(String clientId, Message message) {
 		Gson gson = new Gson();
 		String messageString = gson.toJson(message);
 		ChannelMessage channelMessage = new ChannelMessage(clientId, messageString);

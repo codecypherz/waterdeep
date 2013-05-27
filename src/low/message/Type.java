@@ -5,6 +5,7 @@ package low.message;
  */
 public enum Type {
 
+	CONNECTED,
 	CREATE_CHANNEL_RESPONSE,
 	CREATE_GAME_REQUEST,
 	JOIN_GAME_REQUEST,

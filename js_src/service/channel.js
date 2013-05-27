@@ -3,6 +3,7 @@ goog.provide('low.service.Channel');
 
 goog.require('goog.Uri');
 goog.require('goog.asserts');
+goog.require('goog.async.Deferred');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
 goog.require('goog.json');
@@ -11,6 +12,7 @@ goog.require('low');
 goog.require('low.ServletPath');
 goog.require('low.message.CreateChannelResponse');
 goog.require('low.message.Map');
+goog.require('low.message.Message');
 goog.require('low.message.Type');
 goog.require('low.service.Xhr');
 
@@ -30,8 +32,28 @@ low.service.Channel = function() {
   /** @private {!low.service.Xhr} */
   this.xhrService_ = low.service.Xhr.getInstance();
 
-  /** @private {goog.async.Deferred} */
+  /**
+   * Keeps track of the open state of the channel.  The channel is not
+   * considered open unless it successfully receives the connected message from
+   * the server.
+   * @private {boolean}
+   */
+  this.isOpen_ = false;
+
+  /**
+   * The callback of this deferred represents a successful channel
+   * initialization which includes requesting the channel token and receiving
+   * the initial connected message.
+   * @private {goog.async.Deferred}
+   */
   this.deferredInit_ = null;
+
+  /**
+   * The callback of this deferred represents the connected message arriving on
+   * the channel which completes initialization.
+   * @private {goog.async.Deferred}
+   */
+  this.deferredConnected_ = null;
 };
 goog.inherits(low.service.Channel, goog.events.EventTarget);
 goog.addSingletonGetter(low.service.Channel);
@@ -49,14 +71,13 @@ low.service.Channel.prototype.init = function() {
     return this.deferredInit_.branch();
   }
 
+  goog.asserts.assert(!this.deferredConnected_,
+      'Connected deferred should be null for the first call to init.');
   goog.log.info(this.logger, 'Creating a new channel.');
 
-  // Create the request URL.
-  var uri = new goog.Uri();
-  uri.setPath(low.ServletPath.CHANNELS);
-
   // Send the request.
-  this.deferredInit_ = this.xhrService_.post(uri, undefined, true);
+  this.deferredInit_ = this.xhrService_.post(
+      new goog.Uri().setPath(low.ServletPath.CHANNELS), undefined, true);
 
   // Handle the response.
   this.deferredInit_.addCallbacks(
@@ -76,11 +97,17 @@ low.service.Channel.prototype.init = function() {
         });
 
         goog.log.info(this.logger, 'Channel created with this token: ' + token);
+
+        // Returning a deferred here will block the execution sequence in the
+        // deferred that is returned here fires its callback/errback.
+        this.deferredConnected_ = new goog.async.Deferred();
+        return this.deferredConnected_;
       },
       function(e) {
         // Clear the deferred on error so new init calls can be attempted.
         goog.log.error(this.logger, 'Failed to open the channel: ' + e);
         this.deferredInit_ = null;
+        this.deferredConnected_ = null;
       },
       this);
 
@@ -89,15 +116,19 @@ low.service.Channel.prototype.init = function() {
 
 
 /**
+ * @return {boolean}
+ */
+low.service.Channel.prototype.isOpen = function() {
+  return this.isOpen_;
+};
+
+
+/**
  * Called when the channel opens.
  * @private
  */
 low.service.Channel.prototype.onOpen_ = function() {
-  goog.log.info(this.logger, 'Channel is now open.');
-  if (!this.deferredInit_) {
-    goog.log.error(this.logger, 'Notified of channel open with no deferred');
-  }
-  this.deferredInit_.callback();
+  goog.log.info(this.logger, 'Channel onOpen_ called.');
 };
 
 
@@ -127,11 +158,30 @@ low.service.Channel.prototype.onMessage_ = function(channelMessage) {
   type = goog.asserts.assert(type, 'No type found in the message');
 
   // Construct the message.
-  var fromJsonFn = goog.asserts.assert(
-      low.message.Map[type], 'No fromJson function mapped for ' + type);
-  var message = fromJsonFn(json);
+  var fromJsonFn = low.message.Map[type];
+  var message;
+  if (goog.isDefAndNotNull(fromJsonFn)) {
+    message = fromJsonFn(json);
+  } else {
+    message = new low.message.Message(type);
+  }
 
-  // Tell everyone about the newly arrived message.
+  // Finish opening the channel with the connected message.
+  if (!this.isOpen_) {
+    // If the channel isn't open, the first message is expected to be the
+    // connected message.
+    if (message.getType() == low.message.Type.CONNECTED) {
+      goog.log.info(this.logger, 'Received connected message - channel open.');
+      this.isOpen_ = true;
+      this.deferredConnected_.callback();
+    } else {
+      goog.log.error(this.logger, 'First message was not connected message');
+      this.deferredConnected_.errback();
+      return;
+    }
+  }
+
+  // Tell everyone about the newly arrived message (including connected).
   this.dispatchEvent(new low.service.Channel.MessageEvent(type, message));
 };
 

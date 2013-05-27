@@ -9,6 +9,7 @@ goog.provide('low.message.Type');
  * @enum {string}
  */
 low.message.Type = {
+  CONNECTED: 'CONNECTED',
   CREATE_CHANNEL_RESPONSE: 'CREATE_CHANNEL_RESPONSE',
   CREATE_GAME_REQUEST: 'CREATE_GAME_REQUEST',
   JOIN_GAME_REQUEST: 'JOIN_GAME_REQUEST',

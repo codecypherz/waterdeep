@@ -5,6 +5,7 @@
 @def WAITING_TITLE_HEIGHT           55px;
 
 .low-waiting {
+	padding-bottom: 50px;
   text-align: center;
 }
 

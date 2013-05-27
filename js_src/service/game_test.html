@@ -42,6 +42,10 @@ function setUp() {
   gameService = new low.service.Game();
 }
 
+function tearDown() {
+  low.test.tearDown(mc, gameService);
+}
+
 function testCreateGame_success() {
   var initChannelDeferred = new goog.async.Deferred();
   mockChannelService.init().$returns(initChannelDeferred);

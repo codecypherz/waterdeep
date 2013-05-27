@@ -151,6 +151,8 @@ low.ui.home.GameDialog.prototype.onSelect_ = function(e) {
     }
 
     this.deferred_.callback();
-    this.deferred_ = null;
+  } else {
+    this.deferred_.errback();
   }
+  this.deferred_ = null;
 };
