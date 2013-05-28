@@ -86,4 +86,15 @@ public class Game {
 		}
 		return null;
 	}
+	
+	/**
+	 * Gives the First Player marker to the given player.
+	 * @param firstPlayer
+	 */
+	public void setFirstPlayer(Player firstPlayer) {
+		for (Player player : players) {
+			player.setFirstPlayer(
+					player.getClientId().equals(firstPlayer.getClientId()));
+		}
+	}
 }

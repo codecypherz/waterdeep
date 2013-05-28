@@ -44,7 +44,7 @@ public class ClientIdProvider implements Provider<String> {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equalsIgnoreCase(CookieName.CLIENT_ID.name())) {
 					clientId = cookie.getValue();
-					logger.info("Found this client ID in the request: " + clientId);
+					logger.fine("Found this client ID in the request: " + clientId);
 					return clientId;
 				}
 			}

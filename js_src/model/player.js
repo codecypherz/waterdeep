@@ -3,6 +3,7 @@ goog.provide('low.model.Player');
 
 goog.require('goog.asserts');
 goog.require('low');
+goog.require('low.model.Tavern');
 
 
 
@@ -12,9 +13,12 @@ goog.require('low');
  * @param {string} name
  * @param {!low.model.Player.Color} color
  * @param {boolean} moderator
+ * @param {boolean} firstPlayer
+ * @param {!low.model.Tavern} tavern
  * @constructor
  */
-low.model.Player = function(clientId, name, color, moderator) {
+low.model.Player = function(
+    clientId, name, color, moderator, firstPlayer, tavern) {
 
   /** @private {string} */
   this.clientId_ = clientId;
@@ -27,6 +31,12 @@ low.model.Player = function(clientId, name, color, moderator) {
 
   /** @private {boolean} */
   this.moderator_ = moderator;
+
+  /** @private {boolean} */
+  this.firstPlayer_ = firstPlayer;
+
+  /** @private {!low.model.Tavern} */
+  this.tavern_ = tavern;
 
   /** @private {boolean} */
   this.isSelf_ = false;
@@ -77,6 +87,18 @@ low.model.Player.prototype.isModerator = function() {
 };
 
 
+/** @return {boolean} */
+low.model.Player.prototype.isFirstPlayer = function() {
+  return this.firstPlayer_;
+};
+
+
+/** @return {!low.model.Tavern} */
+low.model.Player.prototype.getTavern = function() {
+  return this.tavern_;
+};
+
+
 /**
  * @param {boolean} isSelf
  */
@@ -96,11 +118,16 @@ low.model.Player.prototype.isSelf = function() {
  * @return {!low.model.Player} The parsed player model.
  */
 low.model.Player.fromJson = function(json) {
-  var clientId = json['clientId'] || '';
-  var name = json['name'] || '';
-  var moderator = json['moderator'] || false;
+
   var color = /** @type {low.model.Player.Color} */ (
       low.stringToEnum(json['color'] || '', low.model.Player.Color));
   color = goog.asserts.assert(color);
-  return new low.model.Player(clientId, name, color, moderator);
+
+  return new low.model.Player(
+      json['clientId'] || '',
+      json['name'] || '',
+      color,
+      json['moderator'] || false,
+      json['firstPlayer'] || false,
+      low.model.Tavern.fromJson(json['tavern']));
 };

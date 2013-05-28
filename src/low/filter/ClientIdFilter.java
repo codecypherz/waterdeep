@@ -43,7 +43,7 @@ public class ClientIdFilter implements Filter {
 		HttpServletResponse res = (HttpServletResponse) servletRes;
 		
 		String clientId = clientIdProvider.get();
-		logger.info("Adding " + clientId + " as a cookie to the response.");
+		logger.fine("Adding " + clientId + " as a cookie to the response.");
 		Cookie cookie = new Cookie(CookieName.CLIENT_ID.name(), clientId);
 		cookie.setPath("/");
 		res.addCookie(cookie);

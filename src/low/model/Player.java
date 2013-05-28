@@ -1,5 +1,7 @@
 package low.model;
 
+import com.google.code.twig.annotation.Embed;
+
 public class Player {
 	
 	public enum Color {
@@ -14,6 +16,9 @@ public class Player {
 	private String name;
 	private boolean moderator;
 	private Color color;
+	private boolean firstPlayer;
+	
+	@Embed private Tavern tavern;
 	
 	public Player() {
 	}
@@ -23,6 +28,9 @@ public class Player {
 		this.name = name;
 		this.color = color;
 		this.moderator = moderator;
+		
+		this.firstPlayer = false;
+		this.tavern = new Tavern();
 	}
 	
 	public String getClientId() {
@@ -40,8 +48,18 @@ public class Player {
 	public boolean isModerator() {
 		return moderator;
 	}
-	
 	public void setModerator(boolean moderator) {
 		this.moderator = moderator;
+	}
+	
+	public boolean isFirstPlayer() {
+		return firstPlayer;
+	}
+	public void setFirstPlayer(boolean firstPlayer) {
+		this.firstPlayer = firstPlayer;
+	}
+	
+	public Tavern getTavern() {
+		return tavern;
 	}
 }

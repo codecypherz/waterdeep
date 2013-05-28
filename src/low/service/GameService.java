@@ -186,6 +186,18 @@ public class GameService {
 			return;
 		}
 		
+		// Pick one of the players to have the First Player marker.
+		int numPlayers = game.getPlayers().size();
+		int randomIndex = (int) Math.floor(Math.random() * numPlayers);
+		game.setFirstPlayer(game.getPlayers().get(randomIndex));
+		
+		// Give all the players some money according to their starting position.
+		for (int i = 0; i < numPlayers; i++) {
+			int index = (i + randomIndex) % numPlayers;
+			Player player = game.getPlayers().get(index);
+			player.getTavern().setGold(i + 4);
+		}
+		
 		// Mark the game as started.
 		game.setStarted(true);
 		ObjectDatastore datastore = datastoreProvider.get();

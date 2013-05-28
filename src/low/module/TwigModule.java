@@ -2,6 +2,7 @@ package low.module;
 
 import low.model.Game;
 import low.model.Player;
+import low.model.Tavern;
 
 import com.google.code.twig.ObjectDatastore;
 import com.google.code.twig.ObjectDatastoreFactory;
@@ -18,6 +19,7 @@ public class TwigModule extends AbstractModule {
 		// Register persisted model classes.
 		ObjectDatastoreFactory.register(Game.class);
 		ObjectDatastoreFactory.register(Player.class);
+		ObjectDatastoreFactory.register(Tavern.class);
 	}
 	
 	@Provides @RequestScoped
