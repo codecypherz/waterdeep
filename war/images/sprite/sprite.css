@@ -1,11 +1,11 @@
 .sprite { background-image: url('/images/sprite/sprite.png'); background-color: transparent; background-repeat: no-repeat; }
-.card-scatter { width: 300px; height: 200px; background-position: 0px -175px; }
+.card-scatter { width: 300px; height: 200px; background-position: 0px -176px; }
 .holder-black-75 { width: 75px; height: 75px; background-position: 0px -97px; }
-.holder-blue-75 { width: 75px; height: 75px; background-position: -75px -97px; }
+.holder-blue-75 { width: 75px; height: 75px; background-position: -75px -101px; }
 .holder-green-75 { width: 75px; height: 75px; background-position: -150px -100px; }
 .holder-other-75 { width: 75px; height: 75px; background-position: -225px -100px; }
 .holder-red-75 { width: 75px; height: 75px; background-position: 0px -22px; }
-.holder-yellow-75 { width: 75px; height: 75px; background-position: -75px -22px; }
+.holder-yellow-75 { width: 75px; height: 75px; background-position: -75px -26px; }
 .holder-black-50 { width: 50px; height: 50px; background-position: -150px -50px; }
 .holder-blue-50 { width: 50px; height: 50px; background-position: -200px -50px; }
 .holder-green-50 { width: 50px; height: 50px; background-position: -250px -50px; }
@@ -18,3 +18,4 @@
 .holder-other-22 { width: 22px; height: 22px; background-position: -66px 0px; }
 .holder-red-22 { width: 22px; height: 22px; background-position: -88px 0px; }
 .holder-yellow-22 { width: 22px; height: 22px; background-position: -110px 0px; }
+.first-player-26 { width: 15px; height: 26px; background-position: -132px 0px; }

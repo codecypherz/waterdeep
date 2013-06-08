@@ -1,0 +1,20 @@
+The sprite.css file and sprite.png file are generated using the SpriteGenerator tool.
+
+To add new images to the sprite, follow these instructions:
+
+====== Add the Image ======
+1. Add the image or images to the to_sprite/ directory.
+
+====== Run the Tool ======
+2. Run the SpriteGenerator.exe in the tools/ directory.
+3. Set "Images directory path" to the full path to the to_sprite/ directory.
+4. Set "Output image file path" to the full path to the war/images/sprite/ directory.
+5. Set "Output CSS file path" to the full path to the war/images/sprite/ directory.
+6. Keep the other options the same, then click "Generate".
+
+====== Update the Output ======
+7. Open up the newly generated sprite.css.
+8. Change the background-image url from 'sprite.png' to '/images/sprite/sprite.png'.
+
+Note: if you notice the sprite change not being picked up, make sure the gss.bat
+script has ran either manually or automatically by the Waterdeep builder.

@@ -31,6 +31,7 @@ goog.inherits(low.ui.game.PlayerTab, goog.ui.Component);
 low.ui.game.PlayerTab.prototype.createDom = function() {
   this.setElementInternal(goog.soy.renderAsElement(
       low.ui.game.soy.PLAYER_TAB, {
+        firstPlayer: this.player_.isFirstPlayer(),
         name: this.player_.getName()
       }));
 };

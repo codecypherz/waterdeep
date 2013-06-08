@@ -38,10 +38,16 @@
 
 /**
  * HTML for the tab representing the player.
+ * @param firstPlayer
  * @param name
  */
 {template .PLAYER_TAB}
   <div class="{css low-player-tab}">
+    {if $firstPlayer}
+      <div class="{css sprite}{sp}{css first-player-26}{sp}
+          {css low-player-first-icon}">
+      </div>
+    {/if}
     {$name}
     <div class="{css low-player-tab-blur-cover}">
     </div>
